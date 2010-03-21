@@ -7,5 +7,6 @@
         <meta name="language" content="en"/>
         <meta name="description" content="Helps LETU students figure out their major and course sequence"/>
         <meta name="keywords" content="LETU LeTourneau student schedule class classes course sequence major minor"/>
+        <link rel="stylesheet" type="text/css" href="screen.css" media="screen,projection"/>
     </head>
     <body lang="en">

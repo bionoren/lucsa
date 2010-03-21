@@ -78,12 +78,12 @@
                         for($j = 1; $j < count($semesters[$i]); $j++) {
                             $class = $semesters[$i][$j];
                             print '<tr>';
-                                print '<td>';
+                                print '<td style="width:0px;">';
                                     print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&school='.$class["departmentid"].'&cmd=courselist">';
                                         print $class["department"];
                                     print '</a>';
                                 print '</td>';
-                                print '<td>';
+                                print '<td style="width:0px;">';
                                     print $class["number"];
                                 print '</td>';
                                 print '<td>';
