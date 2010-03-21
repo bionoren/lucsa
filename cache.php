@@ -134,7 +134,7 @@
                             }
                             $matches = array();
                         }
-                        if(preg_match("/(\d+).*hours/is", $class[6], $matches) == 1) {
+                        if(preg_match("/(\d+).*hour/is", $class[6], $matches) == 1) {
                             $fields["hours"] = $matches[1];
                         }
                     }

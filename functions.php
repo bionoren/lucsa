@@ -55,8 +55,10 @@
         array_unshift($semesters[$i], $hours);
         print '<table>';
             print '<tr>';
+            $totalHours = 0;
             for($i = 0; $i < count($semesters); $i++) {
                 $hours = $semesters[$i][0];
+                $totalHours += $hours;
                 print '<td valign="top">';
                     print '<table style="width:100%;">';
                         print '<tr class="noborder">';
@@ -101,6 +103,10 @@
                     $year++;
                 }
             }
+            print '<tr>';
+                print '<td colspan="2" align="center">';
+                    print "Total Hours: ".$totalHours;
+                print '</td>';
             print '</tr>';
         print '</table>';
     }
