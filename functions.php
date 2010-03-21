@@ -57,7 +57,7 @@
     }
 
     function getMajors(SQLiteManager $db, $year) {
-        $result = $db->query("SELECT * FROM degrees WHERE yearID='".$year."' AND type='1'");
+        $result = $db->query("SELECT ROWID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1'");
         $majors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $majors[$row["acronym"]] = $row;
@@ -66,12 +66,23 @@
     }
 
     function getMinors(SQLiteManager $db, $year) {
-        $result = $db->query("SELECT * FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
+        $result = $db->query("SELECT ROWID, name, acronym FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
         $minors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $minors[$row["acronym"]] = $row;
         }
         return $minors;
+    }
+
+    function getCourses(SQLiteManager $db, array $degrees) {
+        $ret = array();
+        foreach($degrees as $degree) {
+            $result = $db->query("SELECT * FROM classes WHERE degreeID='".$degree["rowid"]."'");
+            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $ret[] = $row;
+            }
+        }
+        return $ret;
     }
 
     function getKeyStr() {

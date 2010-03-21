@@ -34,14 +34,14 @@
         require("privacy.php?hideBack=1");
         die();
     } else {
-        //Advanced Encryption Standard (AES) 256 with Cipher Feedback (CFB)
-        $sec = mcrypt_module_open("rijndael-256", "", MCRYPT_MODE_CFB, "");
+        //Advanced Encryption Standard (AES) 256 with Cipher Block Chaining (CBC)
+        $sec = mcrypt_module_open("rijndael-256", "", "cbc", "");
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($sec), MCRYPT_DEV_RANDOM);
         $key = substr(md5(getKeyStr()), 0, mcrypt_enc_get_key_size($sec));
         mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
-            $degree = explode("~", mdecrypt_generic($sec, $_SESSION["degree"]));
-            $courses = explode("~", mdecrypt_generic($sec, $_SESSION["courses"]));
+            $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
+//            $courses = explode("~", trim(mdecrypt_generic($sec, base64_decode($_SESSION["courses"]))));
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
@@ -55,20 +55,30 @@
                     $degree[] = $tmp;
                 }
             }
-            $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
             $matches = array();
             preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\</is", $data, $matches, PREG_SET_ORDER);
             $courses = array();
             foreach($matches as $matchset) {
                 $courses[] = array($matchset["dept"], $matchset["course"]);
             }
-            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
+
+            $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
+//            $_SESSION["courses"] = base64_encode(mcrypt_generic($sec, implode("~", $courses)));
             unset($data);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
     }
 //    dump("degree", $degree);
+
+    $degOptions = array_merge($majors, $minors);
+    $tmp = array();
+    dump("degree", $degree);
+    foreach($degree as $deg) {
+        $tmp[] = $degOptions[$deg];
+    }
+    $courses = getCourses($db, $tmp);
+    dump("courses", $courses);
 
 require_once("header.php");
     print '<form method="get" action=".">';
@@ -108,5 +118,7 @@ require_once("header.php");
         print '<input type="submit" name="submit" value="submit"/>';
     print "</form>";
     print "<br>";
+
+
 require_once("footer.php");
 ?>
