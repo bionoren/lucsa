@@ -110,10 +110,5 @@ require_once("header.php");
 
     print "<br><br>";
     print "<a href='privacy.php'>Privacy Policy</a>";
-    print "<br>";
-    print "To ensure your privacy, the source of this page, which contains all the code used to parse your<br>";
-    print "transcript, is available by clicking the link below.";
-    print "<br>";
-    print "<a href='viewSource.php'>View Source</a>";
 require_once("footer.php");
 ?>
