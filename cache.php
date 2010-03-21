@@ -30,6 +30,7 @@
     $fields = array();
     $fields[] = new DBField("degreeID", DBField::NUM, null, "degrees", "ROWID");
     $fields[] = new DBField("department", DBField::NUM);
+    $fields[] = new DBField("departmentid", DBField::NUM);
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("id", DBField::STRING);
@@ -115,6 +116,7 @@
                     $fields["title"] = $class[5];
                     $fields["id"] = $class[4];
                     $fields["semester"] = $i;
+                    $fields["hours"] = substr($fields["number"], -1);
                     if(!empty($class[6])) {
                         $matches = array();
                         if(stristr($class[6], "only") !== false) {
@@ -141,8 +143,8 @@
                     }
                     $db->insert("classes", $fields);
                 }
+                $i++;
             }
-            $i++;
         }
         minors:
         foreach($minors as $minorID=>$arr) {

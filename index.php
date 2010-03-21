@@ -40,8 +40,10 @@
         $key = substr(md5(getKeyStr()), 0, mcrypt_enc_get_key_size($sec));
         mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
+            //don't ask. Just don't ask...
+            mdecrypt_generic($sec, base64_decode("R9GhWOS8EHhX7n0tp9kxQQM+vd6og2BvXF4wxxelSN81FCDZ2Kww9tE5RyAW5MXUDNmm3js2k1nAKHvs6ohod1K+sYruQFCk+mVidrLvveC+JuxK+zB42DNmH5IHGCup"));
             $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
-//            $courses = explode("~", trim(mdecrypt_generic($sec, base64_decode($_SESSION["courses"]))));
+            $courses = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
@@ -59,26 +61,27 @@
             preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\</is", $data, $matches, PREG_SET_ORDER);
             $courses = array();
             foreach($matches as $matchset) {
-                $courses[] = array($matchset["dept"], $matchset["course"]);
+                $courses[] = $matchset["dept"].$matchset["course"];
             }
 
+            //the first block was getting corrupt for some reason, so I'm filling it with junk
+            mcrypt_generic($sec, getKeyStr());
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
-//            $_SESSION["courses"] = base64_encode(mcrypt_generic($sec, implode("~", $courses)));
+            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
             unset($data);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
     }
 //    dump("degree", $degree);
+//    dump("courses", $courses);
 
     $degOptions = array_merge($majors, $minors);
     $tmp = array();
-    dump("degree", $degree);
     foreach($degree as $deg) {
         $tmp[] = $degOptions[$deg];
     }
-    $courses = getCourses($db, $tmp);
-    dump("courses", $courses);
+    $allCourses = getCourses($db, $tmp);
 
 require_once("header.php");
     print '<form method="get" action=".">';
@@ -119,6 +122,6 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
-
+    displayCourseSequence($years[$year-1][0], $allCourses, $courses);
 require_once("footer.php");
 ?>
