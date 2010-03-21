@@ -1,6 +1,6 @@
 <?php
     /*
-	 *	Copyright 2009 Bion Oren
+	 *	Copyright 2010 Bion Oren
 	 *
 	 *	Licensed under the Apache License, Version 2.0 (the "License");
 	 *	you may not use this file except in compliance with the License.

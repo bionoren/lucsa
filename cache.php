@@ -33,7 +33,8 @@
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("id", DBField::STRING);
-    $fields[] = new DBField("semester", DBField::NUM, 3); //never, spring, fall, both
+    $fields[] = new DBField("semester", DBField::NUM);
+    $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $fields[] = new DBField("extra", DBField::STRING, -1);
@@ -113,13 +114,14 @@
                     $fields["number"] = $class[2];
                     $fields["title"] = $class[5];
                     $fields["id"] = $class[4];
+                    $fields["semester"] = $i;
                     if(!empty($class[6])) {
                         $matches = array();
                         if(stristr($class[6], "only") !== false) {
                             if(stristr($class[6], "spring") !== false) {
-                                $fields["semester"] = 1;
+                                $fields["offered"] = 1;
                             } else {
-                                $fields["semester"] = 2;
+                                $fields["offered"] = 2;
                             }
                             if(stristr($class[6], "odd") !== false) {
                                 $fields["years"] = 1;
@@ -140,6 +142,7 @@
                     $db->insert("classes", $fields);
                 }
             }
+            $i++;
         }
         minors:
         foreach($minors as $minorID=>$arr) {

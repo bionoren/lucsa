@@ -1,6 +1,6 @@
 <?php
     /*
-	 *	Copyright 2009 Bion Oren
+	 *	Copyright 2010 Bion Oren
 	 *
 	 *	Licensed under the Apache License, Version 2.0 (the "License");
 	 *	you may not use this file except in compliance with the License.
@@ -34,4 +34,47 @@
 			}
 		}
 	}
+
+    function guessMajor(array $majors, $major) {
+        $min = 1000;
+        $ret = "";
+        foreach($majors as $key=>$mjr) {
+            $try = levenshtein($major, $mjr["name"], 1, 6, 6);
+            if($try < $min) {
+                $min = $try;
+                $ret = $key;
+            }
+        }
+        return $ret;
+    }
+
+    function getYears(SQLiteManager $db) {
+        $result = $db->query("SELECT * from years");
+        $years = array();
+        while($years[] = $result->fetchArray(SQLITE3_NUM));
+        array_pop($years);
+        return $years;
+    }
+
+    function getMajors(SQLiteManager $db, $year) {
+        $result = $db->query("SELECT * FROM degrees WHERE yearID='".$year."' AND type='1'");
+        $majors = array();
+        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $majors[$row["acronym"]] = $row;
+        }
+        return $majors;
+    }
+
+    function getMinors(SQLiteManager $db, $year) {
+        $result = $db->query("SELECT * FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
+        $minors = array();
+        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $minors[$row["acronym"]] = $row;
+        }
+        return $minors;
+    }
+
+    function getKeyStr() {
+        return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
+    }
 ?>
