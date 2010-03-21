@@ -41,6 +41,7 @@
         mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
             $degree = explode("~", mdecrypt_generic($sec, $_SESSION["degree"]));
+            $courses = explode("~", mdecrypt_generic($sec, $_SESSION["courses"]));
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
@@ -55,18 +56,19 @@
                 }
             }
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
+            $matches = array();
+            preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\</is", $data, $matches, PREG_SET_ORDER);
+            $courses = array();
+            foreach($matches as $matchset) {
+                $courses[] = array($matchset["dept"], $matchset["course"]);
+            }
+            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
+            unset($data);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
     }
 //    dump("degree", $degree);
-
-    $matches = array();
-    preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\</is", $data, $matches, PREG_SET_ORDER);
-    $courses = array();
-    foreach($matches as $matchset) {
-        $courses[] = array($matchset["dept"], $matchset["course"]);
-    }
 
 require_once("header.php");
     print '<form method="get" action=".">';
