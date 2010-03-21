@@ -107,8 +107,6 @@ require_once("header.php");
 
         print '<input type="submit" name="submit" value="submit"/>';
     print "</form>";
-
-    print "<br><br>";
-    print "<a href='privacy.php'>Privacy Policy</a>";
+    print "<br>";
 require_once("footer.php");
 ?>
