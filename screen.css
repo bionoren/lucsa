@@ -1,0 +1,46 @@
+body {
+    background-color:rgb(240, 239, 245);
+    font-family:arial, sans-serif;
+    font-size:14px;
+}
+
+select {
+    background-color:rgb(250, 250, 250);
+}
+
+table, tr, td {
+    padding:0px;
+    margin:0px;
+}
+
+tr {
+    border:1px solid #FFFFFF;
+}
+
+td {
+    font-size:12px;
+    border:inherit;
+}
+
+tr.course, .noborder, .semesterHours, .semesterTitle {
+    border:0px;
+}
+
+.semesterHeader, .semesterHours, .semesterTitle {
+    background-color:#F9F9F9;
+    vertical-align:bottom;
+    font-family:verdana, sans-serif;
+}
+
+.semesterTitle {
+    font-size:14px;
+    font-weight:bold;
+    text-align:left;
+    color:#333366;
+    background-color:#F9F9F9;
+}
+
+.semesterHours {
+    text-align:right;
+    font-size:12px;
+}

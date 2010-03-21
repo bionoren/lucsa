@@ -53,22 +53,22 @@
             $hours += $course["hours"];
         }
         array_unshift($semesters[$i], $hours);
-        print '<table border="1">';
+        print '<table>';
             print '<tr>';
             for($i = 0; $i < count($semesters); $i++) {
                 $hours = $semesters[$i][0];
                 print '<td valign="top">';
                     print '<table style="width:100%;">';
-                        print '<tr>';
+                        print '<tr class="noborder">';
                             print '<td colspan="3">';
-                                print '<table width="100%">';
+                                print '<table width="100%" class="semesterHeader">';
                                     print '<tr>';
-                                        print '<td style="text-align:left;">';
+                                        print '<td class="semesterTitle">';
                                             print $numStrs[$i].' Semester - ';
                                             print ($i % 2 == 0)?"Fall":"Spring";
                                             print " ".$year;
                                         print '</td>';
-                                        print '<td style="text-align:right;">';
+                                        print '<td class="semesterHours">';
                                             print $hours.' hours';
                                         print '</td>';
                                     print '</tr>';
@@ -77,7 +77,7 @@
                         print '</tr>';
                         for($j = 1; $j < count($semesters[$i]); $j++) {
                             $class = $semesters[$i][$j];
-                            print '<tr>';
+                            print '<tr class="course">';
                                 print '<td style="width:0px;">';
                                     print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&school='.$class["departmentid"].'&cmd=courselist">';
                                         print $class["department"];
