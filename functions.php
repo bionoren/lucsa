@@ -99,10 +99,21 @@
                                     if(!isset($allClasses[$class["department"].$key]) && substr($key, -1) == $class["hours"]) {
                                         $taken = true;
                                         $hoursCompleted += $class["hours"];
-                                        $result = $db->query("SELECT * FROM classes WHERE department='".$class["department"]."' AND number='".$key."'");
                                         $alt = $courses[$class["department"]][$key];
                                         unset($courses[$class["department"]][$key]);
                                         break;
+                                    }
+                                }
+                            } elseif(!empty($class["extra"]) && strstr($class["extra"], "substituted") && isset($courses[$class["department"]])) {
+                                $matches = array();
+                                //try to find a simple course substitution
+                                if(preg_match("/(\w{4})\s*(\d{4}).*?substituted.*?(\w{4})\s*(\d{4})/is", $class["extra"], $matches)) {
+                                    if($matches[3] == $class["department"] && $matches[4] == $class["number"]
+                                        && isset($courses[$matches[1]][$matches[2]])) {
+                                        $taken = true;
+                                        $hoursCompleted += $class["hours"];
+                                        $alt = $courses[$matches[1]][$matches[2]];
+                                        unset($courses[$matches[1]][$matches[2]]);
                                     }
                                 }
                             }
@@ -209,6 +220,13 @@
                 print '</td>';
             print '</tr>';
         print '</table>';
+
+        print "Not using:<br>";
+        foreach($courses as $dept=>$arr) {
+            foreach($arr as $num=>$title) {
+                print $dept.' '.$num.' - '.$title.'<br>';
+            }
+        }
     }
 
     function guessMajor(array $majors, $major) {
