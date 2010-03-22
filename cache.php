@@ -38,7 +38,7 @@
     $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
-    $fields[] = new DBField("extra", DBField::STRING, -1);
+    $fields[] = new DBField("extra", DBField::STRING);
     $db->createTable("classes", $fields);
 
     $data = file_get_contents("http://www.letu.edu/academics/catalog/");
@@ -110,11 +110,14 @@
 //                    print "<br>";
 //                    continue;
                     $fields = array();
-                    $fields["degreeID"] = $key2;
-                    $fields["department"] = $class[1];
+                    $fields["degreeID"] = trim($key2);
+                    $fields["department"] = trim($class[1]);
+                    if($class[2] == "&nbsp;") {
+                        $class[2] = "";
+                    }
                     $fields["number"] = $class[2];
-                    $fields["title"] = $class[5];
-                    $fields["id"] = $class[4];
+                    $fields["title"] = trim($class[5]);
+                    $fields["id"] = trim($class[4]);
                     $fields["semester"] = $i;
                     $fields["hours"] = substr($fields["number"], -1);
                     if(!empty($class[6])) {
@@ -139,7 +142,7 @@
                         }
                     }
                     if(!empty($class[8])) {
-                        $fields["extra"] = $class[8];
+                        $fields["extra"] = trim($class[8]);
                     }
                     $db->insert("classes", $fields);
                 }

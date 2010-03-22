@@ -56,6 +56,7 @@
         print '<table>';
             print '<tr>';
             $totalHours = 0;
+            $notes = array();
             for($i = 0; $i < count($semesters); $i++) {
                 $hours = $semesters[$i][0];
                 $totalHours += $hours;
@@ -92,6 +93,50 @@
                                     print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&course='.$class["id"].'">';
                                         print $class["title"];
                                     print '</a>';
+                                    if(empty($class["number"])) {
+                                        print '<span class="note">';
+                                            print " (".$class["hours"]." hour";
+                                            if($class["hours"] != 1) {
+                                                print "s";
+                                            }
+                                            print ")";
+                                        print '</span>';
+                                    }
+                                    if($class["offered"] < 3 || $class["years"] < 3) {
+                                        print '<span class="note">';
+                                            print " (";
+                                            if($class["offered"] < 3) {
+                                                if($class["offered"] == 1) {
+                                                    print "Spring";
+                                                } else {
+                                                    print "Fall";
+                                                }
+                                                if($class["years"] < 3) {
+                                                    print ",";
+                                                }
+                                                print " ";
+                                            }
+                                            if($class["years"] < 3) {
+                                                if($class["years"] == 1) {
+                                                    print "Odd years";
+                                                } else {
+                                                    print "Even years";
+                                                }
+                                            }
+                                            print " only";
+                                            print ")";
+                                        print '</span>';
+                                    }
+                                    if(!empty($class["extra"])) {
+                                        $key = array_search($class["extra"], $notes);
+                                        if($key === false) {
+                                            $key = count($notes);
+                                            $notes[] = $class["extra"];
+                                        }
+                                        print '<span class="footnote">';
+                                            print " (".($key+1).")";
+                                        print '</span>';
+                                    }
                                 print '</td>';
                             print '</tr>';
                         }
@@ -106,6 +151,18 @@
             print '<tr>';
                 print '<td colspan="2" align="center">';
                     print "Total Hours: ".$totalHours;
+                print '</td>';
+            print '</tr>';
+            print '<tr>';
+                print '<td colspan="2" class="endNote">';
+                print 'Notes:<br>';
+                for($i = 0; $i < count($notes); $i++) {
+                    print '<span class="endNote">'.($i+1).'</span>';
+                    print ": ".$notes[$i];
+                    if($i+1 < count($notes)) {
+                        print "<br>";
+                    }
+                }
                 print '</td>';
             print '</tr>';
         print '</table>';

@@ -44,3 +44,16 @@ tr.course, .noborder, .semesterHours, .semesterTitle {
     text-align:right;
     font-size:12px;
 }
+
+.footnote, span.endNote {
+    color:#990000;
+}
+
+td.endNote {
+    padding: 0 2px;
+}
+
+.footnote, .note {
+    font-family:arial, sans-serif;
+    font-size:10px;
+}
