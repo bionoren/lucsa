@@ -57,3 +57,7 @@ td.endNote {
     font-family:arial, sans-serif;
     font-size:10px;
 }
+
+.strike {
+    text-decoration:line-through;
+}

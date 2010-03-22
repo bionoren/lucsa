@@ -35,14 +35,18 @@
 		}
 	}
 
-    function displayCourseSequence($startYear, array $allCourses, array $courses) {
+    function displayCourseSequence(SQLiteManager $db, $startYear, array $allCourses, array $courses) {
         $year = $startYear;
         $numStrs = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth");
         $sem = $allCourses[0]["semester"];
         $semesters = array();
         $i = 0;
         $hours = 0;
+        $allClasses = array();
         foreach($allCourses as $course) {
+            if(empty($course["department"])) {
+                continue;
+            }
             if($course["semester"] != $sem) {
                 array_unshift($semesters[$i], $hours);
                 $i++;
@@ -50,12 +54,14 @@
                 $hours = 0;
             }
             $semesters[$i][] = $course;
+            $allClasses[$coures["department"].$course["number"]] = $course;
             $hours += $course["hours"];
         }
         array_unshift($semesters[$i], $hours);
         print '<table>';
             print '<tr>';
             $totalHours = 0;
+            $hoursCompleted = 0;
             $notes = array();
             for($i = 0; $i < count($semesters); $i++) {
                 $hours = $semesters[$i][0];
@@ -78,18 +84,50 @@
                                 print '</table>';
                             print '</td>';
                         print '</tr>';
-                        for($j = 1; $j < count($semesters[$i]); $j++) {
-                            $class = $semesters[$i][$j];
+                        foreach($semesters[$i] as $class) {
+                            $taken = false;
+                            $alt = null;
+                            if(isset($courses[$class["department"]][$class["number"]])) {
+                                $taken = true;
+                                $hoursCompleted += $class["hours"];
+                                unset($courses[$class["department"]][$class["number"]]);
+                            } elseif(empty($class["number"]) && isset($courses[$class["department"]])) {
+                                //look through all the classes we've taken
+                                foreach($courses[$class["department"]] as $key=>$course) {
+                                    //if we've taken one in this department that's not being used for anything,
+                                    //it's probably being used for one of these electives
+                                    if(!isset($allClasses[$class["department"].$key]) && substr($key, -1) == $class["hours"]) {
+                                        $taken = true;
+                                        $hoursCompleted += $class["hours"];
+                                        $result = $db->query("SELECT * FROM classes WHERE department='".$class["department"]."' AND number='".$key."'");
+                                        $alt = $courses[$class["department"]][$key];
+                                        unset($courses[$class["department"]][$key]);
+                                        break;
+                                    }
+                                }
+                            }
                             print '<tr class="course">';
-                                print '<td style="width:0px;">';
+                                print '<td ';
+                                if($taken) {
+                                    print 'class="strike" ';
+                                }
+                                print 'style="width:0px;">';
                                     print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&school='.$class["departmentid"].'&cmd=courselist">';
                                         print $class["department"];
                                     print '</a>';
                                 print '</td>';
-                                print '<td style="width:0px;">';
+                                print '<td ';
+                                if($taken) {
+                                    print 'class="strike" ';
+                                }
+                                print 'style="width:0px;">';
                                     print $class["number"];
                                 print '</td>';
-                                print '<td>';
+                                print '<td';
+                                if($taken) {
+                                    print ' class="strike"';
+                                }
+                                print '>';
                                     print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&course='.$class["id"].'">';
                                         print $class["title"];
                                     print '</a>';
@@ -137,6 +175,9 @@
                                             print " (".($key+1).")";
                                         print '</span>';
                                     }
+                                    if(isset($alt)) {
+                                        print '<br>'.$alt;
+                                    }
                                 print '</td>';
                             print '</tr>';
                         }
@@ -150,6 +191,8 @@
             }
             print '<tr>';
                 print '<td colspan="2" align="center">';
+                    print "Completed Hours: ".$hoursCompleted."<br>";
+                    print "Remaining Hours: ".($totalHours-$hoursCompleted)."<br>";
                     print "Total Hours: ".$totalHours;
                 print '</td>';
             print '</tr>';

@@ -28,7 +28,7 @@
     $majors = getMajors($db, $year);
     $minors = getMinors($db, $year);
 
-    if (empty($degree) && empty($_SERVER['PHP_AUTH_USER'])) {
+    if(empty($_SERVER['PHP_AUTH_USER'])) {
         header('WWW-Authenticate: Basic realm="LETU Login"');
         header('HTTP/1.0 401 Unauthorized');
         require("privacy.php?hideBack=1");
@@ -41,15 +41,22 @@
         mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
             //don't ask. Just don't ask...
-            mdecrypt_generic($sec, base64_decode("R9GhWOS8EHhX7n0tp9kxQQM+vd6og2BvXF4wxxelSN81FCDZ2Kww9tE5RyAW5MXUDNmm3js2k1nAKHvs6ohod1K+sYruQFCk+mVidrLvveC+JuxK+zB42DNmH5IHGCup"));
+            mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
             $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
             $courses = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
+            $ret = array();
+            foreach($courses as $item) {
+                $tmp = explode("::", $item);
+                $ret[$tmp[0]][$tmp[1]] = $tmp[2];
+            }
+            $courses = $ret;
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
             $matches = array();
             preg_match("/(?:\<td.*?){3}.*?\>(.*?)\<.*?\>(.*?)\</is", $data, $matches);
             array_shift($matches);
+            $degree = array();
             foreach($matches as $match) {
                 $match = trim($match);
                 if(!empty($match)) {
@@ -58,14 +65,14 @@
                 }
             }
             $matches = array();
-            preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\</is", $data, $matches, PREG_SET_ORDER);
+            preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
             $courses = array();
             foreach($matches as $matchset) {
-                $courses[] = $matchset["dept"].$matchset["course"];
+                $courses[] = $matchset["dept"]."::".$matchset["course"]."::".$matchset["title"];
             }
 
             //the first block was getting corrupt for some reason, so I'm filling it with junk
-            mcrypt_generic($sec, getKeyStr());
+            $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
             $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
             unset($data);
@@ -122,6 +129,6 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
-    displayCourseSequence($years[$year-1][0], $allCourses, $courses);
+    displayCourseSequence($db, $years[$year-1][0], $allCourses, $courses);
 require_once("footer.php");
 ?>
