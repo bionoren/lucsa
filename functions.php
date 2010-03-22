@@ -106,7 +106,7 @@
                                 }
                             } elseif(!empty($class["extra"]) && strstr($class["extra"], "substituted") && isset($courses[$class["department"]])) {
                                 $matches = array();
-                                //try to find a simple course substitution
+                                //try to find a simple course substitution from footnote
                                 if(preg_match("/(\w{4})\s*(\d{4}).*?substituted.*?(\w{4})\s*(\d{4})/is", $class["extra"], $matches)) {
                                     if($matches[3] == $class["department"] && $matches[4] == $class["number"]
                                         && isset($courses[$matches[1]][$matches[2]])) {
