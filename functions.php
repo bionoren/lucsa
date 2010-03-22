@@ -64,7 +64,7 @@
             $hoursCompleted = 0;
             $notes = array();
             for($i = 0; $i < count($semesters); $i++) {
-                $hours = $semesters[$i][0];
+                $hours = array_shift($semesters[$i]);
                 $totalHours += $hours;
                 print '<td valign="top">';
                     print '<table style="width:100%;">';
