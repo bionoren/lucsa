@@ -45,6 +45,15 @@
             $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
             $fields[] = new DBField("hours", DBField::NUM, 3);
             */
+
+            /*
+            $fields[] = new DBField("classID", DBField::NUM, -1, "classes", "ROWID");
+            $fields[] = new DBField("requiresClassID", DBField::NUM, null, "classes", "ROWID");
+            $fields[] = new DBField("type", DBField::NUM, 0); //none, prereq, coreq, either
+            //we might not have added this class yet, so these will have to be evaluated to a requiresClassID in a future pass
+            $fields[] = new DBField("departmentID", DBField::NUM);
+            $fields[] = new DBField("courseNumber", DBField::NUM);
+            */
         }
     }
 ?>

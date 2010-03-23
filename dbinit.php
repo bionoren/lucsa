@@ -2,6 +2,7 @@
     require_once("SQLiteManager.php");
 
     $db = new SQLiteManager("lucsa.sqlite");
+
     //catalogs
     $fields = array();
     $field = new DBField("year", DBField::NUM);
@@ -9,6 +10,7 @@
     $fields[] = $field;
     $fields[] = new DBField("updated", DBField::NUM, 0);
     $db->createTable("years", $fields);
+
     //majors
     $fields = array();
     $fields[] = new DBField("yearID", DBField::NUM, null, "years", "ROWID");
@@ -17,6 +19,7 @@
     $fields[] = new DBField("acronym", DBField::STRING);
     $fields[] = new DBField("type", DBField::NUM); //none, major, minor
     $db->createTable("degrees", $fields);
+
     //departments
     $fields = array();
     $field = new DBField("department", DBField::STRING);
@@ -25,6 +28,7 @@
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("id", DBField::STRING);
     $db->createTable("departments", $fields);
+
     //classes
     $fields = array();
     $fields[] = new DBField("departmentID", DBField::NUM, -1, "departments", "ROWID");
@@ -36,6 +40,15 @@
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
     $db->createUniqueConstraint("classes", array($fields[1], $fields[2]));
+
+    $fields = array();
+    $fields[] = new DBField("classID", DBField::NUM, -1, "classes", "ROWID");
+    $fields[] = new DBField("requiresClassID", DBField::NUM, null, "classes", "ROWID");
+    $fields[] = new DBField("type", DBField::NUM, 0); //none, prereq, coreq, either
+    //we might not have added this class yet, so these will have to be evaluated to a requiresClassID in a future pass
+    $fields[] = new DBField("departmentID", DBField::NUM);
+    $fields[] = new DBField("courseNumber", DBField::NUM);
+    $db->createTable("classDependencyMap", $fields);
 
     $fields = array();
     $fields[] = new DBField("degreeID", DBField::NUM, -1, "degrees", "ROWID");
