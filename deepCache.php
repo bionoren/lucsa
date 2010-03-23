@@ -21,7 +21,30 @@
         preg_match_all("/\<a[^\>]+?(\d+)&cmd=courselist/is", $data, $matches, PREG_SET_ORDER);
         foreach($matches as $match) {
             $data = file_get_contents("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."&cmd=courselist");
+            $matches = array();
+            preg_match("/.majorTitle.+?>(.+?)\s*\((\w+)\)\s*\</is", $data, $matches);
             die($data);
+            $fields = array();
+            $fields["department"] = $matches[2];
+            $fields["title"] = $matches[1];
+            $fields["id"] = $match[1];
+            $db->insert("departments", $fields);
+            $deptID = $db->getLastInsertID();
+
+            $matches = array();
+            preg_match_all("//is", $data, $matches, PREG_SET_ORDER);
+            foreach($matches as $match) {
+                $fields = array();
+            }
+            /*
+            $fields[] = new DBField("departmentID", DBField::NUM, -1, "departments", "ROWID");
+            $fields[] = new DBField("number", DBField::NUM);
+            $fields[] = new DBField("title", DBField::STRING);
+            $fields[] = new DBField("id", DBField::STRING);
+            $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
+            $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
+            $fields[] = new DBField("hours", DBField::NUM, 3);
+            */
         }
     }
 ?>

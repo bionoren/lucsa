@@ -19,14 +19,14 @@
     $db->createTable("degrees", $fields);
     //departments
     $fields = array();
-    $field = new DBField("department", DBField::NUM);
+    $field = new DBField("department", DBField::STRING);
     $field->setUnique();
     $fields[] = $field;
-    $fields[] = new DBField("id", DBField::NUM);
+    $fields[] = new DBField("title", DBField::STRING);
+    $fields[] = new DBField("id", DBField::STRING);
     $db->createTable("departments", $fields);
     //classes
     $fields = array();
-    $fields[] = new DBField("degreeID", DBField::NUM, null, "degrees", "ROWID");
     $fields[] = new DBField("departmentID", DBField::NUM, -1, "departments", "ROWID");
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("title", DBField::STRING);
@@ -34,7 +34,6 @@
     $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
-    $fields[] = new DBField("extra", DBField::STRING);
     $db->createTable("classes", $fields);
     $db->createUniqueConstraint("classes", array($fields[1], $fields[2]));
 
@@ -42,6 +41,7 @@
     $fields[] = new DBField("degreeID", DBField::NUM, -1, "degrees", "ROWID");
     $fields[] = new DBField("courseID", DBField::NUM, -1, "classes", "ROWID");
     $fields[] = new DBField("semester", DBField::NUM);
+    $fields[] = new DBField("notes", DBField::STRING);
     $db->createTable("degreecoursemap", $fields);
 
     $fields = array();
