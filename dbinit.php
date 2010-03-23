@@ -5,6 +5,7 @@
     //catalogs
     $fields = array();
     $fields[] = new DBField("year", DBField::NUM);
+    $fields[] = new DBField("updated", DBField::NUM, 0);
     $db->createTable("years", $fields);
     //majors
     $fields = array();
@@ -36,4 +37,13 @@
     //user->majors
     //user->minors
     //classSubstitution->user
+
+    //initialize the years
+    $data = file_get_contents("http://www.letu.edu/academics/catalog/");
+    $matches = array();
+    preg_match_all("/\>(\d{4})-\d{4}\</is", $data, $matches, PREG_PATTERN_ORDER);
+    $years = $matches[1];
+    foreach($years as $year) {
+        $db->insert("years", array("year"=>$year));
+    }
 ?>
