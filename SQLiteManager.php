@@ -24,6 +24,8 @@
             } catch(Exception $e) {
                 die($e);
             }
+            //enable foreign key support
+            $this->query("PRAGMA foreign_keys = ON");
         }
 
         public function createTable($name, array $fields) {
@@ -32,7 +34,23 @@
             foreach($fields as $field) {
                 $sql .= $field->createInTable().",";
             }
-            $this->query(substr($sql, 0, -1).")");
+            $sql = substr($sql, 0, -1).");";
+            foreach($fields as $field) {
+                if($field->isUnique()) {
+                    $sql .= "CREATE UNIQUE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                }
+            }
+            $this->query($sql);
+        }
+
+        public function createUniqueConstraint($name, array $fields) {
+            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".current($fields)->getName()." ON ".$name." (";
+            $tmp = "";
+            foreach($fields as $field) {
+                $tmp .= $field->getName().",";
+            }
+            $sql .= substr($tmp, 0, -1).")";
+            $this->query($sql);
         }
 
         public function query($sql) {

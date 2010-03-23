@@ -22,6 +22,7 @@
         protected $default;
         protected $keyTable;
         protected $keyField;
+        protected $unique;
 
         public function __construct($name, $type, $default=null, $keyTable=null, $keyField=null) {
             $this->name = $name;
@@ -29,6 +30,7 @@
             $this->default = $default;
             $this->keyTable = $keyTable;
             $this->keyField = $keyField;
+            $this->unique = false;
         }
 
         public function createInTable() {
@@ -38,9 +40,21 @@
             }
             if($this->keyTable != null) {
                 $ret .= " REFERENCES ".$this->keyTable."(".$this->keyField.")";
-                $ret .= " ON UPDATE CASCADE ON DELETE RESTRICT";
+                $ret .= " ON UPDATE CASCADE ON DELETE CASCADE";
             }
             return $ret;
+        }
+
+        public function getName() {
+            return $this->name;
+        }
+
+        public function setUnique() {
+            $this->unique = true;
+        }
+
+        public function isUnique() {
+            return $this->unique;
         }
     }
 ?>
