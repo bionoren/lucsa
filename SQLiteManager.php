@@ -29,18 +29,30 @@
         }
 
         public function createTable($name, array $fields) {
+            //every table gets a primary key alias to keep foreign key constraints happy
+            $keyField = new DBField("ID", DBField::NUM);
+            $keyField->setPrimary();
+            array_unshift($fields, $keyField);
+            //we're smacking all the tables, so force them to go away
+            $this->query("PRAGMA foreign_keys = OFF");
             $this->query("DROP TABLE IF EXISTS ".$name);
+            $this->query("PRAGMA foreign_keys = ON");
             $sql = "CREATE TABLE IF NOT EXISTS ".$name." (";
             foreach($fields as $field) {
                 $sql .= $field->createInTable().",";
             }
-            $sql = substr($sql, 0, -1).");";
+            $sql = substr($sql, 0, -1).")";
+            $this->query($sql);
             foreach($fields as $field) {
                 if($field->isUnique()) {
-                    $sql .= "CREATE UNIQUE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                    $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                    $this->query($sql);
+                }
+                if($field->isIndexed()) {
+                    $sql = "CREATE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                    $this->query($sql);
                 }
             }
-            $this->query($sql);
         }
 
         public function createUniqueConstraint($name, array $fields) {
@@ -50,7 +62,7 @@
                 $tmp .= $field->getName().",";
             }
             $sql .= substr($tmp, 0, -1).")";
-            $this->query($sql);
+            return $this->query($sql);
         }
 
         public function query($sql) {
@@ -62,16 +74,24 @@
             return $ret;
         }
 
-        public function insert($table, array $fields) {
-            $sql = "INSERT INTO ".$table." ";
+        public function insert($table, array $fields, $ignore=false) {
+            $sql = "INSERT ";
+            if($ignore) {
+                $sql .= "OR IGNORE ";
+            }
+            $sql .= "INTO ".$table." ";
             $colStr = "";
             $valStr = "";
             foreach($fields as $key=>$val) {
-                $colStr .= $key.",";
-                $valStr .= "'".SQLite3::escapeString($val)."',";
+                $colStr .= "'".$key."',";
+                if((string)intval($val) == $val) {
+                    $valStr .= $val.",";
+                } else {
+                    $valStr .= "'".SQLite3::escapeString($val)."',";
+                }
             }
             $sql .= "(".substr($colStr, 0, -1).") VALUES (".substr($valStr, 0, -1).")";
-            $this->query($sql);
+            return $this->query($sql);
         }
 
         public function update($table, array $fields, array $whereFields) {
@@ -84,7 +104,7 @@
                 $sql .= $key."='".SQLite3::escapeString($val)."' AND";
             }
             $sql = substr($sql, 0, -4);
-            $this->query($sql);
+            return $this->query($sql);
         }
 
         public function getLastInsertID() {

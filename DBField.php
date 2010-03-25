@@ -23,6 +23,8 @@
         protected $keyTable;
         protected $keyField;
         protected $unique;
+        protected $indexed;
+        protected $primary;
 
         public function __construct($name, $type, $default=null, $keyTable=null, $keyField=null) {
             $this->name = $name;
@@ -31,6 +33,10 @@
             $this->keyTable = $keyTable;
             $this->keyField = $keyField;
             $this->unique = false;
+            $this->indexed = false;
+            if($keyTable != null) {
+                $this->setIndexed();
+            }
         }
 
         public function createInTable() {
@@ -39,8 +45,14 @@
                 $ret .= " DEFAULT ".$this->default;
             }
             if($this->keyTable != null) {
-                $ret .= " REFERENCES ".$this->keyTable."(".$this->keyField.")";
+                $ret .= " REFERENCES ".$this->keyTable;
+                if($this->keyField != null) {
+                    $ret .= "(".$this->keyField.")";
+                }
                 $ret .= " ON UPDATE CASCADE ON DELETE CASCADE";
+            }
+            if($this->isPrimary()) {
+                $ret .= " PRIMARY KEY";
             }
             return $ret;
         }
@@ -51,10 +63,29 @@
 
         public function setUnique() {
             $this->unique = true;
+            $this->indexed = false;
+        }
+
+        public function setIndexed() {
+            if(!$this->unique) {
+                $this->indexed = true;
+            }
         }
 
         public function isUnique() {
             return $this->unique;
+        }
+
+        public function isIndexed() {
+            return $this->indexed;
+        }
+
+        public function setPrimary() {
+            $this->primary = true;
+        }
+
+        public function isPrimary() {
+            return $this->primary;
         }
     }
 ?>

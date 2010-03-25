@@ -26,9 +26,9 @@
                         dump($name."[$key]", $val);
                 } else {
                     if($member == null) {
-    					print $name."[".$key."] = ".$val."<br/>";
+    					print $name."[".$key."] = ".htmlentities($val)."<br/>\n";
                     } else {
-                        print $name."[".$key."] = ".$val->{$member}()."<br/>";
+                        print $name."[".$key."] = ".htmlentities($val->{$member}())."<br/>\n";
                     }
                 }
 			}
