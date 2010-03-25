@@ -8,7 +8,7 @@
     $field = new DBField("year", DBField::NUM);
     $field->setUnique();
     $fields[] = $field;
-    $fields[] = new DBField("updated", DBField::NUM, 0);
+    $fields[] = new DBField("updated", DBField::NUM, "0"); //nothing, deep, majors, both
     $db->createTable("years", $fields);
 
     //majors
@@ -31,7 +31,7 @@
 
     //classes
     $fields = array();
-    $fields[] = new DBField("departmentID", DBField::NUM, -1, "departments", "ID");
+    $fields[] = new DBField("departmentID", DBField::NUM, "-1", "departments", "ID");
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("linkid", DBField::NUM);
@@ -43,7 +43,7 @@
 
     //class prerequisites and corequisites
     $fields = array();
-    $fields[] = new DBField("classID", DBField::NUM, -1, "classes");
+    $fields[] = new DBField("classID", DBField::NUM, "-1", "classes");
     $fields[] = new DBField("requiresClassID", DBField::NUM, null, "classes");
     $fields[] = new DBField("type", DBField::NUM, 0); //none, prereq, coreq, either
     //we might not have added this class yet, so these will have to be evaluated to a requiresClassID in a future pass
@@ -53,8 +53,8 @@
 
     //mapping classes to degrees
     $fields = array();
-    $fields[] = new DBField("degreeID", DBField::NUM, -1, "degrees");
-    $fields[] = new DBField("courseID", DBField::NUM, -1, "classes");
+    $fields[] = new DBField("degreeID", DBField::NUM, "-1", "degrees");
+    $fields[] = new DBField("courseID", DBField::NUM, "-1", "classes");
     $fields[] = new DBField("semester", DBField::NUM);
     $fields[] = new DBField("notes", DBField::STRING);
     $db->createTable("degreecoursemap", $fields);
@@ -72,9 +72,9 @@
 
     //course subsitutions for individual users
     $fields = array();
-    $fields[] = new DBField("userID", DBField::NUM, -1, "users");
-    $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
-    $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
+    $fields[] = new DBField("userID", DBField::NUM, "-1", "users");
+    $fields[] = new DBField("oldClassID", DBField::NUM, "-1", "classes");
+    $fields[] = new DBField("newClassID", DBField::NUM, "-1", "classes");
     $db->createTable("userclassmap", $fields);
 
     //initialize the years

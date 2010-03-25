@@ -17,9 +17,10 @@
     require_once("functions.php");
 
     $db = new SQLiteManager("lucsa.sqlite");
-    $result = $db->query("SELECT * FROM years WHERE updated='0'");
+    $result = $db->query("SELECT * FROM years WHERE updated=0");
     $yearArray = $result->fetchArray(SQLITE3_ASSOC);
     $year = $yearArray["year"];
+    $yearID = $yearArray["ID"];
 
     $data = file_get_contents("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year);
     $key += 1;
@@ -137,9 +138,6 @@
         $db->update("degrees", array("acronym"=>$matches[1]), array("ROWID"=>$key2));
     }
 
-    $fields = array();
-    $fields["updated"] = 1;
-    $where = array();
-    $where["ROWID"] = $yearArray["rowid"];
-    $db->update("years", $fields, $where);
+    $yearArray["updated"] += 2;
+    $db->update("years", $yearArray, array("ID"=>$yearID));
 ?>

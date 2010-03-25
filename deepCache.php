@@ -4,12 +4,18 @@
     require_once("dbinit.php");
 
     $db = new SQLiteManager("lucsa.sqlite");
-    $year = "2009";
+    $yearresult = $db->query("SELECT * FROM years");// WHERE updated=0");
+//    $yearArray = $yearresult->fetchArray(SQLITE3_ASSOC);
+//    $year = $yearArray["y ear"];
+//    $yearID = $yearArray["ID"];*/
+    $departmentLookup = array();
+while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
+    $year = $row["year"];
+
     $data = file_get_contents("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year);
     $matches1 = array();
     preg_match_all("/\<option[^\>]*?value=.(\d+)[^\>]*?\>(?:School|honors|LeTourneau).*?\</is", $data, $matches1, PREG_SET_ORDER);
 //    dump("matches1", $matches1);
-    $departmentLookup = array();
     foreach($matches1 as $match) {
 //        print "url = http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."<br>";
         $data = file_get_contents("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]);
@@ -21,14 +27,18 @@
             $matches = array();
             preg_match("/.majorTitle.+?>(.+?)\s*\((\w+)\)\s*\</is", $data, $matches);
 //            die($data);
-            $fields = array();
 //            print "adding department ".$matches[2]." - ".$match[1]."<br>"; continue;
-            $fields["department"] = $matches[2];
-            $fields["title"] = $matches[1];
-            $fields["linkid"] = $match[1];
-            $db->insert("departments", $fields);
-            $deptID = $db->getLastInsertID();
-            $departmentLookup[$fields["department"]] = $deptID;
+            if(!isset($departmentLookup[$matches[2]])) {
+                $fields = array();
+                $fields["department"] = $matches[2];
+                $fields["title"] = $matches[1];
+                $fields["linkid"] = $match[1];
+                $db->insert("departments", $fields, true);
+                $deptID = $db->getLastInsertID();
+                $departmentLookup[$fields["department"]] = $deptID;
+            } else {
+                $deptID = $departmentLookup[$matches[2]];
+            }
 
             $matchGroups = preg_split("/\<\/div\>.*?\<div.*?\>/is", $data);
             $matches = array();
@@ -72,7 +82,7 @@
                         $fields["offered"] = ($search == false)?1:2;
                     }
                 }
-                $db->insert("classes", $fields);
+                $db->insert("classes", $fields, true);
                 $classID = $db->getLastInsertID();
 
                 if(!empty($match[5])) {
@@ -106,6 +116,8 @@
             }
         }
     }
+}
+
     //create proper class ids for class dependencies
     $result = $db->query("SELECT * FROM classDependencyMap");
     $fields = array();
@@ -119,4 +131,6 @@
         $whereFields["id"] = $row["id"];
         $db->update("classDependencyMap", $fields, $whereFields);
     }
+//    $yearArray["updated"] += 1;
+//    $db->update("years", $yearArray, array("ID"=>$yearID));
 ?>
