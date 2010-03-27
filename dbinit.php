@@ -20,6 +20,7 @@
     $fields[] = new DBField("acronym", DBField::STRING);
     $fields[] = new DBField("type", DBField::NUM); //none, major, minor
     $db->createTable("degrees", $fields);
+    $db->createUniqueConstraint("degrees", array($fields[0], $fields[3]));
 
     //departments
     $fields = array();
