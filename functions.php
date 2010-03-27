@@ -26,14 +26,25 @@
                         dump($name."[$key]", $val);
                 } else {
                     if($member == null) {
-    					print $name."[".$key."] = ".$val."<br/>";
+    					print $name."[".$key."] = ".htmlentities($val)."<br/>\n";
                     } else {
-                        print $name."[".$key."] = ".$val->{$member}()."<br/>";
+                        print $name."[".$key."] = ".htmlentities($val->{$member}())."<br/>\n";
                     }
                 }
 			}
 		}
 	}
+
+    function getCache($file) {
+        $name = "cache/".md5($file).".tmp";
+        if(file_exists($name)) {
+            return file_get_contents($name);
+        } else {
+            $ret = file_get_contents($file);
+            file_put_contents($name, $ret);
+            return $ret;
+        }
+    }
 
     function displayCourseSequence(SQLiteManager $db, $startYear, array $allCourses, array $courses) {
         $year = $startYear;
@@ -243,15 +254,16 @@
     }
 
     function getYears(SQLiteManager $db) {
-        $result = $db->query("SELECT * from years");
+        $result = $db->query("SELECT ID,year from years");
         $years = array();
-        while($years[] = $result->fetchArray(SQLITE3_NUM));
-        array_pop($years);
+        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $years[$row["ID"]] = $row["year"];
+        }
         return $years;
     }
 
     function getMajors(SQLiteManager $db, $year) {
-        $result = $db->query("SELECT ROWID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1'");
+        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1'");
         $majors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $majors[$row["acronym"]] = $row;
@@ -260,7 +272,7 @@
     }
 
     function getMinors(SQLiteManager $db, $year) {
-        $result = $db->query("SELECT ROWID, name, acronym FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
+        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
         $minors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $minors[$row["acronym"]] = $row;
@@ -271,7 +283,13 @@
     function getCourses(SQLiteManager $db, array $degrees) {
         $ret = array();
         foreach($degrees as $degree) {
-            $sql = "SELECT * FROM classes WHERE degreeID='".$degree["rowid"]."' ORDER BY semester";
+            $sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes, classes.number, classes.title, classes.linkid,
+                    classes.offered, classes.years, classes.hours, years.year, departments.department, departments.linkid AS deptlinkid
+                    FROM degreeCourseMap
+                    JOIN classes ON degreeCourseMap.courseID=classes.ID
+                    JOIN years ON classes.yearID=years.ID
+                    JOIN departments ON classes.departmentID=departments.ID
+                    WHERE degreeCourseMap.degreeID='".$degree["ID"]."' ORDER BY degreeCourseMap.semester";
             $result = $db->query($sql);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $ret[] = $row;
