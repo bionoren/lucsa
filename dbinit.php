@@ -1,5 +1,6 @@
 <?php
     require_once("SQLiteManager.php");
+    require_once("functions.php");
 
     $db = new SQLiteManager("lucsa.sqlite");
 
@@ -31,7 +32,8 @@
 
     //classes
     $fields = array();
-    $fields[] = new DBField("departmentID", DBField::NUM, "-1", "departments", "ID");
+    $fields[] = new DBField("departmentID", DBField::NUM, null, "departments", "ID");
+    $fields[] = new DBField("yearID", DBField::NUM, "-1", "years", "ID");
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("linkid", DBField::NUM);
@@ -39,7 +41,10 @@
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
-    $db->createUniqueConstraint("classes", array($fields[0], $fields[1]));
+    //department and number
+    $db->createUniqueConstraint("classes", array($fields[0], $fields[2]));
+    //year and title
+    $db->createUniqueConstraint("classes", array($fields[1], $fields[3]));
 
     //class prerequisites and corequisites
     $fields = array();
@@ -57,7 +62,7 @@
     $fields[] = new DBField("courseID", DBField::NUM, "-1", "classes");
     $fields[] = new DBField("semester", DBField::NUM);
     $fields[] = new DBField("notes", DBField::STRING);
-    $db->createTable("degreecoursemap", $fields);
+    $db->createTable("degreeCourseMap", $fields);
 
     //users
     $fields = array();
@@ -75,10 +80,10 @@
     $fields[] = new DBField("userID", DBField::NUM, "-1", "users");
     $fields[] = new DBField("oldClassID", DBField::NUM, "-1", "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, "-1", "classes");
-    $db->createTable("userclassmap", $fields);
+    $db->createTable("userClassMap", $fields);
 
     //initialize the years
-    $data = file_get_contents("http://www.letu.edu/academics/catalog/");
+    $data = getCache("http://www.letu.edu/academics/catalog/");
     $matches = array();
     preg_match_all("/\>(\d{4})-\d{4}\</is", $data, $matches, PREG_PATTERN_ORDER);
     $years = $matches[1];

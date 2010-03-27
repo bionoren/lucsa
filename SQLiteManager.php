@@ -16,6 +16,12 @@
     require_once("DBField.php");
 
     class SQLiteManager {
+        //taking chances for a little higher throughput
+//        private $sync = "NORMAL";
+        //saving some IO time
+//        private $journal = "TRUNCATE";
+        private $sync = "OFF";
+        private $journal = "MEMORY";
         protected $db;
 
         public function __construct($db) {
@@ -24,7 +30,8 @@
             } catch(Exception $e) {
                 die($e);
             }
-            //enable foreign key support
+            $this->query("PRAGMA synchronous = ".$this->sync);
+            $this->query("PRAGMA journal_mode = ".$this->journal);
             $this->query("PRAGMA foreign_keys = ON");
         }
 
@@ -109,6 +116,14 @@
 
         public function getLastInsertID() {
             return $this->db->lastInsertRowID();
+        }
+
+        public function close() {
+            $this->db->close();
+        }
+
+        function __destruct() {
+            $this->close();
         }
     }
 ?>

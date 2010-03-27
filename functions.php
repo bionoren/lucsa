@@ -35,6 +35,17 @@
 		}
 	}
 
+    function getCache($file) {
+        $name = "cache/".md5($file).".tmp";
+        if(file_exists($name)) {
+            return file_get_contents($name);
+        } else {
+            $ret = file_get_contents($file);
+            file_put_contents($name, $ret);
+            return $ret;
+        }
+    }
+
     function displayCourseSequence(SQLiteManager $db, $startYear, array $allCourses, array $courses) {
         $year = $startYear;
         $numStrs = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth");
