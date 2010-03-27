@@ -70,10 +70,7 @@
     $field = new DBField("user", DBField::STRING); //hash of username
     $field->setUnique();
     $fields[] = $field;
-    $fields[] = new DBField("major1", DBField::NUM, null, "degrees");
-    $fields[] = new DBField("major2", DBField::NUM, null, "degrees");
-    $fields[] = new DBField("minor1", DBField::NUM, null, "degrees");
-    $fields[] = new DBField("minor2", DBField::NUM, null, "degrees");
+    $fields[] = new DBField("salt", DBField::STRING);
     $db->createTable("users", $fields);
 
     //course subsitutions for individual users

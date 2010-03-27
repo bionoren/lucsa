@@ -13,6 +13,10 @@
 	 *	limitations under the License.
 	 */
 
+    unset($_SERVER['PHP_AUTH_USER']);
+    session_start();
+    unset($_SESSION["userID"]);
+    session_write_close();
     require_once("functions.php");
     require_once("SQLiteManager.php");
     require_once("dbinit.php");
@@ -167,7 +171,7 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
 ?>
 
 <?php
-    print "starting normal cache...<br>\n";
+//    print "starting normal cache...<br>\n";
     $db->close();
     require_once("cache.php");
 ?>

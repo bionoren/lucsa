@@ -13,9 +13,36 @@
      *	limitations under the License.
      */
 
+    session_start();
     require_once("functions.php");
     require_once("SQLiteManager.php");
-    session_start();
+
+    /**
+     * Encrypts the given string using the specified hashing algorithm.
+     * See the end of /OpenSiteAdmin/scripts/php.php for a list of available hashing algorithms.
+     * If the first option provided in this method is not available, try the algorithms in order from
+     * top to bottom for maximum security. The md5 function is provided as a last resort and is not
+     * recommended for applications needing to withstand organized security threats in future years.
+     *
+     * @param STRING $string The string to encrypt.
+     * @param STRING $salt Salt to use on the given string
+     * @return STRING Encrypted text (usually significantly longer than the input text).
+     */
+    function encrypt($string, $salt) {
+        return hash("sha512", $salt.$string);
+        //return hash("sha384", $salt.$string);
+        //return hash("whirlpool", $salt.$string);
+        //return md5($salt.$string);
+    }
+
+    /**
+     * Generates a pseudo-random string for use with password hashing.
+     *
+     * @return STRING A pseudo-random 32 character string.
+     */
+    function generateSalt() {
+        return md5(mt_rand()*M_LOG2E);
+    }
 
     $year = intval($_REQUEST["year"])+1;
     if(isset($_REQUEST["degree"])) {
@@ -24,6 +51,26 @@
 
     //get all the degree options
     $db = new SQLiteManager("lucsa.sqlite");
+
+    if(!empty($_SESSION["userID"])) {
+        $userID = $_SESSION["userID"];
+    } else {
+        if(isset($_SERVER['PHP_AUTH_USER'])) {
+            $salt = generateSalt();
+            $name = encrypt($_SERVER["PHP_AUTH_USER"], $salt);
+            $result = $db->query("SELECT ID FROM users WHERE user='".$name."'");
+            $row = $result->fetchArray(SQLITE3_ASSOC);
+            if($row != false) {
+                $userID = $_SESSION["userID"] = $row["ID"];
+            } else {
+                $db->insert("users", array("user"=>$name, "salt"=>$salt));
+                $userID = $_SESSION["userID"] = $db->getLastInsertID();
+            }
+            unset($salt);
+            unset($name);
+        }
+    }
+
     $years = getYears($db);
     $majors = getMajors($db, $year);
     $minors = getMinors($db, $year);
@@ -52,6 +99,8 @@
             $courses = $ret;
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
+            unset($_SERVER['PHP_AUTH_USER']);
+            unset($_SERVER['PHP_AUTH_PW']);
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
             $matches = array();
             preg_match("/(?:\<td.*?){3}.*?\>(.*?)\<.*?\>(.*?)\</is", $data, $matches);
@@ -88,7 +137,9 @@
     foreach($degree as $deg) {
         $tmp[] = $degOptions[$deg];
     }
+//    dump("tmp", $tmp);
     $allCourses = getCourses($db, $tmp);
+//    dump("courses", $allCourses);
 
 require_once("header.php");
     print '<form method="get" action=".">';
@@ -98,7 +149,7 @@ require_once("header.php");
                 if($key == $year-1) {
                     print " selected='selected'";
                 }
-                print ">".$yr[0]."</option>";
+                print ">".$yr."</option>";
             }
         print "</select>";
         print "<br/>";
