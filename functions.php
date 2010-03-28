@@ -115,10 +115,10 @@
                                         break;
                                     }
                                 }
-                            } elseif(!empty($class["extra"]) && strstr($class["extra"], "substituted") && isset($courses[$class["department"]])) {
+                            } elseif(!empty($class["notes"]) && strstr($class["notes"], "substituted") && isset($courses[$class["department"]])) {
                                 $matches = array();
                                 //try to find a simple course substitution from footnote
-                                if(preg_match("/(\w{4})\s*(\d{4}).*?substituted.*?(\w{4})\s*(\d{4})/is", $class["extra"], $matches)) {
+                                if(preg_match("/(\w{4})\s*(\d{4}).*?substituted.*?(\w{4})\s*(\d{4})/is", $class["notes"], $matches)) {
                                     if($matches[3] == $class["department"] && $matches[4] == $class["number"]
                                         && isset($courses[$matches[1]][$matches[2]])) {
                                         $taken = true;
@@ -134,7 +134,7 @@
                                     print 'class="strike" ';
                                 }
                                 print 'style="width:0px;">';
-                                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&school='.$class["departmentid"].'&cmd=courselist">';
+                                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&school='.$class["deptlinkid"].'&cmd=courselist">';
                                         print $class["department"];
                                     print '</a>';
                                 print '</td>';
@@ -150,7 +150,7 @@
                                     print ' class="strike"';
                                 }
                                 print '>';
-                                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&course='.$class["id"].'">';
+                                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$startYear.'&course='.$class["linkid"].'">';
                                         print $class["title"];
                                     print '</a>';
                                     if(empty($class["number"])) {
@@ -187,11 +187,11 @@
                                             print ")";
                                         print '</span>';
                                     }
-                                    if(!empty($class["extra"])) {
-                                        $key = array_search($class["extra"], $notes);
+                                    if(!empty($class["notes"])) {
+                                        $key = array_search($class["notes"], $notes);
                                         if($key === false) {
                                             $key = count($notes);
-                                            $notes[] = $class["extra"];
+                                            $notes[] = $class["notes"];
                                         }
                                         print '<span class="footnote">';
                                             print " (".($key+1).")";
@@ -283,8 +283,10 @@
     function getCourses(SQLiteManager $db, array $degrees) {
         $ret = array();
         foreach($degrees as $degree) {
-            $sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes, classes.number, classes.title, classes.linkid,
-                    classes.offered, classes.years, classes.hours, years.year, departments.department, departments.linkid AS deptlinkid
+            $sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes,
+                    classes.number, classes.title, classes.linkid, classes.offered, classes.years, classes.hours,
+                    years.year,
+                    departments.department, departments.linkid AS deptlinkid
                     FROM degreeCourseMap
                     JOIN classes ON degreeCourseMap.courseID=classes.ID
                     JOIN years ON classes.yearID=years.ID
