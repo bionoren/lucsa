@@ -93,6 +93,9 @@ while($row = $result->fetchArray()) {
                 }
                 $num = $class[2];
                 $sql = "SELECT ID,departmentID FROM classes WHERE yearID=".$yearID." AND title='".SQLite3::escapeString($class[5])."'";
+                if(!empty($dept)) {
+                    $sql .= " AND departmentID=".$dept;
+                }
                 $result2 = $db->query($sql);
                 if($row = $result2->fetchArray()) {
                     $classID = $row["ID"];
