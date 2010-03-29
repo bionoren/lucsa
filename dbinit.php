@@ -12,13 +12,14 @@
     $fields[] = new DBField("updated", DBField::NUM, "0"); //nothing, deep, majors, both
     $db->createTable("years", $fields);
 
-    //majors
+    //degrees
     $fields = array();
     $fields[] = new DBField("yearID", DBField::NUM, null, "years");
     $fields[] = new DBField("linkid", DBField::NUM);
     $fields[] = new DBField("name", DBField::STRING);
     $fields[] = new DBField("acronym", DBField::STRING);
     $fields[] = new DBField("type", DBField::NUM); //none, major, minor
+    $fields[] = new DBField("numSemesters", DBField::NUM, 0);
     $db->createTable("degrees", $fields);
     $db->createUniqueConstraint("degrees", array($fields[0], $fields[3]));
 
@@ -71,6 +72,8 @@
     $field->setUnique();
     $fields[] = $field;
     $fields[] = new DBField("salt", DBField::STRING);
+    $fields[] = new DBField("majors", DBField::STRING);
+    $fields[] = new DBField("minors", DBField::STRING);
     $db->createTable("users", $fields);
 
     //course subsitutions for individual users

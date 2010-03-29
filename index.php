@@ -16,6 +16,7 @@
     session_start();
     require_once("functions.php");
     require_once("SQLiteManager.php");
+    require_once("CourseSequence.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -115,6 +116,7 @@
             }
             $matches = array();
             preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
+            unset($data);
             $courses = array();
             foreach($matches as $matchset) {
                 $courses[] = $matchset["dept"]."::".$matchset["course"]."::".$matchset["title"];
@@ -124,7 +126,6 @@
             $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
             $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
-            unset($data);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
@@ -140,6 +141,9 @@
 //    dump("tmp", $tmp);
     $allCourses = getCourses($db, $tmp);
 //    dump("courses", $allCourses);
+
+    $temp = current($tmp);
+    $courseSequence = CourseSequence::getFromAcronym($db, $temp["ID"]);
 
 require_once("header.php");
     print '<form method="get" action=".">';
@@ -180,6 +184,6 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
-    displayCourseSequence($db, $years[$year-1][0], $allCourses, $courses);
+    $courseSequence->display($db);
 require_once("footer.php");
 ?>

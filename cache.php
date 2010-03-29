@@ -156,6 +156,7 @@ while($row = $result->fetchArray()) {
             }
             $i++;
         }
+        $db->update("degrees", array("numSemesters"=>($i-1)), array("ROWID"=>$key2));
     }
     minors:
     foreach($minors as $minorID=>$arr) {
