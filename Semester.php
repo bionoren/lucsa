@@ -35,7 +35,6 @@
                        WHERE degreeID=".$degreeID." AND semester=".$semester;
 //            die($sql);
             $result = $db->query($sql);
-            die();
             $classes = array();
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $class = Course::getFromID($db, $row["courseID"]);
@@ -65,7 +64,7 @@
 
         public function display($catalogYear, $year, $semester, &$notes) {
             global $cardinalNumString;
-            $hours = array_shift($semesters[$i]);
+            $hours = $this->getHours();
             $totalHours += $hours;
             print '<td valign="top">';
                 print '<table style="width:100%;">';

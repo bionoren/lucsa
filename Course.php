@@ -42,7 +42,7 @@
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID
-                       WHERE ID=".$id;
+                       WHERE classes.ID=".$id;
             $result = $db->query($sql);
             return new Course($result->fetchArray(SQLITE3_ASSOC));
         }

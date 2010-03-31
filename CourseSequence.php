@@ -30,7 +30,7 @@
             $this->acronym = $row["acronym"];
             $this->type = $row["type"]; //none, major, minor
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
-                $semesters[] = Semester::getFromDegree($db, $row["ID"], $i);
+                $this->semesters[] = Semester::getFromDegree($db, $row["ID"], $i);
             }
         }
 
@@ -52,7 +52,7 @@
                     $hoursCompleted = 0;
                     $notes = array();
                     foreach($this->semesters as $semester) {
-                        $semester->display($db, $year, $i, $notes);
+                        $semester->display($this->year, $year, $i, $notes);
                         $totalHours += $semester->getHours();
                         if($i++ % 2 == 1) {
                             print '</tr><tr>';
