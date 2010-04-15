@@ -91,6 +91,28 @@
                 //also, user-defined substitutions via $mapping
 //                dump("classes", $classes);
 //                dump("mapping", $mapping);
+                foreach($this->classes as $class) {
+                    $notes = $class->getNotes();
+                    if(!empty($notes)) {
+                        preg_match("/(\w{4})\s*(\d{4}).*?(\w{4})\s*(\d{4})/is", $notes, $matches);
+                        if(isset($classes[$matches[1].$matches[2]])) {
+                            $class->setComplete($classes[$matches[1].$matches[2]]);
+                            unset($classes[$matches[1].$matches[2]]);
+                            $this->completedHours += $class->getHours();
+                        }
+                    } else {
+                        $number = $class->getNumber();
+                        if(empty($number)) {
+                            foreach($classes as $key=>$class2) {
+                                if($class->getDepartment() == $class2->getDepartment()) {
+                                    $class->setComplete($class2);
+                                    unset($classes[$key]);
+                                    $this->completedHours += $class->getHours();
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -130,12 +130,12 @@
             //don't ask. Just don't ask...
             mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
             $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
-            $courses = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
-            $ret = array();
-            foreach($courses as $item) {
-                $ret[] = unserialize($item);
+            $coursArray = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
+            $courses = array();
+            foreach($coursArray as $item) {
+                $class = unserialize($item);
+                $courses[$class->getDepartment().$class->getNumber()] = $class;
             }
-            $courses = $ret;
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             unset($_SERVER['PHP_AUTH_USER']);
@@ -158,7 +158,7 @@
             $courses = array();
             foreach($matches as $matchset) {
                 $class = Course::getFromDepartmentNumber($db, $year, $matchset["dept"], $matchset["course"], $matchset["title"]);
-                $courses[] = $class;
+                $courses[$class->getDepartment().$class->getNumber()] = $class;
                 $storeCourses[] = serialize($class);
             }
 
