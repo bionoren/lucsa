@@ -43,7 +43,7 @@
             return new CourseSequence($db, $result->fetchArray(SQLITE3_ASSOC));
         }
 
-        public function evalTaken(SQLiteManager $db, array $classesTaken) {
+        public function evalTaken(SQLiteManager $db, array &$classesTaken) {
             //do direct subsitutions first
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken);

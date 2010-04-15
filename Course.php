@@ -210,7 +210,7 @@
         }
 
         public function __toString() {
-            return $this->yearID.": ".$this->getDepartment().$this->getNumber()." - ".$this->getTitle();
+            return $this->getDepartment().$this->getNumber()." - ".$this->getTitle();
         }
     }
 ?>
