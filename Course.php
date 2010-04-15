@@ -117,11 +117,14 @@
         }
 
         public function isComplete() {
-            return $this->completeClass != null;
+            return $this->completeClass !== null;
         }
 
         public function setComplete(Course $class) {
             $this->completeClass = $class;
+            if(!$class->isComplete()) {
+                $class->setComplete($this);
+            }
         }
 
         protected function getCompleteClass() {

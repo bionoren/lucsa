@@ -92,6 +92,19 @@
 //                dump("classes", $classes);
 //                dump("mapping", $mapping);
                 foreach($this->classes as $class) {
+                    //always evaluate user mappings first
+                    foreach($mapping as $old=>$new) {
+                        if($class->getID() == $old) {
+                            foreach($classes as $key=>$class2) {
+                                if($class2->getID() == $new) {
+                                    $class->setComplete($class2);
+                                    unset($classes[$key]);
+                                    $this->completedHours += $class->getHours();
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     $notes = $class->getNotes();
                     if(!empty($notes)) {
                         preg_match("/(\w{4})\s*(\d{4}).*?(\w{4})\s*(\d{4})/is", $notes, $matches);
@@ -141,6 +154,16 @@
                     }
                 print '</table>';
             print '</td>';
+        }
+
+        public function getIncompleteClasses() {
+            $ret = array();
+            foreach($this->classes as $class) {
+                if(!$class->isComplete()) {
+                    $ret[$class->getDepartment().$class->getNumber()] = $class;
+                }
+            }
+            return $ret;
         }
     }
 ?>

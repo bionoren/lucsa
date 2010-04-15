@@ -21,5 +21,6 @@ your transcript, is available by clicking the link below.
 <br><br>
 The source for that page is:
 <br>
-<?php print str_replace("  ", "&nbsp;&nbsp;", nl2br(htmlentities(file_get_contents("viewSource.php")))); ?>
+<?php highlight_file("viewSource.php"); ?>
+<br>
 <?php require_once("footer.php");

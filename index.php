@@ -111,6 +111,19 @@
         }
     }
 
+    if(isset($_REQUEST["substitute"])) {
+        $subID = $_REQUEST["sub"];
+        $origID = $_REQUEST["orig"];
+
+        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND (oldClassID=".$origID." OR newClassID=".$subID.")";
+        $db->query($sql);
+
+        $fields["userID"] = $userID;
+        $fields["oldClassID"] = $origID;
+        $fields["newClassID"] = $subID;
+        $db->insert("userClassMap", $fields);
+    }
+
     $years = getYears($db);
     $majors = getMajors($db, $year);
     $minors = getMinors($db, $year);
@@ -226,5 +239,38 @@ require_once("header.php");
     print "<br>";
 
     $courseSequence->display();
+    print '<form method="post" action=".">';
+        print 'Substitute ';
+        print '<select name="sub">';
+            ksort($courses);
+            $dept = null;
+            foreach($courses as $class) {
+                if($class->getDepartment() != $dept) {
+                    $dept = $class->getDepartment();
+                    print '<optgroup label="'.$dept.'">';
+                }
+                print '<option value="'.$class->getID().'"';
+                if($class->isComplete()) {
+                    print ' style="color:rgb(177, 177, 177);"';
+                }
+                print '>'.$class->getTitle().'</option>';
+            }
+        print '</select>';
+        print ' for ';
+        print '<select name="orig">';
+            $temp = $courseSequence->getIncompleteClasses();
+            ksort($temp);
+            $dept = null;
+            foreach($temp as $class) {
+                if($class->getDepartment() != $dept) {
+                    $dept = $class->getDepartment();
+                    print '<optgroup label="'.$dept.'">';
+                }
+                print '<option value="'.$class->getID().'">'.$class->getTitle().'</option>';
+            }
+        print '</select>';
+        print '<br>';
+        print '<input type="submit" name="substitute" value="Substitute">';
+    print '</form>';
 require_once("footer.php");
 ?>

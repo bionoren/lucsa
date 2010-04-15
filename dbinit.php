@@ -83,6 +83,8 @@
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
+    $db->createUniqueConstraint("userClassMap", array($fields[0], $fields[1]));
+    $db->createUniqueConstraint("userClassMap", array($fields[0], $fields[2]));
 
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");

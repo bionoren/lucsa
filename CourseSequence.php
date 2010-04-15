@@ -43,7 +43,7 @@
             return new CourseSequence($db, $result->fetchArray(SQLITE3_ASSOC));
         }
 
-        public function evalTaken(SQLiteManager $db, array &$classesTaken) {
+        public function evalTaken(SQLiteManager $db, array $classesTaken) {
             //do direct subsitutions first
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken);
@@ -103,38 +103,13 @@
                 print '</tr>';
             print '</table>';
         }
-    }
 
-/*    $taken = false;
-    $alt = null;
-    if(isset($courses[$class["department"]][$class["number"]])) {
-        $taken = true;
-        $hoursCompleted += $class["hours"];
-        unset($courses[$class["department"]][$class["number"]]);
-    } elseif(empty($class["number"]) && isset($courses[$class["department"]])) {
-        //look through all the classes we've taken
-        foreach($courses[$class["department"]] as $key=>$course) {
-            //if we've taken one in this department that's not being used for anything,
-            //it's probably being used for one of these electives
-            if(!isset($allClasses[$class["department"].$key]) && substr($key, -1) == $class["hours"]) {
-                $taken = true;
-                $hoursCompleted += $class["hours"];
-                $alt = $courses[$class["department"]][$key];
-                unset($courses[$class["department"]][$key]);
-                break;
+        public function getIncompleteClasses() {
+            $ret = array();
+            foreach($this->semesters as $sem) {
+                $ret = array_merge($ret, $sem->getIncompleteClasses());
             }
+            return $ret;
         }
-    } elseif(!empty($class["notes"]) && strstr($class["notes"], "substituted") && isset($courses[$class["department"]])) {
-        $matches = array();
-        //try to find a simple course substitution from footnote
-        if(preg_match("/(\w{4})\s*(\d{4}).*?substituted.*?(\w{4})\s*(\d{4})/is", $class["notes"], $matches)) {
-            if($matches[3] == $class["department"] && $matches[4] == $class["number"]
-                && isset($courses[$matches[1]][$matches[2]])) {
-                $taken = true;
-                $hoursCompleted += $class["hours"];
-                $alt = $courses[$matches[1]][$matches[2]];
-                unset($courses[$matches[1]][$matches[2]]);
-            }
-        }
-    }*/
+    }
 ?>
