@@ -20,6 +20,7 @@
     class Semester {
         protected $classes = array();
         protected $hours = 0;
+        protected $completedHours = 0;
 
         public function __construct(array $classes=null) {
             if($classes != null) {
@@ -47,6 +48,9 @@
         public function addClass(Course $class) {
             $this->classes[$class->getID()] = $class;
             $this->hours += $class->getHours();
+            if($class->isComplete()) {
+                $this->completedHours += $class->getHours();
+            }
         }
 
         public function hasClass(Course $class) {
@@ -55,6 +59,9 @@
 
         public function removeClass($id) {
             $this->hours -= $this->classes[$id]->getHours();
+            if($this->classes[$id]->isComplete()) {
+                $this->completedHours -= $this->classes[$id]->getHours();
+            }
             unset($this->classes[$id]);
         }
 
@@ -62,10 +69,33 @@
             return $this->hours;
         }
 
+        public function getCompletedHours() {
+            return $this->completedHours;
+        }
+
+        public function evalTaken(array &$classes, $mapping=null) {
+            if($mapping === null) {
+                //basic evaluation of course dept+number against course dept+number
+//                print "##########################<br>";
+//                dump("classes", $classes);
+                foreach($classes as $key=>$class) {
+//                    print $class->getID()."(".$class.") -> ".$this->classes[$class->getID()]."<br>";
+                    if(isset($this->classes[$class->getID()])) {
+                        $this->classes[$class->getID()]->setComplete($class);
+                        unset($classes[$key]);
+                        $this->completedHours += $class->getHours();
+                    }
+                }
+            } else {
+                //elective evaluation + basic subsititution attempts (ie from notes)
+                //also, user-defined substitutions via $mapping
+//                dump("classes", $classes);
+//                dump("mapping", $mapping);
+            }
+        }
+
         public function display($catalogYear, $year, $semester, &$notes) {
             global $cardinalNumString;
-            $hours = $this->getHours();
-            $totalHours += $hours;
             print '<td valign="top">';
                 print '<table style="width:100%;">';
                     print '<tr class="noborder">';

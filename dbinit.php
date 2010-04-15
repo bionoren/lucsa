@@ -9,7 +9,7 @@
     $field = new DBField("year", DBField::NUM);
     $field->setUnique();
     $fields[] = $field;
-    $fields[] = new DBField("updated", DBField::NUM, "0"); //nothing, deep, majors, both
+    $fields[] = new DBField("updated", DBField::NUM, 0); //nothing, deep, majors, both
     $db->createTable("years", $fields);
 
     //degrees
@@ -35,8 +35,9 @@
     //classes
     $fields = array();
     $fields[] = new DBField("departmentID", DBField::NUM, null, "departments", "ID");
-    $fields[] = new DBField("yearID", DBField::NUM, "-1", "years", "ID");
+    $fields[] = new DBField("yearID", DBField::NUM, -1, "years", "ID");
     $fields[] = new DBField("number", DBField::NUM);
+    $fields[] = new DBField("endNumber", DBField::NUM); //only used for ranges, like special topics classes
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("linkid", DBField::NUM);
     $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
@@ -60,8 +61,8 @@
 
     //mapping classes to degrees
     $fields = array();
-    $fields[] = new DBField("degreeID", DBField::NUM, "-1", "degrees");
-    $fields[] = new DBField("courseID", DBField::NUM, "-1", "classes");
+    $fields[] = new DBField("degreeID", DBField::NUM, -1, "degrees");
+    $fields[] = new DBField("courseID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("semester", DBField::NUM);
     $fields[] = new DBField("notes", DBField::STRING);
     $db->createTable("degreeCourseMap", $fields);
@@ -78,9 +79,9 @@
 
     //course subsitutions for individual users
     $fields = array();
-    $fields[] = new DBField("userID", DBField::NUM, "-1", "users");
-    $fields[] = new DBField("oldClassID", DBField::NUM, "-1", "classes");
-    $fields[] = new DBField("newClassID", DBField::NUM, "-1", "classes");
+    $fields[] = new DBField("userID", DBField::NUM, -1, "users");
+    $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
+    $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
 
     //initialize the years

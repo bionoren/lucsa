@@ -15,6 +15,7 @@
 
     class Course {
         protected $ID;
+        protected $yearID;
         protected $department;
         protected $departmentlinkid;
         protected $number;
@@ -22,11 +23,11 @@
         protected $linkid;
         protected $hours;
         protected $notes;
-        protected $complete = false;
         protected $completeClass = null;
 
         public function __construct(array $row) {
             $this->ID = intval($row["ID"]);
+            $this->yearID = intval($row["yearID"]);
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
             $this->number = $row["number"];
@@ -45,6 +46,30 @@
                        WHERE classes.ID=".$id;
             $result = $db->query($sql);
             return new Course($result->fetchArray(SQLITE3_ASSOC));
+        }
+
+        static function getFromDepartmentNumber(SQLiteManager $db, $year, $dept, $num, $title="") {
+            $sql = "SELECT classes.*,
+                       departments.department, departments.linkid AS deptlinkid
+                       FROM classes
+                       JOIN departments ON classes.departmentID = departments.ID
+                       WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber AND classes.yearID=".$year;
+            $result = $db->query($sql);
+            $arr = $result->fetchArray(SQLITE3_ASSOC);
+            if(!is_array($arr)) {
+                $arr = array();
+                $arr["ID"] = -1;
+                $arr["yearID"] = -1;
+                $arr["department"] = $dept;
+                $arr["deptlinkid"] = null;
+                $arr["number"] = $num;
+                $arr["title"] = $title;
+                $arr["linkid"] = null;
+                $arr["hours"] = substr($num, -1);
+                $arr["offered"] = null;
+                $arr["years"] = null;
+            }
+            return new Course($arr);
         }
 
         public function getID() {
@@ -92,7 +117,11 @@
         }
 
         public function isComplete() {
-            return $this->complete;
+            return $this->completeClass != null;
+        }
+
+        public function setComplete(Course $class) {
+            $this->completeClass = $class;
         }
 
         protected function getCompleteClass() {
@@ -173,15 +202,15 @@
                             print " (".($key+1).")";
                         print '</span>';
                     }
-                    if($this->getCompleteClass() != null) {
-                        print '<br>'.$this->getCompleteClass()->getTitle();
+                    if($this->isComplete()) {
+                        print '<br>'.$this->getCompleteClass();
                     }
                 print '</td>';
             print '</tr>';
         }
 
         public function __toString() {
-            return $this->getDepartment().$this->getNumber()." - ".$this->getTitle();
+            return $this->yearID.": ".$this->getDepartment().$this->getNumber()." - ".$this->getTitle();
         }
     }
 ?>

@@ -48,6 +48,11 @@
     //die();
 
     session_start();
+    if($_GET["reset"] == 1) {
+        session_destroy();
+        session_write_close();
+        die("reset");
+    }
     require_once("functions.php");
     require_once("SQLiteManager.php");
     require_once("CourseSequence.php");
@@ -128,8 +133,7 @@
             $courses = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
             $ret = array();
             foreach($courses as $item) {
-                $tmp = explode("::", $item);
-                $ret[$tmp[0]][$tmp[1]] = $tmp[2];
+                $ret[] = unserialize($item);
             }
             $courses = $ret;
         } else {
@@ -153,13 +157,15 @@
             unset($data);
             $courses = array();
             foreach($matches as $matchset) {
-                $courses[] = $matchset["dept"]."::".$matchset["course"]."::".$matchset["title"];
+                $class = Course::getFromDepartmentNumber($db, $year, $matchset["dept"], $matchset["course"], $matchset["title"]);
+                $courses[] = $class;
+                $storeCourses[] = serialize($class);
             }
 
             //the first block was getting corrupt for some reason, so I'm filling it with junk
             $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
-            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $courses));
+            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $storeCourses));
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
@@ -173,11 +179,12 @@
         $tmp[] = $degOptions[$deg];
     }
 //    dump("tmp", $tmp);
-    $allCourses = getCourses($db, $tmp);
+//    $allCourses = getCourses($db, $tmp);
 //    dump("courses", $allCourses);
 
     $temp = current($tmp);
-    $courseSequence = CourseSequence::getFromAcronym($db, $temp["ID"]);
+    $courseSequence = CourseSequence::getFromID($db, $temp["ID"]);
+    $courseSequence->evalTaken($db, $courses);
 
 require_once("header.php");
     print '<form method="get" action=".">';
@@ -218,6 +225,6 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
-    $courseSequence->display($db);
+    $courseSequence->display();
 require_once("footer.php");
 ?>

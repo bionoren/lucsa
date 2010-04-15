@@ -34,7 +34,7 @@
             }
         }
 
-        public function getFromAcronym(SQLiteManager $db, $id) {
+        public function getFromID(SQLiteManager $db, $id) {
             $sql = "SELECT degrees.*, years.year
                     FROM degrees
                     JOIN years ON degrees.yearID=years.ID
@@ -43,7 +43,28 @@
             return new CourseSequence($db, $result->fetchArray(SQLITE3_ASSOC));
         }
 
-        public function display(SQLiteManager $db) {
+        public function evalTaken(SQLiteManager $db, array $classesTaken) {
+            //do direct subsitutions first
+            foreach($this->semesters as $semester) {
+                $semester->evalTaken($classesTaken);
+            }
+            //evaluate user-defined substitutions and substitutions from notes
+            //need to translate classTaken department and number keys into a DB class key
+            $mapping = array();
+            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$_SESSION["userID"]);
+            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $mapping[$row["oldClassID"]] = $row["newClassID"];
+            }
+            foreach($this->semesters as $semester) {
+                $semester->evalTaken($classesTaken, $mapping);
+            }
+        }
+
+        //call this before merging in majors or minors
+        public function clearTaken() {
+        }
+
+        public function display() {
             print '<table>';
                 print '<tr>';
                     $i = 0;
@@ -54,6 +75,7 @@
                     foreach($this->semesters as $semester) {
                         $semester->display($this->year, $year, $i, $notes);
                         $totalHours += $semester->getHours();
+                        $hoursCompleted += $semester->getCompletedHours();
                         if($i++ % 2 == 1) {
                             print '</tr><tr>';
                         } else {

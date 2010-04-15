@@ -16,10 +16,6 @@
     require_once("DBField.php");
 
     class SQLiteManager {
-        //taking chances for a little higher throughput
-//        private $sync = "NORMAL";
-        //saving some IO time
-//        private $journal = "TRUNCATE";
         private $sync = "OFF";
         private $journal = "MEMORY";
         protected $db;
@@ -77,6 +73,7 @@
             if($ret === false) {
                 print "sql = $sql<br>";
                 print "<span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
+                die();
             }
             return $ret;
         }

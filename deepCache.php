@@ -29,7 +29,7 @@
 
     $classSplitPattern = "/\<\/div\>.*?\<div.*?\>/is";
 
-    $classParsePattern = "/.*?\>\s*(?P<dept>\w{4})\s*(?P<num>\d{4}).*?\<a[^\>]*?course=(?P<linkid>\d+)[^\>]*\>\s*(?P<title>[^\<]*?)\s*\<";
+    $classParsePattern = "/.*?\>\s*(?P<dept>\w{4})\s*(?P<num>\d{4}(-\d{4})?).*?\<a[^\>]*?course=(?P<linkid>\d+)[^\>]*\>\s*(?P<title>[^\<]*?)\s*\<";
     //try for prereq/coreq information. We'll have to split this out in another pass...
     $classParsePattern .= "(?:[^\>]+\>\s*(?!Prereq|Coreq))+(?P<extra>[^\(]*(?P<time>\(\s*[^\)]*\s*\))?)?";
     //grap semester/year offering info if it exists
@@ -100,7 +100,14 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                 $fields = array();
                 $fields["departmentID"] = $deptID;
                 $fields["yearID"] = $yearID;
-                $fields["number"] = $match["num"];
+                $number = $match["num"];
+                $number = explode("-", $number);
+                $fields["number"] = $number[0];
+                if(count($number) > 1) {
+                    $fields["endNumber"] = $number[1];
+                } else {
+                    $fields["endNumber"] = $fields["number"];
+                }
                 $fields["title"] = $match["title"];
                 $fields["linkid"] = $match["linkid"];
                 $fields["hours"] = substr($fields["number"], -1);
