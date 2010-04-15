@@ -98,7 +98,9 @@
                             foreach($classes as $key=>$class2) {
                                 if($class2->getID() == $new) {
                                     $class->setComplete($class2);
-                                    unset($classes[$key]);
+                                    if($class2->getHours() >= 0) {
+                                        unset($classes[$key]);
+                                    }
                                     $this->completedHours += $class->getHours();
                                     break;
                                 }

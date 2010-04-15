@@ -157,6 +157,29 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
             }
         }
     }
+
+    //add transfer credit class
+/*    $fields = array();
+    $fields["department"] = "LETU";
+    $fields["title"] = "LeTourneau University";
+    $fields["linkid"] = "1543";
+    $db->insert("departments", $fields, true);*/
+
+    $sql = "SELECT ID FROM departments WHERE department='LETU'";
+    $result = $db->query($sql);
+    $result = $result->fetchArray(SQLITE3_ASSOC);
+
+    $fields = array();
+    $fields["departmentID"] = $result["ID"];
+    $fields["yearID"] = $yearID;
+    $fields["number"] = "1001";
+    $fields["endNumber"] = "4999";
+    $fields["title"] = "Transfer Credit";
+    $fields["linkid"] = "";
+    $fields["offered"] = 3;
+    $fields["years"] = 3;
+    $fields["hours"] = -1;
+    $db->insert("classes", $fields);
 }
 //die();
 

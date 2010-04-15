@@ -13,40 +13,6 @@
      *	limitations under the License.
      */
 
-    //$db = new SQLite3("lucsa.sqlite", SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
-    //$sql = "PRAGMA synchronous = OFF";
-    //$db->query($sql);
-    //$sql = "PRAGMA journal_mode = MEMORY";
-    //$db->query($sql);
-    //$sql = "PRAGMA foreign_keys = ON";
-    //$db->query($sql);
-    //$sql = "SELECT ID,year from years";
-    //$db->query($sql);
-    //$sql = "SELECT ID, name, acronym FROM degrees WHERE yearID='1' AND type='1'";
-    //$db->query($sql);
-    //$sql = "SELECT ID, name, acronym FROM degrees WHERE yearID='2' AND type='2'";
-    //$db->query($sql);
-    //$sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes,
-    //                classes.number, classes.title, classes.linkid, classes.offered, classes.years, classes.hours,
-    //                years.year,
-    //                departments.department, departments.linkid AS deptlinkid
-    //                FROM degreeCourseMap
-    //                JOIN classes ON degreeCourseMap.courseID=classes.ID
-    //                JOIN years ON classes.yearID=years.ID
-    //                JOIN departments ON classes.departmentID=departments.ID
-    //                WHERE degreeCourseMap.degreeID='28' ORDER BY degreeCourseMap.semester";
-    //$db->query($sql);
-    //$sql = "SELECT degrees.*, years.year
-    //                FROM degrees
-    //                JOIN years ON degrees.yearID=years.ID
-    //                WHERE degrees.ID=28";
-    //$db->query($sql);
-    //$sql = "SELECT courseID, notes
-    //                   FROM degreeCourseMap
-    //                   WHERE degreeID=28 AND semester=1";
-    //$db->query($sql);
-    //die();
-
     session_start();
     if($_GET["reset"] == 1) {
         session_destroy();
@@ -115,7 +81,7 @@
         $subID = $_REQUEST["sub"];
         $origID = $_REQUEST["orig"];
 
-        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND (oldClassID=".$origID." OR newClassID=".$subID.")";
+        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND (oldClassID=".$origID.")";
         $db->query($sql);
 
         $fields["userID"] = $userID;
@@ -197,6 +163,8 @@
 
     $temp = current($tmp);
     $courseSequence = CourseSequence::getFromID($db, $temp["ID"]);
+    $class = Course::getFromDepartmentNumber($db, $year, "LETU", "4999", "Transfer Credit");
+    $courses[$class->getDepartment().$class->getNumber()] = $class;
     $courseSequence->evalTaken($db, $courses);
 
 require_once("header.php");
