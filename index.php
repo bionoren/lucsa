@@ -62,8 +62,8 @@
         $userID = $_SESSION["userID"];
     } else {
         if(isset($_SERVER['PHP_AUTH_USER'])) {
-            $salt = generateSalt();
-            $name = encrypt($_SERVER["PHP_AUTH_USER"], $salt);
+            //we need the name to be consistent
+            $name = encrypt($_SERVER["PHP_AUTH_USER"], md5($_SERVER["PHP_AUTH_USER"]));
             $result = $db->query("SELECT ID FROM users WHERE user='".$name."'");
             $row = $result->fetchArray(SQLITE3_ASSOC);
             if($row != false) {

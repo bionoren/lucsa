@@ -68,6 +68,8 @@
                 $arr["hours"] = substr($num, -1);
                 $arr["offered"] = null;
                 $arr["years"] = null;
+            } elseif(!empty($title)) {
+                $arr["title"] = $title;
             }
             return new Course($arr);
         }
