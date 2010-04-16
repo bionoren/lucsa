@@ -70,6 +70,7 @@
                 $arr["years"] = null;
             } elseif(!empty($title)) {
                 $arr["title"] = $title;
+                $arr["number"] = $num;
             }
             return new Course($arr);
         }
