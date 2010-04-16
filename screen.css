@@ -58,6 +58,6 @@ td.endNote {
     font-size:10px;
 }
 
-.strike {
+tr.strike td {
     text-decoration:line-through;
 }

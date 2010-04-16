@@ -14,8 +14,14 @@
 	 */
 
     class Course {
+        protected static $fetchSQL = "SELECT classes.*,
+                       departments.department, departments.linkid AS deptlinkid,
+                       years.year
+                       FROM classes
+                       JOIN departments ON classes.departmentID = departments.ID
+                       JOIN years ON classes.yearID=years.ID ";
         protected $ID;
-        protected $yearID;
+        protected $year;
         protected $department;
         protected $departmentlinkid;
         protected $number;
@@ -27,7 +33,7 @@
 
         public function __construct(array $row) {
             $this->ID = intval($row["ID"]);
-            $this->yearID = intval($row["yearID"]);
+            $this->year = $row["year"];
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
             $this->number = $row["number"];
@@ -38,133 +44,28 @@
             $this->years = $row["years"];
         }
 
-        static function getFromID(SQLiteManager $db, $id) {
-            $sql = "SELECT classes.*,
-                       departments.department, departments.linkid AS deptlinkid
-                       FROM classes
-                       JOIN departments ON classes.departmentID = departments.ID
-                       WHERE classes.ID=".$id;
-            $result = $db->query($sql);
-            return new Course($result->fetchArray(SQLITE3_ASSOC));
-        }
-
-        static function getFromDepartmentNumber(SQLiteManager $db, $year, $dept, $num, $title="") {
-            $sql = "SELECT classes.*,
-                       departments.department, departments.linkid AS deptlinkid
-                       FROM classes
-                       JOIN departments ON classes.departmentID = departments.ID
-                       WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber AND classes.yearID=".$year;
-            $result = $db->query($sql);
-            $arr = $result->fetchArray(SQLITE3_ASSOC);
-            if(!is_array($arr)) {
-                $arr = array();
-                $arr["ID"] = -1;
-                $arr["yearID"] = -1;
-                $arr["department"] = $dept;
-                $arr["deptlinkid"] = null;
-                $arr["number"] = $num;
-                $arr["title"] = $title;
-                $arr["linkid"] = null;
-                $arr["hours"] = substr($num, -1);
-                $arr["offered"] = null;
-                $arr["years"] = null;
-            } elseif(!empty($title)) {
-                $arr["title"] = $title;
-                $arr["number"] = $num;
-            }
-            return new Course($arr);
-        }
-
-        public function getID() {
-            return $this->ID;
-        }
-
-        public function getDepartment() {
-            return $this->department;
-        }
-
-        public function getDepartmentLink() {
-            return $this->departmentlinkid;
-        }
-
-        public function getNumber() {
-            return $this->number;
-        }
-
-        public function getTitle() {
-            return $this->title;
-        }
-
-        public function getLink() {
-            return $this->linkid;
-        }
-
-        public function getHours() {
-            return $this->hours;
-        }
-
-        public function setNotes($note) {
-            $this->notes = $note;
-        }
-
-        public function getNotes() {
-            return $this->notes;
-        }
-
-        public function getOffered() {
-            return $this->offered;
-        }
-
-        public function getYears() {
-            return $this->years;
-        }
-
-        public function isComplete() {
-            return $this->completeClass !== null;
-        }
-
-        public function setComplete(Course $class) {
-            $this->completeClass = $class;
-            if(!$class->isComplete()) {
-                $class->setComplete($this);
-            }
-        }
-
-        protected function getCompleteClass() {
-            return $this->completeClass;
-        }
-
-        public function equals(Course $class2) {
-            return $this->getID() === $class2->getID();
-        }
-
         public function display($year, array &$notes) {
-            print '<tr class="course">';
+            $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$this->getYear()."&";
+
+            print '<tr class="course';
+            if($this->isComplete()) {
+                print ' strike';
+            }
+            print '">';
                 print '<td ';
-                if($this->isComplete()) {
-                    print 'class="strike" ';
-                }
                 print 'style="width:0px;">';
-                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year.'&school='.$this->getDepartmentLink().'&cmd=courselist">';
+                    print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
                         print $this->getDepartment();
                     print '</a>';
                 print '</td>';
-                print '<td ';
-                if($this->isComplete()) {
-                    print 'class="strike" ';
-                }
-                print 'style="width:0px;">';
+                print '<td style="width:0px;">';
                     print $this->getNumber();
                 print '</td>';
-                print '<td';
-                if($this->isComplete()) {
-                    print ' class="strike"';
-                }
-                print '>';
-                    print '<a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year.'&course='.$this->getLink().'">';
+                print '<td>';
+                    print '<a href="'.$url.'course='.$this->getLink().'">';
                         print $this->getTitle();
                     print '</a>';
-                    if(empty($this->number)) {
+                    if(!$this->getNumber()) {
                         print '<span class="note">';
                             print " (".$this->getHours()." hour";
                             if($this->getHours() != 1) {
@@ -183,19 +84,18 @@
                                     print "Fall";
                                 }
                                 if($this->getYears() < 3) {
-                                    print ",";
+                                    print ", ";
                                 }
-                                print " ";
                             }
                             if($this->getYears() < 3) {
                                 if($this->getYears() == 1) {
-                                    print "Odd years";
+                                    print "Odd";
                                 } else {
-                                    print "Even years";
+                                    print "Even";
                                 }
+                                print " years";
                             }
-                            print " only";
-                            print ")";
+                            print " only)";
                         print '</span>';
                     }
                     if(!empty($this->notes)) {
@@ -213,6 +113,98 @@
                     }
                 print '</td>';
             print '</tr>';
+        }
+
+        public function equals(Course $class2) {
+            return $this->getID() === $class2->getID();
+        }
+
+        protected function getCompleteClass() {
+            return $this->completeClass;
+        }
+
+        public function getDepartment() {
+            return $this->department;
+        }
+
+        public function getDepartmentLink() {
+            return $this->departmentlinkid;
+        }
+
+        public static function getFromID(SQLiteManager $db, $id) {
+            $sql = Course::$fetchSQL."WHERE classes.ID=".$id;
+            $result = $db->query($sql);
+            return new Course($result->fetchArray(SQLITE3_ASSOC));
+        }
+
+        public static function getFromDepartmentNumber(SQLiteManager $db, $year, $dept, $num, $title="") {
+            //try to get the class from our year if we can
+            $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber AND classes.yearID%s".$year;
+            $result = $db->query(sprintf($sql, "="));
+            $ret = $result->fetchArray(SQLITE3_ASSOC);
+            if(!$ret) {
+                //otherwise, it must be from a more recent year
+                $result = $db->query(sprintf($sql, "<="));
+                $ret = $result->fetchArray(SQLITE3_ASSOC);
+            }
+            if(!empty($title)) {
+                //if the user provided a title, use it. And the number too, just to be safe.
+                //(because the number could have been in a range somewhere on the stored class)
+                $ret["title"] = $title;
+                $ret["number"] = $num;
+            }
+            return new Course($ret);
+        }
+
+        public function getHours() {
+            return $this->hours;
+        }
+
+        public function getID() {
+            return $this->ID;
+        }
+
+        public function getLink() {
+            return $this->linkid;
+        }
+
+        public function getNotes() {
+            return $this->notes;
+        }
+
+        public function getNumber() {
+            return $this->number;
+        }
+
+        public function getOffered() {
+            return $this->offered;
+        }
+
+        public function getTitle() {
+            return $this->title;
+        }
+
+        public function getYear() {
+            return $this->year;
+        }
+
+        public function getYears() {
+            return $this->years;
+        }
+
+        public function isComplete() {
+            return $this->completeClass !== null;
+        }
+
+        public function setComplete(Course $class) {
+            $this->completeClass = $class;
+            if(!$class->isComplete()) {
+                $class->setComplete($this);
+            }
+        }
+
+        public function setNotes($note) {
+            $this->notes = $note;
         }
 
         public function __toString() {

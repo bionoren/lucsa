@@ -44,10 +44,10 @@
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
-    //department and number
-    $db->createUniqueConstraint("classes", array($fields[0], $fields[2]));
+    //department, year, and number
+    $db->createUniqueConstraint("classes", array($fields[0], $fields[1], $fields[2], $fields[3]));
     //year and title
-    $db->createUniqueConstraint("classes", array($fields[1], $fields[3]));
+    $db->createUniqueConstraint("classes", array($fields[1], $fields[4]));
 
     //class prerequisites and corequisites
     $fields = array();
@@ -84,7 +84,6 @@
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
     $db->createUniqueConstraint("userClassMap", array($fields[0], $fields[1]));
-    $db->createUniqueConstraint("userClassMap", array($fields[0], $fields[2]));
 
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");
