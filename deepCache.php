@@ -37,7 +37,7 @@
 
     $classExtraPattern = "/\>\s*(\w{4})\s*(\d{4})\s*\</is";
 
-    $db = new SQLiteManager("lucsa.sqlite");
+    $db = SQLiteManager::getInstance();
     $yearresult = $db->query("SELECT * FROM years");// WHERE updated&1=0");
 //    $yearArray = $yearresult->fetchArray(SQLITE3_ASSOC);
 //    $year = $yearArray["year"];

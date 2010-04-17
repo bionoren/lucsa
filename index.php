@@ -56,7 +56,7 @@
     }
 
     //get all the degree options
-    $db = new SQLiteManager("lucsa.sqlite");
+    $db = SQLiteManager::getInstance();
 
     if(!empty($_SESSION["userID"])) {
         $userID = $_SESSION["userID"];
@@ -90,9 +90,9 @@
         $db->insert("userClassMap", $fields);
     }
 
-    $years = getYears($db);
-    $majors = getMajors($db, $year);
-    $minors = getMinors($db, $year);
+    $years = getYears();
+    $majors = getMajors($year);
+    $minors = getMinors($year);
 
     if(empty($_SERVER['PHP_AUTH_USER'])) {
         header('WWW-Authenticate: Basic realm="LETU Login"');
@@ -136,8 +136,8 @@
             unset($data);
             $courses = array();
             foreach($matches as $matchset) {
-                $class = Course::getFromDepartmentNumber($db, $year, $matchset["dept"], $matchset["course"], $matchset["title"]);
-                $courses[$class->getDepartment().$class->getNumber()] = $class;
+                $class = Course::getFromDepartmentNumber($year, $matchset["dept"], $matchset["course"], $matchset["title"]);
+                $courses[$class->getID()] = $class;
                 $storeCourses[] = serialize($class);
             }
 
@@ -158,14 +158,14 @@
         $tmp[] = $degOptions[$deg];
     }
 //    dump("tmp", $tmp);
-//    $allCourses = getCourses($db, $tmp);
+//    $allCourses = getCourses($tmp);
 //    dump("courses", $allCourses);
 
     $temp = current($tmp);
-    $courseSequence = CourseSequence::getFromID($db, $temp["ID"]);
-    $class = Course::getFromDepartmentNumber($db, $year, "LETU", "4999", "Transfer Credit");
-    $courses[$class->getDepartment().$class->getNumber()] = $class;
-    $courseSequence->evalTaken($db, $courses);
+    $courseSequence = CourseSequence::getFromID($temp["ID"]);
+    $class = Course::getFromDepartmentNumber($year, "LETU", "4999", "Transfer Credit");
+    $courses[$class->getID()] = $class;
+    $courseSequence->evalTaken($courses);
 
 require_once("header.php");
     print '<form method="get" action=".">';

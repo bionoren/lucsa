@@ -16,51 +16,26 @@
     require_once("Semester.php");
 
     class CourseSequence {
-        protected $semesters;
-        protected $year;
+        protected $acronym;
         protected $linkid;
         protected $name;
-        protected $acronym;
         protected $type;
+        protected $semesters;
+        protected $year;
 
-        public function __construct(SQLiteManager $db, array $row) {
+        public function __construct(array $row) {
             $this->year = $row["year"];
             $this->linkid = $row["linkid"];
             $this->name = $row["name"];
             $this->acronym = $row["acronym"];
             $this->type = $row["type"]; //none, major, minor
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
-                $this->semesters[] = Semester::getFromDegree($db, $row["ID"], $i);
-            }
-        }
-
-        public function getFromID(SQLiteManager $db, $id) {
-            $sql = "SELECT degrees.*, years.year
-                    FROM degrees
-                    JOIN years ON degrees.yearID=years.ID
-                    WHERE degrees.ID=".$id;
-            $result = $db->query($sql);
-            return new CourseSequence($db, $result->fetchArray(SQLITE3_ASSOC));
-        }
-
-        public function evalTaken(SQLiteManager $db, array $classesTaken) {
-            //do direct subsitutions first
-            foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken);
-            }
-            //evaluate user-defined substitutions and substitutions from notes
-            //need to translate classTaken department and number keys into a DB class key
-            $mapping = array();
-            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$_SESSION["userID"]);
-            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $mapping[$row["oldClassID"]] = $row["newClassID"];
-            }
-            foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken, $mapping);
+                $this->semesters[] = Semester::getFromDegree($row["ID"], $i);
             }
         }
 
         //call this before merging in majors or minors
+        //because elective substitutions will need to be cleared
         public function clearTaken() {
         }
 
@@ -102,6 +77,34 @@
                     print '</td>';
                 print '</tr>';
             print '</table>';
+        }
+
+        public function evalTaken(array $classesTaken) {
+            $db = SQLiteManager::getInstance();
+            //do direct subsitutions first
+            foreach($this->semesters as $semester) {
+                $semester->evalTaken($classesTaken);
+            }
+            //evaluate user-defined substitutions and substitutions from notes
+            //need to translate classTaken department and number keys into a DB class key
+            $mapping = array();
+            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$_SESSION["userID"]);
+            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $mapping[$row["oldClassID"]] = $row["newClassID"];
+            }
+            foreach($this->semesters as $semester) {
+                $semester->evalTaken($classesTaken, $mapping);
+            }
+        }
+
+        public function getFromID($id) {
+            $db = SQLiteManager::getInstance();
+            $sql = "SELECT degrees.*, years.year
+                    FROM degrees
+                    JOIN years ON degrees.yearID=years.ID
+                    WHERE degrees.ID=".$id;
+            $result = $db->query($sql);
+            return new CourseSequence($result->fetchArray(SQLITE3_ASSOC));
         }
 
         public function getIncompleteClasses() {

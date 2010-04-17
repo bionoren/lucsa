@@ -16,11 +16,14 @@
     require_once("DBField.php");
 
     class SQLiteManager {
-        private $sync = "OFF";
+        protected static $instance = null;
+
         private $journal = "MEMORY";
+        private $sync = "OFF";
+
         protected $db;
 
-        public function __construct($db) {
+        protected function __construct($db) {
             try {
                 $this->db = new SQLite3($db, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
             } catch(Exception $e) {
@@ -29,6 +32,10 @@
             $this->query("PRAGMA synchronous = ".$this->sync);
             $this->query("PRAGMA journal_mode = ".$this->journal);
             $this->query("PRAGMA foreign_keys = ON");
+        }
+
+        public function close() {
+            $this->db->close();
         }
 
         public function createTable($name, array $fields) {
@@ -68,14 +75,15 @@
             return $this->query($sql);
         }
 
-        public function query($sql) {
-            $ret = $this->db->query($sql);
-            if($ret === false) {
-                print "sql = $sql<br>";
-                print "<span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
-                die();
+        public static function getInstance() {
+            if(SQLiteManager::$instance == null) {
+                SQLiteManager::$instance = new SQLiteManager("lucsa.sqlite");
             }
-            return $ret;
+            return SQLiteManager::$instance;
+        }
+
+        public function getLastInsertID() {
+            return $this->db->lastInsertRowID();
         }
 
         public function insert($table, array $fields, $ignore=false) {
@@ -98,6 +106,16 @@
             return $this->query($sql);
         }
 
+        public function query($sql) {
+            $ret = $this->db->query($sql);
+            if($ret === false) {
+                print "sql = $sql<br>";
+                print "<span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
+                die();
+            }
+            return $ret;
+        }
+
         public function update($table, array $fields, array $whereFields) {
             $sql = "UPDATE ".$table." SET ";
             foreach($fields as $key=>$val) {
@@ -109,14 +127,6 @@
             }
             $sql = substr($sql, 0, -4);
             return $this->query($sql);
-        }
-
-        public function getLastInsertID() {
-            return $this->db->lastInsertRowID();
-        }
-
-        public function close() {
-            $this->db->close();
         }
 
         function __destruct() {

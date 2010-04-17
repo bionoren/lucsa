@@ -16,7 +16,7 @@
     require_once("SQLiteManager.php");
     require_once("functions.php");
 
-    $db = new SQLiteManager("lucsa.sqlite");
+    $db = SQLiteManager::getInstance();
     $departmentLookup = array();
     $result = $db->query("SELECT ID,department FROM departments");
     while($row = $result->fetchArray(SQLITE3_ASSOC)) {

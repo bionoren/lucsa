@@ -59,7 +59,8 @@
         return $ret;
     }
 
-    function getYears(SQLiteManager $db) {
+    function getYears() {
+        $db = SQLiteManager::getInstance();
         $result = $db->query("SELECT ID,year from years");
         $years = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -68,7 +69,8 @@
         return $years;
     }
 
-    function getMajors(SQLiteManager $db, $year) {
+    function getMajors($year) {
+        $db = SQLiteManager::getInstance();
         $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1'");
         $majors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -77,7 +79,8 @@
         return $majors;
     }
 
-    function getMinors(SQLiteManager $db, $year) {
+    function getMinors($year) {
+        $db = SQLiteManager::getInstance();
         $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
         $minors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -86,7 +89,8 @@
         return $minors;
     }
 
-    function getCourses(SQLiteManager $db, array $degrees) {
+    function getCourses(array $degrees) {
+        $db = SQLiteManager::getInstance();
         $ret = array();
         foreach($degrees as $degree) {
             $sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes,

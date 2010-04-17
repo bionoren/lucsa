@@ -2,7 +2,7 @@
     require_once("SQLiteManager.php");
     require_once("functions.php");
 
-    $db = new SQLiteManager("lucsa.sqlite");
+    $db = SQLiteManager::getInstance();
 
     //catalogs
     $fields = array();

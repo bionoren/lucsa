@@ -20,16 +20,17 @@
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID
                        JOIN years ON classes.yearID=years.ID ";
-        protected $ID;
-        protected $year;
+
+        protected $completeClass = null;
         protected $department;
         protected $departmentlinkid;
+        protected $hours;
+        protected $ID;
+        protected $linkid;
+        protected $notes;
         protected $number;
         protected $title;
-        protected $linkid;
-        protected $hours;
-        protected $notes;
-        protected $completeClass = null;
+        protected $year;
 
         public function __construct(array $row) {
             $this->ID = intval($row["ID"]);
@@ -78,21 +79,13 @@
                         print '<span class="note">';
                             print " (";
                             if($this->getOffered() < 3) {
-                                if($this->getOffered() == 1) {
-                                    print "Spring";
-                                } else {
-                                    print "Fall";
-                                }
+                                print ($this->getOffered() == 1)?"Spring":"Fall";
                                 if($this->getYears() < 3) {
                                     print ", ";
                                 }
                             }
                             if($this->getYears() < 3) {
-                                if($this->getYears() == 1) {
-                                    print "Odd";
-                                } else {
-                                    print "Even";
-                                }
+                                print ($this->getYears() == 1)?"Odd":"Even";
                                 print " years";
                             }
                             print " only)";
@@ -131,13 +124,15 @@
             return $this->departmentlinkid;
         }
 
-        public static function getFromID(SQLiteManager $db, $id) {
+        public static function getFromID($id) {
+            $db = SQLiteManager::getInstance();
             $sql = Course::$fetchSQL."WHERE classes.ID=".$id;
             $result = $db->query($sql);
             return new Course($result->fetchArray(SQLITE3_ASSOC));
         }
 
-        public static function getFromDepartmentNumber(SQLiteManager $db, $year, $dept, $num, $title="") {
+        public static function getFromDepartmentNumber($year, $dept, $num, $title="") {
+            $db = SQLiteManager::getInstance();
             //try to get the class from our year if we can
             $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber AND classes.yearID%s".$year;
             $result = $db->query(sprintf($sql, "="));
