@@ -43,12 +43,12 @@
             print '<table>';
                 print '<tr>';
                     $i = 0;
-                    $year = $this->year;
+                    $year = $this->getYear();
                     $totalHours = 0;
                     $hoursCompleted = 0;
                     $notes = array();
                     foreach($this->semesters as $semester) {
-                        $semester->display($this->year, $year, $i, $notes);
+                        $semester->display($year, $year, $i, $notes);
                         $totalHours += $semester->getHours();
                         $hoursCompleted += $semester->getCompletedHours();
                         if($i++ % 2 == 1) {
@@ -64,31 +64,30 @@
                         print "Total Hours: ".$totalHours;
                     print '</td>';
                 print '</tr>';
-                print '<tr>';
-                    print '<td colspan="2" class="endNote">';
-                    print 'Notes:<br>';
-                    for($i = 0; $i < count($notes); $i++) {
-                        print '<span class="endNote">'.($i+1).'</span>';
-                        print ": ".$notes[$i];
-                        if($i+1 < count($notes)) {
-                            print "<br>";
+                if(!empty($notes)) {
+                    print '<tr>';
+                        print '<td colspan="2" class="endNote">';
+                        print 'Notes:';
+                        foreach($notes as $i=>$note) {
+                            print '<br><span class="endNote">'.($i+1).'</span>';
+                            print ": ".$note;
                         }
-                    }
-                    print '</td>';
-                print '</tr>';
+                        print '</td>';
+                    print '</tr>';
+                }
             print '</table>';
         }
 
-        public function evalTaken(array $classesTaken) {
+        public function evalTaken(array $classesTaken, $user) {
             $db = SQLiteManager::getInstance();
-            //do direct subsitutions first
+            //do direct subsitutions first. This needs to be an entirely seperate pass
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken);
             }
             //evaluate user-defined substitutions and substitutions from notes
             //need to translate classTaken department and number keys into a DB class key
             $mapping = array();
-            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$_SESSION["userID"]);
+            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $mapping[$row["oldClassID"]] = $row["newClassID"];
             }
@@ -97,7 +96,7 @@
             }
         }
 
-        public function getFromID($id) {
+        public static function getFromID($id) {
             $db = SQLiteManager::getInstance();
             $sql = "SELECT degrees.*, years.year
                     FROM degrees
@@ -113,6 +112,10 @@
                 $ret = array_merge($ret, $sem->getIncompleteClasses());
             }
             return $ret;
+        }
+
+        protected function getYear() {
+            return $this->year;
         }
     }
 ?>

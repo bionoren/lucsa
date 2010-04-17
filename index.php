@@ -165,7 +165,7 @@
     $courseSequence = CourseSequence::getFromID($temp["ID"]);
     $class = Course::getFromDepartmentNumber($year, "LETU", "4999", "Transfer Credit");
     $courses[$class->getID()] = $class;
-    $courseSequence->evalTaken($courses);
+    $courseSequence->evalTaken($courses, $_SESSION["userID"]);
 
 require_once("header.php");
     print '<form method="get" action=".">';
