@@ -139,7 +139,7 @@
             $ret = $result->fetchArray(SQLITE3_ASSOC);
             if(!$ret) {
                 //otherwise, it must be from a more recent year
-                $result = $db->query(sprintf($sql, "<="));
+                $result = $db->query(sprintf($sql, ">="));
                 $ret = $result->fetchArray(SQLITE3_ASSOC);
             }
             if(!empty($title)) {

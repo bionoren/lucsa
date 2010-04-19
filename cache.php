@@ -168,7 +168,7 @@ while($row = $result->fetchArray()) {
         preg_match("/majorTitle.*?\((.*?)\)/is", $data, $matches);
         $db->update("degrees", array("acronym"=>$matches[1]), array("ROWID"=>$key2));
     }
-break;
+//break;
 }
 //    $yearArray["updated"] += 2;
 //    $db->update("years", $yearArray, array("ID"=>$yearID));

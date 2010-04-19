@@ -43,7 +43,9 @@
         return md5(mt_rand()*M_LOG2E);
     }
 
-    $year = intval($_REQUEST["year"])+1;
+    if(isset($_REQUEST["year"])) {
+        $year = intval($_REQUEST["year"]);
+    }
     if(isset($_REQUEST["degree"])) {
         $degree = $_REQUEST["degree"];
     }
@@ -51,6 +53,14 @@
     //get all the degree options
     $db = SQLiteManager::getInstance();
 
+    $years = getYears();
+    if(!isset($year)) {
+        $year = end(array_keys($years));
+    }
+    $majors = getMajors($year);
+    $minors = getMinors($year);
+
+    //get the user's ID
     if(!empty($_SESSION["userID"])) {
         $userID = $_SESSION["userID"];
     } else {
@@ -70,6 +80,7 @@
         }
     }
 
+    //get course substitutions
     if(isset($_REQUEST["substitute"])) {
         $subID = $_REQUEST["sub"];
         $origID = $_REQUEST["orig"];
@@ -83,10 +94,7 @@
         $db->insert("userClassMap", $fields);
     }
 
-    $years = getYears();
-    $majors = getMajors($year);
-    $minors = getMinors($year);
-
+    //get the list of classes the user is already enrolled in
     if(empty($_SERVER['PHP_AUTH_USER'])) {
         header('WWW-Authenticate: Basic realm="LETU Login"');
         header('HTTP/1.0 401 Unauthorized');
@@ -165,7 +173,7 @@ require_once("header.php");
         print 'Year: <select name="year">';
             foreach($years as $key=>$yr) {
                 print "<option value='$key'";
-                if($key == $year-1) {
+                if($key == $year) {
                     print " selected='selected'";
                 }
                 print ">".$yr."</option>";

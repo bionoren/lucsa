@@ -90,7 +90,8 @@
     $matches = array();
     preg_match_all("/\>(\d{4})-\d{4}\</is", $data, $matches, PREG_PATTERN_ORDER);
     $years = $matches[1];
-    foreach($years as $year) {
+    //put the years in oldest to newest
+    foreach(array_reverse($years) as $year) {
         $db->insert("years", array("year"=>$year));
     }
 ?>
