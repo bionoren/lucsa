@@ -202,6 +202,6 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
 
 <?php
 //    print "starting normal cache...<br>\n";
-    $db->close();
+    unset($db);
     require_once("cache.php");
 ?>

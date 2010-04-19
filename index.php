@@ -25,10 +25,6 @@
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
-     * See the end of /OpenSiteAdmin/scripts/php.php for a list of available hashing algorithms.
-     * If the first option provided in this method is not available, try the algorithms in order from
-     * top to bottom for maximum security. The md5 function is provided as a last resort and is not
-     * recommended for applications needing to withstand organized security threats in future years.
      *
      * @param STRING $string The string to encrypt.
      * @param STRING $salt Salt to use on the given string
@@ -36,9 +32,6 @@
      */
     function encrypt($string, $salt) {
         return hash("sha512", $salt.$string);
-        //return hash("sha384", $salt.$string);
-        //return hash("whirlpool", $salt.$string);
-        //return md5($salt.$string);
     }
 
     /**
@@ -81,7 +74,7 @@
         $subID = $_REQUEST["sub"];
         $origID = $_REQUEST["orig"];
 
-        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND (oldClassID=".$origID.")";
+        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID;
         $db->query($sql);
 
         $fields["userID"] = $userID;
