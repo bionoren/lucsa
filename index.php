@@ -204,34 +204,9 @@ require_once("header.php");
     $courseSequence->display();
     print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
         print 'Substitute ';
-        print '<select name="sub">';
-            ksort($courses);
-            $dept = null;
-            foreach($courses as $class) {
-                if($class->getDepartment() != $dept) {
-                    $dept = $class->getDepartment();
-                    print '<optgroup label="'.$dept.'">';
-                }
-                print '<option value="'.$class->getID().'"';
-                if($class->isComplete()) {
-                    print ' style="color:rgb(177, 177, 177);"';
-                }
-                print '>'.$class->getTitle().'</option>';
-            }
-        print '</select>';
+        displayClassSelect("sub", $courses);
         print ' for ';
-        print '<select name="orig">';
-            $temp = $courseSequence->getIncompleteClasses();
-            sort($temp);
-            $dept = null;
-            foreach($temp as $class) {
-                if($class->getDepartment() != $dept) {
-                    $dept = $class->getDepartment();
-                    print '<optgroup label="'.$dept.'">';
-                }
-                print '<option value="'.$class->getID().'">'.$class->getTitle().'</option>';
-            }
-        print '</select>';
+        displayClassSelect("orig", $courseSequence->getIncompleteClasses());
         print '<br>';
         print '<input type="submit" name="substitute" value="Substitute">';
     print '</form>';

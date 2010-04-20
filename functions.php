@@ -35,6 +35,26 @@
 		}
 	}
 
+    //FUNCTIONS
+
+    function displayClassSelect($name, $classes) {
+        print '<select name="'.$name.'">';
+            usort($classes, "strcmp");
+            $dept = null;
+            foreach($classes as $class) {
+                if($class->getDepartment() != $dept) {
+                    $dept = $class->getDepartment();
+                    print '<optgroup label="'.$dept.'">';
+                }
+                print '<option value="'.$class->getID().'"';
+                if($class->isComplete()) {
+                    print ' style="color:rgb(177, 177, 177);"';
+                }
+                print '>'.$class->getTitle().'</option>';
+            }
+        print '</select>';
+    }
+
     function getCache($file) {
         $name = "cache/".md5($file).".tmp";
         if(file_exists($name)) {
