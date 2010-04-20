@@ -228,7 +228,7 @@ require_once("header.php");
         print ' for ';
         print '<select name="orig">';
             $temp = $courseSequence->getIncompleteClasses();
-            ksort($temp);
+            sort($temp);
             $dept = null;
             foreach($temp as $class) {
                 if($class->getDepartment() != $dept) {

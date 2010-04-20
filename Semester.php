@@ -135,7 +135,7 @@
         }
 
         public function getIncompleteClasses() {
-            return array_filter($this->classes, function($class) { return $class->isComplete(); });
+            return array_filter($this->classes, function($class) { return !$class->isComplete(); });
         }
 
         public function hasClass(Course $class) {
