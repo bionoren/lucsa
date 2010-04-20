@@ -15,11 +15,9 @@
 
     class Course {
         protected static $fetchSQL = "SELECT classes.*,
-                       departments.department, departments.linkid AS deptlinkid,
-                       years.year
+                       departments.department, departments.linkid AS deptlinkid
                        FROM classes
-                       JOIN departments ON classes.departmentID = departments.ID
-                       JOIN years ON classes.yearID=years.ID ";
+                       JOIN departments ON classes.departmentID = departments.ID ";
 
         protected $completeClass = null;
         protected $department;
@@ -30,11 +28,9 @@
         protected $notes;
         protected $number;
         protected $title;
-        protected $year;
 
         public function __construct(array $row) {
             $this->ID = intval($row["ID"]);
-            $this->year = $row["year"];
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
             $this->number = $row["number"];
@@ -46,7 +42,7 @@
         }
 
         public function display($year, array &$notes) {
-            $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$this->getYear()."&";
+            $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
 
             print '<tr class="course';
             if($this->isComplete()) {
@@ -131,17 +127,12 @@
             return new Course($result->fetchArray(SQLITE3_ASSOC));
         }
 
-        public static function getFromDepartmentNumber($year, $dept, $num, $title="") {
+        public static function getFromDepartmentNumber($dept, $num, $title="") {
             $db = SQLiteManager::getInstance();
             //try to get the class from our year if we can
-            $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber AND classes.yearID%s".$year;
-            $result = $db->query(sprintf($sql, "="));
+            $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber";
+            $result = $db->query($sql);
             $ret = $result->fetchArray(SQLITE3_ASSOC);
-            if(!$ret) {
-                //otherwise, it must be from a more recent year
-                $result = $db->query(sprintf($sql, ">="));
-                $ret = $result->fetchArray(SQLITE3_ASSOC);
-            }
             if(!empty($title)) {
                 //if the user provided a title, use it. And the number too, just to be safe.
                 //(because the number could have been in a range somewhere on the stored class)
@@ -177,10 +168,6 @@
 
         public function getTitle() {
             return $this->title;
-        }
-
-        public function getYear() {
-            return $this->year;
         }
 
         public function getYears() {

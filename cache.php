@@ -92,7 +92,7 @@ while($row = $result->fetchArray()) {
                     $class[2] = "";
                 }
                 $num = $class[2];
-                $sql = "SELECT ID,departmentID FROM classes WHERE yearID=".$yearID." AND title='".SQLite3::escapeString($class[5])."'";
+                $sql = "SELECT ID,departmentID FROM classes WHERE title='".SQLite3::escapeString($class[5])."'";
                 if(!empty($dept)) {
                     $sql .= " AND departmentID=".$dept;
                 }
@@ -107,7 +107,6 @@ while($row = $result->fetchArray()) {
                     if(!empty($dept)) {
                         $fields["departmentID"] = $dept;
                     }
-                    $fields["yearID"] = $yearID;
                     $fields["title"] = $class[5];
                     $fields["linkid"] = $class[4];
                     if(!empty($class[6])) {

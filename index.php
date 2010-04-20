@@ -110,12 +110,7 @@
             //don't ask. Just don't ask...
             mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
             $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
-            $coursArray = explode("~", trim(mdecrypt_generic($sec, $_SESSION["courses"])));
-            $courses = array();
-            foreach($coursArray as $item) {
-                $class = unserialize($item);
-                $courses[$class->getDepartment().$class->getNumber()] = $class;
-            }
+            $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             unset($_SERVER['PHP_AUTH_USER']);
@@ -137,15 +132,14 @@
             unset($data);
             $courses = array();
             foreach($matches as $matchset) {
-                $class = Course::getFromDepartmentNumber($year, $matchset["dept"], $matchset["course"], $matchset["title"]);
+                $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
                 $courses[$class->getID()] = $class;
-                $storeCourses[] = serialize($class);
             }
 
             //the first block was getting corrupt for some reason, so I'm filling it with junk
             $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
             $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
-            $_SESSION["courses"] = mcrypt_generic($sec, implode("~", $storeCourses));
+            $_SESSION["courses"] = mcrypt_generic($sec, serialize($courses));
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
@@ -164,7 +158,7 @@
 
     $temp = current($tmp);
     $courseSequence = CourseSequence::getFromID($temp["ID"]);
-    $class = Course::getFromDepartmentNumber($year, "LETU", "4999", "Transfer Credit");
+    $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
     $courses[$class->getID()] = $class;
     $courseSequence->evalTaken($courses, $_SESSION["userID"]);
 
@@ -208,7 +202,7 @@ require_once("header.php");
     print "<br>";
 
     $courseSequence->display();
-    print '<form method="post" action=".">';
+    print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
         print 'Substitute ';
         print '<select name="sub">';
             ksort($courses);

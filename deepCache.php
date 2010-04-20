@@ -99,7 +99,6 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
             foreach($matches as $match) {
                 $fields = array();
                 $fields["departmentID"] = $deptID;
-                $fields["yearID"] = $yearID;
                 $number = $match["num"];
                 $number = explode("-", $number);
                 $fields["number"] = $number[0];
@@ -171,7 +170,6 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
 
     $fields = array();
     $fields["departmentID"] = $result["ID"];
-    $fields["yearID"] = $yearID;
     $fields["number"] = "1001";
     $fields["endNumber"] = "4999";
     $fields["title"] = "Transfer Credit";

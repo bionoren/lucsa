@@ -71,8 +71,8 @@
             if($mapping === null) {
                 //basic evaluation of course dept+number against course dept+number
                 foreach($classes as $key=>$class) {
-                    if(isset($this->classes[$class->getID()])) {
-                        $this->completeClass($this->classes[$class->getID()], $class);
+                    if(isset($this->classes[$key])) {
+                        $this->completeClass($this->classes[$key], $class);
                         unset($classes[$key]);
                     }
                 }

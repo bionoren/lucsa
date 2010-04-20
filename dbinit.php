@@ -35,7 +35,6 @@
     //classes
     $fields = array();
     $fields[] = new DBField("departmentID", DBField::NUM, null, "departments", "ID");
-    $fields[] = new DBField("yearID", DBField::NUM, -1, "years", "ID");
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("endNumber", DBField::NUM); //only used for ranges, like special topics classes
     $fields[] = new DBField("title", DBField::STRING);
@@ -45,9 +44,8 @@
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
     //department, year, and number
-    $db->createUniqueConstraint("classes", array($fields[0], $fields[1], $fields[2], $fields[3]));
+    $db->createUniqueConstraint("classes", array($fields[0], $fields[1], $fields[2]));
     //year and title
-    $db->createUniqueConstraint("classes", array($fields[1], $fields[4]));
 
     //class prerequisites and corequisites
     $fields = array();
