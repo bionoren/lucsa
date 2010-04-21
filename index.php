@@ -159,6 +159,7 @@
     $temp = current($tmp);
     $courseSequence = CourseSequence::getFromID($temp["ID"]);
     $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
+    $class->makeAvailable(1000);
     $courses[$class->getID()] = $class;
     $courseSequence->evalTaken($courses, $_SESSION["userID"]);
 

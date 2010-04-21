@@ -110,6 +110,9 @@ while($row = $result->fetchArray()) {
                     if(!empty($dept)) {
                         $fields["departmentID"] = $dept;
                     }
+                    if(!empty($num)) {
+                        $fields["endNumber"] = $fields["number"] = $num;
+                    }
                     $fields["title"] = $class[5];
                     $fields["linkid"] = $class[4];
                     if(!empty($class[6])) {
@@ -134,7 +137,21 @@ while($row = $result->fetchArray()) {
                         }
                     }
                     $db->insert("classes", $fields, true);
-                    $classID = $db->getLastInsertID();
+                    if($db->changed()) {
+                        $classID = $db->getLastInsertID();
+//                      print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
+                    } else {
+                        $select = array();
+                        if(isset($fields["departmentID"])) {
+                            $select["departmentID"] = $fields["departmentID"];
+                        }
+                        if(isset($fields["number"])) {
+                            $select["number"] = $fields["number"];
+                            $select["endNumber"] = $fields["endNumber"];
+                        }
+                        $tmp = $db->select("classes", $select, array("ID"))->fetchArray(SQLITE3_ASSOC);
+                        $classID = $tmp["ID"];
+                    }
                 }
                 /*
                 $fields[] = new DBField("departmentID", DBField::NUM, "-1", "departments", "ID");

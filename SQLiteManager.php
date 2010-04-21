@@ -34,6 +34,10 @@
             $this->query("PRAGMA foreign_keys = ON");
         }
 
+        public function changed() {
+            return $this->db->changes() != 0;
+        }
+
         public function close() {
             $this->db->close();
         }
@@ -66,7 +70,7 @@
         }
 
         public function createUniqueConstraint($name, array $fields) {
-            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".current($fields)->getName()." ON ".$name." (";
+            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS u".current($fields)->getName()." ON ".$name." (";
             $tmp = "";
             foreach($fields as $field) {
                 $tmp .= $field->getName().",";
@@ -116,6 +120,27 @@
             return $ret;
         }
 
+        public function select($table, array $whereFields=null, array $fields=null) {
+            $sql = "SELECT ";
+            if(!empty($fields)) {
+                foreach($fields as $val) {
+                    $sql .= $val.",";
+                }
+                $sql = substr($sql, 0, -1);
+            } else {
+                $sql .= "*";
+            }
+            $sql .= " FROM ".$table;
+            if(!empty($whereFields)) {
+                $sql .= " WHERE ";
+                foreach($whereFields as $key=>$val) {
+                    $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
+                }
+                $sql = substr($sql, 0, -5);
+            }
+            return $this->query($sql);
+        }
+
         public function update($table, array $fields, array $whereFields) {
             $sql = "UPDATE ".$table." SET ";
             foreach($fields as $key=>$val) {
@@ -123,9 +148,9 @@
             }
             $sql = substr($sql, 0, -1)." WHERE ";
             foreach($whereFields as $key=>$val) {
-                $sql .= $key."='".SQLite3::escapeString($val)."' AND";
+                $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
             }
-            $sql = substr($sql, 0, -4);
+            $sql = substr($sql, 0, -5);
             return $this->query($sql);
         }
 

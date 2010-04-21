@@ -35,7 +35,7 @@
     $fields[] = new DBField("type", DBField::NUM); //none, major, minor
     $fields[] = new DBField("numSemesters", DBField::NUM, 0);
     $db->createTable("degrees", $fields);
-    $db->createUniqueConstraint("degrees", array($fields[0], $fields[3]));
+    $db->createUniqueConstraint("degrees", array($fields[0], $fields[3], $fields[4]));
 
     //departments
     $fields = array();
@@ -58,7 +58,7 @@
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
     //department, year, and number
-    $db->createUniqueConstraint("classes", array($fields[0], $fields[1], $fields[2]));
+    $db->createUniqueConstraint("classes", array_slice($fields, 0, 3));
     //year and title
 
     //class prerequisites and corequisites
@@ -95,7 +95,7 @@
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
-    $db->createUniqueConstraint("userClassMap", array($fields[0], $fields[1]));
+    $db->createUniqueConstraint("userClassMap", array_slice($fields, 0, 2));
 
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");

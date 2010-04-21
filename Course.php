@@ -177,6 +177,10 @@
             return $this->getReferenceCount() == 0;
         }
 
+        public function makeAvailable($count) {
+            $this->refCount += $count;
+        }
+
         public function setComplete(Course $class) {
             $this->completeClass = $class;
             $this->refCount--;

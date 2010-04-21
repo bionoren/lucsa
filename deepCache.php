@@ -68,7 +68,7 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                 $fields["department"] = $matches[2];
                 $fields["title"] = $matches[1];
                 $fields["linkid"] = $match[1];
-                $db->insert("departments", $fields, true);
+                $db->insert("departments", $fields);
                 $deptID = $db->getLastInsertID();
                 $departmentLookup[$fields["department"]] = $deptID;
             } else {
@@ -121,8 +121,14 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                         $fields["offered"] = ($search == false)?1:2;
                     }
                 }
-                $db->insert("classes", $fields);
-                $classID = $db->getLastInsertID();
+                $db->insert("classes", $fields, true);
+                if($db->changed()) {
+                    $classID = $db->getLastInsertID();
+//                    print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
+                } else {
+                    $tmp = $db->select("classes", array_slice($fields, 0, 3, true), array("ID"))->fetchArray(SQLITE3_ASSOC);
+                    $classID = $tmp["ID"];
+                }
 
                 if(!empty($match["extra"])) {
 //                    print "extra<br>";
@@ -177,7 +183,7 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
     $fields["offered"] = 3;
     $fields["years"] = 3;
     $fields["hours"] = -1;
-    $db->insert("classes", $fields);
+    $db->insert("classes", $fields, true);
 }
 //die();
 

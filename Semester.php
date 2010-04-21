@@ -73,7 +73,9 @@
                 foreach($classes as $key=>$class) {
                     if(isset($this->classes[$key])) {
                         $this->completeClass($this->classes[$key], $class);
-                        unset($classes[$key]);
+                        if($this->classes[$key]->isComplete()) {
+                            unset($classes[$key]);
+                        }
                     }
                 }
             } else {
@@ -83,7 +85,7 @@
                 foreach($mapping as $old=>$new) {
                     if(isset($this->classes[$old]) && isset($classes[$new])) {
                         $this->completeClass($this->classes[$old], $classes[$new]);
-                        if($classes[$new] >= 0) {
+                        if($classes[$new]->isComplete()) {
                             unset($classes[$new]);
                         }
                     }
@@ -95,7 +97,9 @@
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
                                 $this->completeClass($class, $class2);
-                                unset($classes[$key]);
+                                if($classes[$key]->isComplete()) {
+                                    unset($classes[$key]);
+                                }
                             }
                         }
                     } elseif(!$class->getNumber()) {
@@ -103,7 +107,9 @@
                         foreach($classes as $key=>$class2) {
                             if($class->getDepartment() == $class2->getDepartment()) {
                                 $this->completeClass($class, $class2);
-                                unset($classes[$key]);
+                                if($classes[$key]->isComplete()) {
+                                    unset($classes[$key]);
+                                }
                             }
                         }
                     }
