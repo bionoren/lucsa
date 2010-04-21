@@ -96,6 +96,9 @@ while($row = $result->fetchArray()) {
                 if(!empty($dept)) {
                     $sql .= " AND departmentID=".$dept;
                 }
+                if(!empty($num)) {
+                    $sql .= " AND number=".$num;
+                }
                 $result2 = $db->query($sql);
                 if($row = $result2->fetchArray()) {
                     $classID = $row["ID"];

@@ -28,8 +28,9 @@
         protected $notes;
         protected $number;
         protected $title;
+        protected $refCount = 1;
 
-        public function __construct(array $row) {
+        protected function __construct(array $row) {
             $this->ID = intval($row["ID"]);
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
@@ -104,10 +105,6 @@
             print '</tr>';
         }
 
-        public function equals(Course $class2) {
-            return $this->getID() === $class2->getID();
-        }
-
         protected function getCompleteClass() {
             return $this->completeClass;
         }
@@ -134,8 +131,6 @@
             $result = $db->query($sql);
             $ret = $result->fetchArray(SQLITE3_ASSOC);
             if(!empty($title)) {
-                //if the user provided a title, use it. And the number too, just to be safe.
-                //(because the number could have been in a range somewhere on the stored class)
                 $ret["title"] = $title;
                 $ret["number"] = $num;
             }
@@ -166,6 +161,10 @@
             return $this->offered;
         }
 
+        public function getReferenceCount() {
+            return $this->refCount;
+        }
+
         public function getTitle() {
             return $this->title;
         }
@@ -175,11 +174,12 @@
         }
 
         public function isComplete() {
-            return $this->completeClass !== null;
+            return $this->getReferenceCount() == 0;
         }
 
         public function setComplete(Course $class) {
             $this->completeClass = $class;
+            $this->refCount--;
             if(!$class->isComplete()) {
                 $class->setComplete($this);
             }
