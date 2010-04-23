@@ -90,7 +90,7 @@
                         }
                     }
                 }
-                foreach($this->classes as $class) {
+                foreach(array_filter($this->classes, function(Course $obj) { return !$obj->isComplete(); }) as $class) {
                     $notes = $class->getNotes();
                     if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*?(\w{4})\s*(\d{4})/is", $notes, $matches)) {
                         //explicit course substitution
@@ -141,7 +141,7 @@
         }
 
         public function getIncompleteClasses() {
-            return array_filter($this->classes, function($class) { return !$class->isComplete(); });
+            return array_filter($this->classes, function(Course $class) { return !$class->isComplete(); });
         }
 
         public function hasClass(Course $class) {
