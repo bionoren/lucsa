@@ -24,6 +24,7 @@ td {
 
 tr.course, .noborder, .semesterHours, .semesterTitle {
     border:0px;
+    background-color:rgb(200, 200, 200);
 }
 
 .semesterHeader, .semesterHours, .semesterTitle {
@@ -58,6 +59,7 @@ td.endNote {
     font-size:10px;
 }
 
-tr.strike td {
+.strike, tr.strike td {
     text-decoration:line-through;
+    background-color:rgb(240, 239, 245);
 }

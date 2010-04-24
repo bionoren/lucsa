@@ -48,12 +48,20 @@
                         print '<td colspan="3">';
                             print '<table width="100%" class="semesterHeader">';
                                 print '<tr>';
-                                    print '<td class="semesterTitle">';
+                                    print '<td class="semesterTitle';
+                                    if($this->completedHours == $this->hours) {
+                                        print ' strike';
+                                    }
+                                    print '">';
                                         print Semester::$CARDINAL_STRINGS[$semester].' Semester - ';
                                         print ($semester % 2 == 0)?"Fall":"Spring";
                                         print " ".$year;
                                     print '</td>';
-                                    print '<td class="semesterHours">';
+                                    print '<td class="semesterHours';
+                                    if($this->completedHours == $this->hours) {
+                                        print ' strike';
+                                    }
+                                    print '">';
                                         print $this->getHours().' hours';
                                     print '</td>';
                                 print '</tr>';
@@ -100,16 +108,18 @@
                                 if($classes[$key]->isComplete()) {
                                     unset($classes[$key]);
                                 }
+                                break;
                             }
                         }
                     } elseif(!$class->getNumber()) {
                         //elective substitution
                         foreach($classes as $key=>$class2) {
-                            if($class->getDepartment() == $class2->getDepartment()) {
+                            if($class->getDepartment() == $class2->getDepartment() && $class2->getHours() >= $class->getHours()) {
                                 $this->completeClass($class, $class2);
                                 if($classes[$key]->isComplete()) {
                                     unset($classes[$key]);
                                 }
+                                break;
                             }
                         }
                     }
