@@ -130,6 +130,9 @@
             $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber";
             $result = $db->query($sql);
             $ret = $result->fetchArray(SQLITE3_ASSOC);
+            if($ret === false) {
+                return null;
+            }
             if(!empty($title)) {
                 $ret["title"] = $title;
                 $ret["number"] = $num;

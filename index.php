@@ -133,7 +133,9 @@
             $courses = array();
             foreach($matches as $matchset) {
                 $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
-                $courses[$class->getID()] = $class;
+                if($class != null) {
+                    $courses[$class->getID()] = $class;
+                }
             }
 
             //the first block was getting corrupt for some reason, so I'm filling it with junk

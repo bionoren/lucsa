@@ -58,8 +58,7 @@
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
     //department, year, and number
-    $db->createUniqueConstraint("classes", array_slice($fields, 0, 3));
-    //year and title
+    $db->createUniqueConstraint("classes", array_slice($fields, 0, 2));
 
     //class prerequisites and corequisites
     $fields = array();
