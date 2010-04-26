@@ -176,7 +176,7 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
 
     $fields = array();
     $fields["departmentID"] = $result["ID"];
-    $fields["number"] = "1001";
+    $fields["number"] = "4991";
     $fields["endNumber"] = "4999";
     $fields["title"] = "Transfer Credit";
     $fields["linkid"] = "";
