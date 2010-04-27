@@ -100,7 +100,7 @@
                 }
                 foreach(array_filter($this->classes, function(Course $obj) { return !$obj->isComplete(); }) as $class) {
                     $notes = $class->getNotes();
-                    if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*?(\w{4})\s*(\d{4})/is", $notes, $matches)) {
+                    if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/is", $notes, $matches)) {
                         //explicit course substitution
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
