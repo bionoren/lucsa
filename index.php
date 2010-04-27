@@ -109,7 +109,10 @@
         if(isset($_SESSION["degree"])) {
             //don't ask. Just don't ask...
             mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
-            $degree = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
+            $temp = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
+            if(empty($degree)) {
+                $degree = $temp;
+            }
             $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
         } else {
             $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
