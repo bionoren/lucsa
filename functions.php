@@ -15,9 +15,7 @@
 
 	//DEBUGGING FUNCTIONS
 	function dump($name, $array, $member=null) {
-		if(!is_array($array)) {
-			print "$name = $array<br/>";
-		} else {
+		if(is_array($array) || (is_object($array) && $array instanceof Iterator)) {
 			foreach($array as $key=>$val) {
 				if(is_array($val)) {
                     if($member == null)
@@ -32,14 +30,20 @@
                     }
                 }
 			}
-		}
+		} else {
+            if($member == null) {
+    			print "$name = ".htmlentities($array)."<br/>\n";
+            } else {
+                print "$name = ".htmlentities($array->{$member}())."<br/>\n";
+            }
+        }
 	}
 
     //FUNCTIONS
 
-    function displayClassSelect($name, $classes) {
+    function displayClassSelect($name, ClassList $classes) {
         print '<select name="'.$name.'">';
-            usort($classes, "strcmp");
+            $classes->sort();
             $dept = null;
             foreach($classes as $class) {
                 if($class->getDepartment() != $dept) {
