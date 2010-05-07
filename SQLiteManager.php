@@ -79,9 +79,13 @@
             return $this->query($sql);
         }
 
-        public static function getInstance() {
+        public static function getInstance($debug=false) {
             if(SQLiteManager::$instance == null) {
-                SQLiteManager::$instance = new SQLiteManager("lucsa.sqlite");
+                $name = "lucsa";
+                if($debug) {
+                    $name .= "-debug";
+                }
+                SQLiteManager::$instance = new SQLiteManager($name.".sqlite");
             }
             return SQLiteManager::$instance;
         }
