@@ -1,4 +1,6 @@
 <?php
+    //$obj is a reference to the object being used to test the current function
+
     //UNIT TESTS
     //Test Harness
     function unitTest($func, $test) {
@@ -42,6 +44,7 @@
         $numPassed = 0;
         $numFailed = 0;
         $lineNum = 0;
+        $evalCode = false;
         foreach(file($filename."utd", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
             $lineNum++;
             $line = trim($line);
@@ -49,11 +52,16 @@
                 continue;
             }
             if(strtolower(substr($line, 0, 9)) == "function ") {
-                $functionName = substr($line, 9);
-                print '>Testing '.$line.'<br>';
-                if(!empty($pass)) {
+                if(isset($pass)) {
                     print "-----------------------------<br>";
                     passFail($pass, $functionName);
+                }
+                $functionName = substr($line, 9);
+                print '>Testing '.$line.'<br>';
+                if(strstr($functionName, "->")) {
+                    $functionName = explode("->", $functionName);
+                    $objName = $functionName[0];
+                    $functionName[0] = $obj = new $objName();
                 }
                 $pass = true;
                 continue;
@@ -61,38 +69,54 @@
             if(empty($functionName)) {
                 die("<font color='red'>Syntax Error: Must specify a function to test using the directive 'function [funcName]'</font>");
             }
+            if($line == "<?php") {
+                $evalCode = true;
+                $code = "";
+                continue;
+            }
+            if($line == "?>") {
+                $evalCode = false;
+                eval($code);
+                continue;
+            }
+            if($evalCode) {
+                $code .= $line;
+                continue;
+            }
+
             $line = str_replace('\\n', "\n", $line, $count);
             $matches = array();
             $regex = "\s*(`?)([^`]*?)\\1\s*(?:,|$)";
             if(!preg_match_all("/".$regex."/i", $line, $matches, PREG_PATTERN_ORDER)) {
                 die("<font color='red'>Syntax Error: Line ".$lineNum."</font><br>");
             }
+
             $test["title"] = $matches[2][0];
             $test["p"] = $matches[2][1];
             if($test["p"] == "null") {
                 $test["p"] = null;
             }
-            $test["r"] = $matches[2][2];
-            if($test["r"] == "null") {
-                $test["r"] = null;
-            }
+            eval("\$temp = ".$matches[2][2].";");
+            $test["r"] = $temp;
             $test["args"] = array();
-            foreach(array_slice($matches[2], 3) as $arg) {
-                if(empty($arg)) {
-                    continue;
-                }
+            foreach(array_slice($matches[2], 3, -1) as $arg) {
                 eval("\$arg = ".$arg.";");
                 $test["args"][] = $arg;
             }
-            $pass = unitTest($functionName, $test) && $pass;
-            if($pass) {
+            $tmp = unitTest($functionName, $test);
+            $pass = $tmp && $pass;
+            if($tmp) {
                 $numPassed++;
             } else {
                 $numFailed++;
             }
         }
 
-        if(!empty($pass)) {
+        if(is_array($functionName)) {
+            $functionName[0] = $objName;
+            $functionName = implode("->", $functionName);
+        }
+        if(isset($pass)) {
             print "-----------------------------<br>";
             passFail($pass, $functionName);
         }

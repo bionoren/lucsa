@@ -1,0 +1,97 @@
+//Unit Test Description
+
+//function [name]
+//function [obj]->[name] [constructorArg1, ...]
+//title, expected printed result, expected returned result[, arg1, ...]
+function ClassList->offsetSet
+"insert@0", ``, null, 0, "test1"
+"insertWithNull", ``, null, "", "test2"
+
+function ClassList->offsetExists
+<?php
+    $obj->offsetSet(0, "test1");
+?>
+"exists@0", ``, true, 0
+<?php
+    $obj->offsetSet('', "test2");
+?>
+"exists@''", ``, true, ""
+<?php
+    $obj->offsetUnset(0);
+?>
+"unset@0", ``, false, 0
+
+function ClassList->offsetGet
+<?php
+    $obj->offsetSet(0, "test1");
+?>
+"get@1", ``, `array("test1")`, 0
+<?php
+    $obj->offsetSet(0, "test2");
+?>
+"get@1Multiple", ``, `array("test1", "test2")`, 0
+<?php
+    $obj->offsetUnset(0);
+?>
+"checkUnsetAt0", ``, null, 0
+
+function ClassList->count
+<?php
+    $obj[0] = "test1";
+    $obj[1] = "test2";
+?>
+"checkSimpleCount", ``, 2
+<?php
+    unset($obj[0]);
+    unset($obj[1]);
+?>
+"verifyCountReset", ``, 0
+<?php
+    $obj[0] = "test1";
+    $obj[0] = "test2";
+?>
+"checkComplexCount", ``, 2
+
+function ClassList->current
+"emptyTest", ``, null
+<?php
+    $obj[0] = "test1";
+?>
+"basicTest", ``, "test1"
+<?php
+    $obj[1] = "test2";
+    $obj->next();
+?>
+"basicNextTest", ``, "test2"
+<?php
+    $obj->rewind();
+?>
+"rewindTest", ``, "test1"
+<?php
+    unset($obj[1]);
+    $obj[0] = "test2";
+    $obj->next();
+?>
+"advancedNextTest", ``, "test2"
+<?php
+    $obj[1] = "test3";
+    $obj->next();
+?>
+"nextAcrossLongArrays", ``, "test3"
+
+function ClassList->valid
+"initialTest", ``, false
+<?php
+    $obj[0] = "test1";
+?>
+"verification", ``, true
+
+function ClassList->count
+<?php
+    $n = 3;
+    for($i = 0; $i < $n; $i++) {
+        $obj[] = "test".$n;
+        $obj[] = "test1".$n;
+    }
+?>
+"verification", ``, `2*$n`
