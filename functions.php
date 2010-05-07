@@ -13,6 +13,8 @@
 	 *	limitations under the License.
 	 */
 
+    require_once("SQLiteManager.php");
+
 	//DEBUGGING FUNCTIONS
 	function dump($name, $array, $member=null) {
 		if(is_array($array) || (is_object($array) && $array instanceof Iterator)) {
