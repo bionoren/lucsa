@@ -4,12 +4,15 @@
         protected $count = 0;
         protected $innerCount = 0;
 
-/*        public function sort() {
-            uasort($this->classes, array(get_class($this), "sortFunc"));
+        public function __construct($vals=array()) {
+            foreach($vals as $key=>$val) {
+                $this[$key] = $val;
+            }
         }
 
-        public static function sortFunc(array $classes1, array $classes2) {
-        }*/
+        public function sort() {
+            uasort($this->classes, function(array $first, array $second) { return strcmp($first[0], $second[0]); });
+        }
 
         public function count() {
             return $this->count;

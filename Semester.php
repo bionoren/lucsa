@@ -75,7 +75,7 @@
             print '</td>';
         }
 
-        public function evalTaken(array &$classes, $mapping=null) {
+        public function evalTaken(ClassList $classes, $mapping=null) {
             if($mapping === null) {
                 //basic evaluation of course dept+number against course dept+number
                 foreach($classes as $key=>$class) {
@@ -105,7 +105,7 @@
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
                                 $this->completeClass($class, $class2);
-                                if($classes[$key]->isComplete()) {
+                                if($class2->isComplete()) {
                                     unset($classes[$key]);
                                 }
                                 break;
@@ -116,7 +116,7 @@
                         foreach($classes as $key=>$class2) {
                             if($class->getDepartment() == $class2->getDepartment() && $class2->getHours() >= $class->getHours()) {
                                 $this->completeClass($class, $class2);
-                                if($classes[$key]->isComplete()) {
+                                if($class2->isComplete()) {
                                     unset($classes[$key]);
                                 }
                                 break;

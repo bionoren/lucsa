@@ -22,6 +22,7 @@
     require_once("functions.php");
     require_once("SQLiteManager.php");
     require_once("CourseSequence.php");
+    require_once("ClassList.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -115,7 +116,7 @@
             }
             $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
         } else {
-            $data = file_get_contents("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
+            $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
             unset($_SERVER['PHP_AUTH_USER']);
             unset($_SERVER['PHP_AUTH_PW']);
             $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
@@ -133,7 +134,7 @@
             $matches = array();
             preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
             unset($data);
-            $courses = array();
+            $courses = new ClassList();
             foreach($matches as $matchset) {
                 $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
                 if($class != null) {
@@ -151,6 +152,10 @@
     }
 //    dump("degree", $degree);
 //    dump("courses", $courses);
+/*    print count($courses)." courses<br>";
+    foreach($courses as $course) {
+        print $course."<br>";
+    }*/
 
     $degOptions = array_merge($majors, $minors);
     $tmp = array();
@@ -212,7 +217,7 @@ require_once("header.php");
         print 'Substitute ';
         displayClassSelect("sub", $courses);
         print ' for ';
-        displayClassSelect("orig", $courseSequence->getIncompleteClasses());
+        displayClassSelect("orig", new ClassList($courseSequence->getIncompleteClasses()));
         print '<br>';
         print '<input type="submit" name="substitute" value="Substitute">';
     print '</form>';

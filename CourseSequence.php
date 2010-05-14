@@ -78,7 +78,7 @@
             print '</table>';
         }
 
-        public function evalTaken(array $classesTaken, $user) {
+        public function evalTaken(ClassList $classesTaken, $user) {
             $db = SQLiteManager::getInstance();
             //do direct subsitutions first. This needs to be an entirely seperate pass
             foreach($this->semesters as $semester) {
