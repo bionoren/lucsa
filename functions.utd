@@ -2,6 +2,9 @@
 
 //function [name]
 //function [obj]->[name] [constructorArg1, ...]
+//The created object is stored in $obj
+//You can insert arbitrary PHP with <?php and ?>, each on their own line
+
 //title, expected printed result, expected returned result[, arg1, ...]
 function dump
 "p2:simple array", `test[0] = test<br/>\n`, null, 'test', `array("test")`

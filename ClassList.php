@@ -57,8 +57,10 @@
         }
 
         public function offsetUnset($index) {
-            $this->count--;
-            unset($this->classes[$index]);
+            if(isset($this->classes[$index]) && is_array($this->classes[$index])) {
+                $this->count-= count($this->classes[$index]);
+                unset($this->classes[$index]);
+            }
         }
     }
 ?>

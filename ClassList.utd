@@ -2,12 +2,17 @@
 
 //function [name]
 //function [obj]->[name] [constructorArg1, ...]
+//The created object is stored in $obj
+//You can insert arbitrary PHP with <?php and ?>, each on their own line
+
 //title, expected printed result, expected returned result[, arg1, ...]
-function ClassList->offsetSet
+object new ClassList();
+
+method offsetSet
 "insert@0", ``, null, 0, "test1"
 "insertWithNull", ``, null, "", "test2"
 
-function ClassList->offsetExists
+method offsetExists
 <?php
     $obj->offsetSet(0, "test1");
 ?>
@@ -21,7 +26,7 @@ function ClassList->offsetExists
 ?>
 "unset@0", ``, false, 0
 
-function ClassList->offsetGet
+method offsetGet
 <?php
     $obj->offsetSet(0, "test1");
 ?>
@@ -35,7 +40,8 @@ function ClassList->offsetGet
 ?>
 "checkUnsetAt0", ``, null, 0
 
-function ClassList->count
+object new ClassList();
+method count
 <?php
     $obj[0] = "test1";
     $obj[1] = "test2";
@@ -51,8 +57,18 @@ function ClassList->count
     $obj[0] = "test2";
 ?>
 "checkComplexCount", ``, 2
+<?php
+    unset($obj[0]);
+    $n = 3;
+    for($i = 0; $i < $n; $i++) {
+        $obj[] = "test".$n;
+        $obj[] = "test1".$n;
+    }
+?>
+"verification", ``, `2*$n`
 
-function ClassList->current
+object new ClassList();
+method current
 "emptyTest", ``, null
 <?php
     $obj[0] = "test1";
@@ -79,19 +95,10 @@ function ClassList->current
 ?>
 "nextAcrossLongArrays", ``, "test3"
 
-function ClassList->valid
+object new ClassList();
+method valid
 "initialTest", ``, false
 <?php
     $obj[0] = "test1";
 ?>
 "verification", ``, true
-
-function ClassList->count
-<?php
-    $n = 3;
-    for($i = 0; $i < $n; $i++) {
-        $obj[] = "test".$n;
-        $obj[] = "test1".$n;
-    }
-?>
-"verification", ``, `2*$n`

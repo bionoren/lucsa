@@ -57,17 +57,30 @@
                     passFail($pass, $functionName);
                 }
                 $functionName = substr($line, 9);
+                if(!function_exists($functionName)) {
+                    die("<font color='red'>Error: Unknown function '".$functionName."'</font>");
+                }
                 print '>Testing '.$line.'<br>';
-                if(strstr($functionName, "->")) {
-                    $functionName = explode("->", $functionName);
-                    $objName = $functionName[0];
-                    $functionName[0] = $obj = new $objName();
+                $pass = true;
+                continue;
+            }
+            if(strtolower(substr($line, 0, 7)) == "method ") {
+                if(!is_object($obj)) {
+                    die("<font color='red'>Syntax Error: Must define an object to test on using the directive 'object [code_to_instantiate_object]'</font>");
+                }
+                $functionName = array($obj, substr($line, 7));
+                if(!method_exists($functionName[0], $functionName[1])) {
+                    die("<font color='red'>Error: There is no method '".$functionName[1]."' in class '".get_class($functionName[0])."'</font>");
                 }
                 $pass = true;
                 continue;
             }
+            if(strtolower(substr($line, 0, 7)) == "object ") {
+                eval('$obj = '.substr($line, 7).';');
+                continue;
+            }
             if(empty($functionName)) {
-                die("<font color='red'>Syntax Error: Must specify a function to test using the directive 'function [funcName]'</font>");
+                die("<font color='red'>Syntax Error: Must specify a function or method to test using the directive '(function|method) [funcName]'</font>");
             }
             if($line == "<?php") {
                 $evalCode = true;
@@ -87,7 +100,7 @@
             $line = str_replace('\\n', "\n", $line, $count);
             $matches = array();
             $regex = "\s*(`?)([^`]*?)\\1\s*(?:,|$)";
-            if(!preg_match_all("/".$regex."/i", $line, $matches, PREG_PATTERN_ORDER)) {
+            if(!preg_match_all("/".$regex."/i", $line, $matches, PREG_PATTERN_ORDER) || empty($matches)) {
                 die("<font color='red'>Syntax Error: Line ".$lineNum."</font><br>");
             }
 
