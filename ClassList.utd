@@ -1,7 +1,8 @@
 //Unit Test Description
 
 //function [name]
-//function [obj]->[name] [constructorArg1, ...]
+//method [name]
+//object [code_to_instantiate_object]
 //The created object is stored in $obj
 //You can insert arbitrary PHP with <?php and ?>, each on their own line
 

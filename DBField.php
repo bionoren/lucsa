@@ -26,6 +26,13 @@
         protected $indexed;
         protected $primary;
 
+        /**
+         * @param STRING $name The name of this database field.
+         * @param INTEGER $type One of the class' type constants.
+         * @param MIXED $default Default value for the field.
+         * @param STRING $keyTable Optional name of the table this field references as a foreign key.
+         * @param STRING $keyField Optional name of the field this field references as a foreign key.
+         */
         public function __construct($name, $type, $default=null, $keyTable=null, $keyField=null) {
             $this->name = $name;
             $this->type = $type;
@@ -57,6 +64,11 @@
             return $ret;
         }
 
+        /**
+         * Returns the name of this field.
+         *
+         * @return STRING field name.
+         */
         public function getName() {
             return $this->name;
         }

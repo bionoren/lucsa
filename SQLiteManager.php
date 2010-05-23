@@ -43,6 +43,14 @@
         }
 
         public function createTable($name, array $fields) {
+            if(empty($fields)) {
+                print "Error: Cannot create an empty table<br>";
+                return false;
+            }
+            if(empty($name)) {
+                print "Error: Cannot create an unamed table<br>";
+                return false;
+            }
             //every table gets a primary key alias to keep foreign key constraints happy
             $keyField = new DBField("ID", DBField::NUM);
             $keyField->setPrimary();
@@ -70,7 +78,11 @@
         }
 
         public function createUniqueConstraint($name, array $fields) {
-            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS u".current($fields)->getName()." ON ".$name." (";
+            if(empty($name) || empty($fields)) {
+                return;
+            }
+
+            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".current($fields)->getName()." ON ".$name." (";
             $tmp = "";
             foreach($fields as $field) {
                 $tmp .= $field->getName().",";
@@ -81,9 +93,10 @@
 
         public static function getInstance($debug=false) {
             if(SQLiteManager::$instance == null) {
-                $name = "lucsa";
                 if($debug) {
-                    $name .= "-debug";
+                    $name = "test";
+                } else {
+                    $name = "lucsa";
                 }
                 SQLiteManager::$instance = new SQLiteManager($name.".sqlite");
             }
@@ -95,6 +108,10 @@
         }
 
         public function insert($table, array $fields, $ignore=false) {
+            if(empty($fields) || empty($table)) {
+                return;
+            }
+
             $sql = "INSERT ";
             if($ignore) {
                 $sql .= "OR IGNORE ";
@@ -115,16 +132,23 @@
         }
 
         public function query($sql) {
+            if(empty($sql)) {
+                return false;
+            }
+
             $ret = $this->db->query($sql);
             if($ret === false) {
-                print "sql = $sql<br>";
-                print "<span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
-                die();
+                $msg = "sql = $sql<br><span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
+                throw new InvalidArgumentException($msg);
             }
             return $ret;
         }
 
         public function select($table, array $whereFields=null, array $fields=null) {
+            if(empty($table)) {
+                return;
+            }
+
             $sql = "SELECT ";
             if(!empty($fields)) {
                 foreach($fields as $val) {
@@ -134,28 +158,33 @@
             } else {
                 $sql .= "*";
             }
-            $sql .= " FROM ".$table;
+            $sql .= " FROM ".$table.$this->getWhereClause($whereFields);
+            return $this->query($sql);
+        }
+
+        public function update($table, array $fields, array $whereFields=null) {
+            if(empty($table) || empty($fields)) {
+                return;
+            }
+
+            $sql = "UPDATE ".$table." SET ";
+            foreach($fields as $key=>$val) {
+                $sql .= $key."='".$val."',";
+            }
+            $sql = substr($sql, 0, -1).$this->getWhereClause($whereFields);
+            return $this->query($sql);
+        }
+
+        protected function getWhereClause(array $whereFields) {
+            $sql = "";
             if(!empty($whereFields)) {
-                $sql .= " WHERE ";
+                $sql = " WHERE ";
                 foreach($whereFields as $key=>$val) {
                     $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
                 }
                 $sql = substr($sql, 0, -5);
             }
-            return $this->query($sql);
-        }
-
-        public function update($table, array $fields, array $whereFields) {
-            $sql = "UPDATE ".$table." SET ";
-            foreach($fields as $key=>$val) {
-                $sql .= $key."='".$val."',";
-            }
-            $sql = substr($sql, 0, -1)." WHERE ";
-            foreach($whereFields as $key=>$val) {
-                $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
-            }
-            $sql = substr($sql, 0, -5);
-            return $this->query($sql);
+            return $sql;
         }
 
         function __destruct() {

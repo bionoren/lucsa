@@ -8,19 +8,22 @@
         print 'Testing '.$test["title"].': <font color="';
         ob_start();
         $ret = call_user_func_array($func, $test["args"]);
-        if($ret === $test["r"]) {
-            if(ob_get_contents() === $test["p"]) {
+        if($ret == $test["r"]) {
+            if(ob_get_contents() == $test["p"]) {
                 ob_end_clean();
                 print 'green">Passed</font>';
             } else {
                 $tmp = ob_get_contents();
                 ob_end_clean();
-                print 'red">Failed</font> - '.var_export($tmp, true)." !== ".var_export($test["p"], true);
+                print 'red">Failed</font> - '.var_export($tmp, true)." != ".var_export($test["p"], true);
                 $status = false;
             }
         } else {
             ob_end_clean();
-            print 'red">Failed</font> - '.var_export($ret, true)." !== ".var_export($test["r"], true);
+            print 'red">Failed</font> - '.var_export($ret, true)." != ".var_export($test["r"], true);
+            print "<br>".serialize($ret)."<br>";
+            dump("ret", $ret->fetchArray(SQLITE3_ASSOC));
+            die();
             $status = false;
         }
         print "<br>";
@@ -28,6 +31,9 @@
     }
 
     function passFail($status, $title) {
+        if(is_array($title)) {
+            $title = $title[1];
+        }
         print $title.' Tests: <font color="';
         if($status) {
             print 'green">Passed</font>';
@@ -58,7 +64,7 @@
                 }
                 $functionName = substr($line, 9);
                 if(!function_exists($functionName)) {
-                    die("<font color='red'>Error: Unknown function '".$functionName."'</font>");
+                    die("<font color='red'>Error: Line ".$lineNum." - Unknown function '".$functionName."'</font>");
                 }
                 print '>Testing '.$line.'<br>';
                 $pass = true;
@@ -66,21 +72,25 @@
             }
             if(strtolower(substr($line, 0, 7)) == "method ") {
                 if(!is_object($obj)) {
-                    die("<font color='red'>Syntax Error: Must define an object to test on using the directive 'object [code_to_instantiate_object]'</font>");
+                    die("<font color='red'>Syntax Error: Line ".$lineNum." - Must define an object to test on using the directive 'object [code_to_instantiate_object]'</font>");
+                }
+                if(isset($pass)) {
+                    print "-----------------------------<br>";
+                    passFail($pass, $functionName);
                 }
                 $functionName = array($obj, substr($line, 7));
                 if(!method_exists($functionName[0], $functionName[1])) {
-                    die("<font color='red'>Error: There is no method '".$functionName[1]."' in class '".get_class($functionName[0])."'</font>");
+                    die("<font color='red'>Error: Line ".$lineNum." - There is no method '".$functionName[1]."' in class '".get_class($functionName[0])."'</font>");
                 }
                 $pass = true;
                 continue;
             }
             if(strtolower(substr($line, 0, 7)) == "object ") {
                 eval('$obj = '.substr($line, 7).';');
+                if(is_array($functionName)) {
+                    $functionName[0] = $obj;
+                }
                 continue;
-            }
-            if(empty($functionName)) {
-                die("<font color='red'>Syntax Error: Must specify a function or method to test using the directive '(function|method) [funcName]'</font>");
             }
             if($line == "<?php") {
                 $evalCode = true;
@@ -96,11 +106,14 @@
                 $code .= $line;
                 continue;
             }
+            if(empty($functionName)) {
+                die("<font color='red'>Syntax Error: Line ".$lineNum." - Must specify a function or method to test using the directive '(function|method) [funcName]'</font>");
+            }
 
             $line = str_replace('\\n', "\n", $line, $count);
             $matches = array();
             $regex = "\s*(`?)([^`]*?)\\1\s*(?:,|$)";
-            if(!preg_match_all("/".$regex."/i", $line, $matches, PREG_PATTERN_ORDER) || empty($matches)) {
+            if(!preg_match_all("/".$regex."/i", $line, $matches, PREG_PATTERN_ORDER) || empty($matches) || count($matches[2]) < 3) {
                 die("<font color='red'>Syntax Error: Line ".$lineNum."</font><br>");
             }
 
@@ -140,21 +153,7 @@
         return array("pass"=>$numPassed, "fail"=>$numFailed);
     }
 
-    //================================
-    //ClassList
-//    require_once("ClassList.php");
-    //################################
-//    $list = new ClassList();
-    //public function count()
-    //public function current()
-    //public function key()
-    //public function next()
-    //public function rewind()
-    //public function valid()
-    //public function offsetExists($index)
-    //public function offsetGet($index)
-    //public function offsetSet($index, $value)
-    //public function offsetUnset($index)
+    require_once("functions.php");
 
     $numTestsPassed = 0;
     $numTestsFailed = 0;
