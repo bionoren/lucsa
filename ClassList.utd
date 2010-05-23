@@ -24,6 +24,7 @@ method offsetExists
 "exists@''", ``, true, ""
 <?php
     $obj->offsetUnset(0);
+    $obj->offsetUnset('');
 ?>
 "unset@0", ``, false, 0
 

@@ -22,10 +22,8 @@
         protected $completedHours = 0;
         protected $hours = 0;
 
-        public function __construct(array $classes=array()) {
-            foreach($classes as $class) {
-                $this->addClass($class);
-            }
+        protected function __construct(array $classes=array()) {
+            array_walk($classes, array($this, "addClass"));
         }
 
         public function addClass(Course $class) {
@@ -78,10 +76,10 @@
         public function evalTaken(ClassList $classes, $mapping=null) {
             if($mapping === null) {
                 //basic evaluation of course dept+number against course dept+number
-                foreach($classes as $key=>$class) {
-                    if(isset($this->classes[$key])) {
-                        $this->completeClass($this->classes[$key], $class);
-                        if($this->classes[$key]->isComplete()) {
+                foreach($this->classes as $key=>$class) {
+                    if(isset($classes[$key])) {
+                        $this->completeClass($class, $classes[$key]);
+                        if($class->isComplete()) {
                             unset($classes[$key]);
                         }
                     }

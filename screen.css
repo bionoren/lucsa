@@ -46,6 +46,18 @@ tr.course, .noborder, .semesterHours, .semesterTitle {
     font-size:12px;
 }
 
+.majorTitle, .sequenceTitle {
+    font-family:arial,sans-serif;
+    font-size:18px;
+    font-weight:bold;
+    padding:4px 0 0;
+    text-align:center;
+}
+
+.sequenceTitle {
+    font-size:16px;
+}
+
 .footnote, span.endNote {
     color:#990000;
 }

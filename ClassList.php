@@ -48,7 +48,11 @@
         }
 
         public function offsetGet($index) {
-            return $this->classes[$index];
+            if(isset($this->classes[$index])) {
+                return $this->classes[$index][0];
+            } else {
+                return null;
+            }
         }
 
         public function offsetSet($index, $value) {
@@ -57,9 +61,13 @@
         }
 
         public function offsetUnset($index) {
-            if(isset($this->classes[$index]) && is_array($this->classes[$index])) {
-                $this->count-= count($this->classes[$index]);
-                unset($this->classes[$index]);
+            if(isset($this->classes[$index])) {
+                $this->count--;
+                if(count($this->classes[$index]) <= 1) {
+                    unset($this->classes[$index]);
+                } else {
+                    array_shift($this->classes[$index]);
+                }
             }
         }
     }

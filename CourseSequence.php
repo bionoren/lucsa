@@ -42,6 +42,13 @@
         public function display() {
             print '<table>';
                 print '<tr>';
+                    print '<td colspan=2 class="majorTitle">';
+                        print $this->name.' ('.$this->acronym.')';
+                        print '<br>';
+                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
+                    print '</td>';
+                print '</tr>';
+                print '<tr>';
                     $i = 0;
                     $year = $this->getYear();
                     $totalHours = 0;
@@ -81,7 +88,7 @@
         public function evalTaken(ClassList $classesTaken, $user) {
             $db = SQLiteManager::getInstance();
             //do direct subsitutions first. This needs to be an entirely seperate pass
-            foreach($this->semesters as $semester) {
+            foreach($this->semesters as $key=>$semester) {
                 $semester->evalTaken($classesTaken);
             }
             //evaluate user-defined substitutions and substitutions from notes

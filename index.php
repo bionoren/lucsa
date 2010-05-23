@@ -57,9 +57,11 @@
     $years = getYears();
     if(!isset($year)) {
         $year = end(array_keys($years));
+    } else {
+        $yearKey = array_search($year, $years);
     }
-    $majors = getMajors($year);
-    $minors = getMinors($year);
+    $majors = getMajors($yearKey);
+    $minors = getMinors($yearKey);
 
     //get the user's ID
     if(!empty($_SESSION["userID"])) {
@@ -166,19 +168,24 @@
 //    $allCourses = getCourses($tmp);
 //    dump("courses", $allCourses);
 
-    $temp = current($tmp);
-    $courseSequence = CourseSequence::getFromID($temp["ID"]);
     $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
     $class->makeAvailable(1000);
     $courses[$class->getID()] = $class;
-    $courseSequence->evalTaken($courses, $_SESSION["userID"]);
+    $masterCourses = $courses;
+    $courseSequences = array();
+    foreach($tmp as $temp) {
+        $courses = clone $masterCourses;
+        $courseSequence = CourseSequence::getFromID($temp["ID"]);
+        $courseSequence->evalTaken($courses, $_SESSION["userID"]);
+        $courseSequences[] = $courseSequence;
+    }
 
 require_once("header.php");
     print '<form method="get" action=".">';
         print 'Year: <select name="year">';
-            foreach($years as $key=>$yr) {
-                print "<option value='$key'";
-                if($key == $year) {
+            foreach($years as $yr) {
+                print "<option value='$yr'";
+                if($yr == $year) {
                     print " selected='selected'";
                 }
                 print ">".$yr."</option>";
@@ -212,7 +219,11 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
-    $courseSequence->display();
+    foreach($courseSequences as $courseSequence) {
+        $courseSequence->display();
+        print "<br";
+    }
+
     print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
         print 'Substitute ';
         displayClassSelect("sub", $courses);
