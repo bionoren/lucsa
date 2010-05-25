@@ -87,7 +87,7 @@
 
     function getYears() {
         $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID,year from years");
+        $result = $db->query("SELECT ID,year FROM years ORDER BY year DESC");
         $years = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $years[$row["ID"]] = $row["year"];
@@ -107,7 +107,7 @@
 
     function getMinors($year) {
         $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".($year+1)."' AND type='2'");
+        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='2'");
         $minors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $minors[$row["acronym"]] = $row;

@@ -56,7 +56,8 @@
 
     $years = getYears();
     if(!isset($year)) {
-        $year = end(array_keys($years));
+        $yearKey = current(array_keys($years));
+        $year = $years[$yearKey];
     } else {
         $yearKey = array_search($year, $years);
     }
