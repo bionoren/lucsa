@@ -174,11 +174,18 @@
     $courses[$class->getID()] = $class;
     $masterCourses = $courses;
     $courseSequences = array();
+    $substitute = clone $masterCourses;
+    $substituteCandidates = new ClassList();
     foreach($tmp as $temp) {
         $courses = clone $masterCourses;
         $courseSequence = CourseSequence::getFromID($temp["ID"]);
         $courseSequence->evalTaken($courses, $_SESSION["userID"]);
         $courseSequences[] = $courseSequence;
+
+        $tmp = ClassList::diff($courses, $masterCourses);
+        $substitute = ClassList::intersect($substitute, $tmp);
+
+        $substituteCandidates = ClassList::merge($substituteCandidates, new ClassList($courseSequence->getIncompleteClasses()));
     }
 
 require_once("header.php");
@@ -227,9 +234,9 @@ require_once("header.php");
 
     print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
         print 'Substitute ';
-        displayClassSelect("sub", $courses);
+        displayClassSelect("sub", $substitute);
         print ' for ';
-        displayClassSelect("orig", new ClassList($courseSequence->getIncompleteClasses()));
+        displayClassSelect("orig", $substituteCandidates);
         print '<br>';
         print '<input type="submit" name="substitute" value="Substitute">';
     print '</form>';
