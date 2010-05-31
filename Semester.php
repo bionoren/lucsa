@@ -77,13 +77,11 @@
 
         public function evalTaken(ClassList $classes, $mapping=null) {
             if($mapping === null) {
-                //basic evaluation of course dept+number against course dept+number
+                //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
                     if(isset($classes[$key])) {
                         $this->completeClass($class, $classes[$key]);
-                        if($class->isComplete()) {
-                            unset($classes[$key]);
-                        }
+                        unset($classes[$key]);
                     }
                 }
             } else {
@@ -93,9 +91,7 @@
                 foreach($mapping as $old=>$new) {
                     if(isset($this->classes[$old]) && isset($classes[$new])) {
                         $this->completeClass($this->classes[$old], $classes[$new]);
-                        if($classes[$new]->isComplete()) {
-                            unset($classes[$new]);
-                        }
+                        unset($classes[$new]);
                     }
                 }
                 foreach($this->classes as $class) {
@@ -103,14 +99,12 @@
                         continue;
                     }
                     $notes = $class->getNotes();
-                    if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/is", $notes, $matches)) {
+                    if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $notes, $matches)) {
                         //explicit course substitution
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
                                 $this->completeClass($class, $class2);
-                                if($class2->isComplete()) {
-                                    unset($classes[$key]);
-                                }
+                                unset($classes[$key]);
                                 break;
                             }
                         }
@@ -119,9 +113,7 @@
                         foreach($classes as $key=>$class2) {
                             if($class->getDepartment() == $class2->getDepartment() && $class2->getHours() >= $class->getHours()) {
                                 $this->completeClass($class, $class2);
-                                if($class2->isComplete()) {
-                                    unset($classes[$key]);
-                                }
+                                unset($classes[$key]);
                                 break;
                             }
                         }

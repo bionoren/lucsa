@@ -28,7 +28,6 @@
         protected $notes;
         protected $number;
         protected $title;
-        protected $refCount = 1;
 
         protected function __construct(array $row) {
             $this->ID = intval($row["ID"]);
@@ -164,10 +163,6 @@
             return $this->offered;
         }
 
-        public function getReferenceCount() {
-            return $this->refCount;
-        }
-
         public function getTitle() {
             return $this->title;
         }
@@ -177,16 +172,11 @@
         }
 
         public function isComplete() {
-            return $this->getReferenceCount() == 0;
-        }
-
-        public function makeAvailable($count) {
-            $this->refCount += $count;
+            return $this->completeClass !== null;
         }
 
         public function setComplete(Course $class) {
             $this->completeClass = $class;
-            $this->refCount--;
             if(!$class->isComplete()) {
                 $class->setComplete($this);
             }

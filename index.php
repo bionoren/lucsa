@@ -69,9 +69,10 @@
      * stores it in the session, and cleans up any unneeded information.
      *
      * @param RESOURCE $sec Encryption descriptor.
+     * @param ARRAY $majors List of possible majors.
      * @return ARRAY array(CourseList courses, array degree)
      */
-    function storeUserInfo($sec) {
+    function storeUserInfo($sec, array $majors) {
         $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
         unset($_SERVER['PHP_AUTH_USER']);
         unset($_SERVER['PHP_AUTH_PW']);
@@ -109,9 +110,10 @@
     /**
      * Retrieves the current user's information.
      *
+     * @param ARRAY $majors List of possible majors.
      * @return ARRAY array(CourseList courses, array degree)
      */
-    function getUserInfo() {
+    function getUserInfo(array $majors) {
         //Advanced Encryption Standard (AES) 256 with Cipher Block Chaining (CBC)
         $sec = mcrypt_module_open("rijndael-256", "", "cbc", "");
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($sec), MCRYPT_DEV_RANDOM);
@@ -120,7 +122,7 @@
         if(isset($_SESSION["degree"])) {
             $ret = getUserInfoFromSession($sec);
         } else {
-            $ret = storeUserInfo($sec);
+            $ret = storeUserInfo($sec, $majors);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
@@ -132,7 +134,7 @@
     //                      END FUNCTION DEFINITIONS
     //==========================================================================
     $db = SQLiteManager::getInstance();
-    $userID = getUserID();
+    $userID = getUserID($db);
 
     $years = getYears();
     if(!isset($_REQUEST["year"])) {
@@ -162,7 +164,7 @@
         require("privacy.php?hideBack=1");
         die();
     } else {
-        list($courses, $degree) = getUserInfo();
+        list($courses, $degree) = getUserInfo($majors);
     }
 
     $degOptions = array_merge($majors, $minors);
@@ -171,9 +173,6 @@
         $degrees[] = $degOptions[$deg];
     }
 
-    $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-    $class->makeAvailable(1000);
-    $courses[$class->getID()] = $class;
     $masterCourses = $courses;
     $courseSequences = array();
     $substitute = clone $masterCourses;
@@ -189,6 +188,8 @@
 
         $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
     }
+    $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
+    $substitute[$class->getID()] = $class;
 
 require_once("header.php");
 //header form

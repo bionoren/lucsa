@@ -139,9 +139,10 @@
     /**
      * Gets the user's ID either from the session or from database.
      *
+     * @param SQLiteManager $db Database connection object.
      * @return INTEGER The user's ID.
      */
-    function getUserID() {
+    function getUserID(SQLiteManager $db) {
         if(!empty($_SESSION["userID"])) {
             $userID = $_SESSION["userID"];
         } else {
@@ -168,7 +169,7 @@
      * Substitutes one class for another in the database. Deletes any previous substitutions
      * on this class.
      *
-     * @param DatabaseManager $db Database connection object.
+     * @param SQLiteManager $db Database connection object.
      * @param INTEGER $userID The ID of the user.
      * @param INTEGER $origID The ID of the original class.
      * @param INTEGER $subID
