@@ -44,130 +44,132 @@
         return md5(mt_rand()*M_LOG2E);
     }
 
-    if(isset($_REQUEST["year"])) {
-        $year = intval($_REQUEST["year"]);
-    }
-    if(isset($_REQUEST["degree"])) {
-        $degree = $_REQUEST["degree"];
-    }
-
-    //get all the degree options
-    $db = SQLiteManager::getInstance();
-
-    $years = getYears();
-    if(!isset($year)) {
-        $yearKey = current(array_keys($years));
-        $year = $years[$yearKey];
-    } else {
-        $yearKey = array_search($year, $years);
-    }
-    $majors = getMajors($yearKey);
-    $minors = getMinors($yearKey);
-
-    //get the user's ID
-    if(!empty($_SESSION["userID"])) {
-        $userID = $_SESSION["userID"];
-    } else {
-        if(isset($_SERVER['PHP_AUTH_USER'])) {
-            //we need the name to be consistent
-            $name = encrypt($_SERVER["PHP_AUTH_USER"], md5($_SERVER["PHP_AUTH_USER"]));
-            $result = $db->query("SELECT ID FROM users WHERE user='".$name."'");
-            $row = $result->fetchArray(SQLITE3_ASSOC);
-            if($row != false) {
-                $userID = $_SESSION["userID"] = $row["ID"];
-            } else {
-                $db->insert("users", array("user"=>$name, "salt"=>$salt));
-                $userID = $_SESSION["userID"] = $db->getLastInsertID();
-            }
-            unset($salt);
-            unset($name);
+    /**
+     * Retrieves the current user's information from the session.
+     *
+     * @param RESOURCE $sec Encryption descriptor.
+     * @return ARRAY array(CourseList courses, array degree).
+     */
+    function getUserInfoFromSession($sec) {
+        //don't ask. Just don't ask...
+        mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
+        $temp = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
+        if(isset($_REQUEST["degree"])) {
+            $degree = $_REQUEST["degree"];
+        } else {
+            $degree = $temp;
         }
+        $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
+
+        return array($courses, $degree);
     }
 
-    //get course substitutions
-    if(isset($_REQUEST["substitute"])) {
-        $subID = $_REQUEST["sub"];
-        $origID = $_REQUEST["orig"];
+    /**
+     * Retrieves the current user's information from their academic record, encrypts the data,
+     * stores it in the session, and cleans up any unneeded information.
+     *
+     * @param RESOURCE $sec Encryption descriptor.
+     * @return ARRAY array(CourseList courses, array degree)
+     */
+    function storeUserInfo($sec) {
+        $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
+        unset($_SERVER['PHP_AUTH_USER']);
+        unset($_SERVER['PHP_AUTH_PW']);
+        $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
+        $matches = array();
+        preg_match("/(?:\<td.*?){3}.*?\>(.*?)\<.*?\>(.*?)\</is", $data, $matches);
+        array_shift($matches);
+        $degree = array();
+        foreach($matches as $match) {
+            $match = trim($match);
+            if(!empty($match)) {
+                $tmp = guessMajor($majors, $match);
+                $degree[] = $tmp;
+            }
+        }
+        $matches = array();
+        preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
+        unset($data);
+        $courses = new ClassList();
+        foreach($matches as $matchset) {
+            $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
+            if($class != null) {
+                $courses[$class->getID()] = $class;
+            }
+        }
 
-        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID;
-        $db->query($sql);
+        //the first block was getting corrupt for some reason, so I'm filling it with junk
+        $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
+        $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
+        $_SESSION["courses"] = mcrypt_generic($sec, serialize($courses));
 
-        $fields["userID"] = $userID;
-        $fields["oldClassID"] = $origID;
-        $fields["newClassID"] = $subID;
-        $db->insert("userClassMap", $fields);
+        return array($courses, $degree);
     }
 
-    //get the list of classes the user is already enrolled in
-    if(empty($_SERVER['PHP_AUTH_USER'])) {
-        header('WWW-Authenticate: Basic realm="LETU Login"');
-        header('HTTP/1.0 401 Unauthorized');
-        require("privacy.php?hideBack=1");
-        die();
-    } else {
+    /**
+     * Retrieves the current user's information.
+     *
+     * @return ARRAY array(CourseList courses, array degree)
+     */
+    function getUserInfo() {
         //Advanced Encryption Standard (AES) 256 with Cipher Block Chaining (CBC)
         $sec = mcrypt_module_open("rijndael-256", "", "cbc", "");
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($sec), MCRYPT_DEV_RANDOM);
         $key = substr(md5(getKeyStr()), 0, mcrypt_enc_get_key_size($sec));
         mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
-            //don't ask. Just don't ask...
-            mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
-            $temp = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
-            if(empty($degree)) {
-                $degree = $temp;
-            }
-            $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
+            $ret = getUserInfoFromSession($sec);
         } else {
-            $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
-            unset($_SERVER['PHP_AUTH_USER']);
-            unset($_SERVER['PHP_AUTH_PW']);
-            $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
-            $matches = array();
-            preg_match("/(?:\<td.*?){3}.*?\>(.*?)\<.*?\>(.*?)\</is", $data, $matches);
-            array_shift($matches);
-            $degree = array();
-            foreach($matches as $match) {
-                $match = trim($match);
-                if(!empty($match)) {
-                    $tmp = guessMajor($majors, $match);
-                    $degree[] = $tmp;
-                }
-            }
-            $matches = array();
-            preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
-            unset($data);
-            $courses = new ClassList();
-            foreach($matches as $matchset) {
-                $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
-                if($class != null) {
-                    $courses[$class->getID()] = $class;
-                }
-            }
-
-            //the first block was getting corrupt for some reason, so I'm filling it with junk
-            $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
-            $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
-            $_SESSION["courses"] = mcrypt_generic($sec, serialize($courses));
+            $ret = storeUserInfo($sec);
         }
         mcrypt_generic_deinit($sec);
         mcrypt_module_close($sec);
+
+        return $ret;
     }
-//    dump("degree", $degree);
-//    dump("courses", $courses);
-/*    print count($courses)." courses<br>";
-    foreach($courses as $course) {
-        print $course."<br>";
-    }*/
+
+    //==========================================================================
+    //                      END FUNCTION DEFINITIONS
+    //==========================================================================
+    $db = SQLiteManager::getInstance();
+    $userID = getUserID();
+
+    $years = getYears();
+    if(!isset($_REQUEST["year"])) {
+        $yearKey = current(array_keys($years));
+        $year = $years[$yearKey];
+    } else {
+        $year = intval($_REQUEST["year"]);
+        $yearKey = array_search($year, $years);
+    }
+    //get all the degree options
+    $majors = getMajors($yearKey);
+    $minors = getMinors($yearKey);
+
+    //course substitutions
+    if(isset($_REQUEST["substitute"])) {
+        substituteClass($db, $userID, $_REQUEST["orig"], $_REQUEST["sub"]);
+    }
+
+    if(isset($_REQUEST["reset"])) {
+        $db->query("DELETE FROM userClassMap WHERE userID=".$userID);
+    }
+
+    //get the list of classes the user is already enrolled in and their currently declared degree(s)
+    if(empty($_SERVER['PHP_AUTH_USER'])) {
+        header('WWW-Authenticate: Basic realm="LETU Login"');
+        header('HTTP/1.0 401 Unauthorized');
+        require("privacy.php?hideBack=1");
+        die();
+    } else {
+        list($courses, $degree) = getUserInfo();
+    }
 
     $degOptions = array_merge($majors, $minors);
-    $tmp = array();
+    $degrees = array();
     foreach($degree as $deg) {
-        $tmp[] = $degOptions[$deg];
+        $degrees[] = $degOptions[$deg];
     }
-//    dump("tmp", $tmp);
-//    $allCourses = getCourses($tmp);
-//    dump("courses", $allCourses);
 
     $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
     $class->makeAvailable(1000);
@@ -176,19 +178,20 @@
     $courseSequences = array();
     $substitute = clone $masterCourses;
     $substituteCandidates = new ClassList();
-    foreach($tmp as $temp) {
+    foreach($degrees as $deg) {
         $courses = clone $masterCourses;
-        $courseSequence = CourseSequence::getFromID($temp["ID"]);
+        $courseSequence = CourseSequence::getFromID($deg["ID"]);
         $courseSequence->evalTaken($courses, $_SESSION["userID"]);
         $courseSequences[] = $courseSequence;
 
         $tmp = ClassList::diff($courses, $masterCourses);
         $substitute = ClassList::intersect($substitute, $tmp);
 
-        $substituteCandidates = ClassList::merge($substituteCandidates, new ClassList($courseSequence->getIncompleteClasses()));
+        $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
     }
 
 require_once("header.php");
+//header form
     print '<form method="get" action=".">';
         print 'Year: <select name="year">';
             foreach($years as $yr) {
@@ -227,11 +230,13 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
+//display courses
     foreach($courseSequences as $courseSequence) {
         $courseSequence->display();
         print "<br";
     }
 
+//footer form
     print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
         print 'Substitute ';
         displayClassSelect("sub", $substitute);
@@ -239,6 +244,8 @@ require_once("header.php");
         displayClassSelect("orig", $substituteCandidates);
         print '<br>';
         print '<input type="submit" name="substitute" value="Substitute">';
+        print '&nbsp;&nbsp;&nbsp;&nbsp;';
+        print '<input type="submit" name="reset" value="Reset">';
     print '</form>';
 require_once("footer.php");
 ?>

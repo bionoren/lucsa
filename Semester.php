@@ -13,16 +13,18 @@
 	 *	limitations under the License.
 	 */
 
+    require_once("ClassList.php");
     require_once("Course.php");
 
     class Semester {
         public static $CARDINAL_STRINGS = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth");
 
-        protected $classes = array();
+        protected $classes;
         protected $completedHours = 0;
         protected $hours = 0;
 
         protected function __construct(array $classes=array()) {
+            $this->classes = new ClassList();
             array_walk($classes, array($this, "addClass"));
         }
 
@@ -96,7 +98,10 @@
                         }
                     }
                 }
-                foreach(array_filter($this->classes, function(Course $obj) { return !$obj->isComplete(); }) as $class) {
+                foreach($this->classes as $class) {
+                    if($class->isComplete()) {
+                        continue;
+                    }
                     $notes = $class->getNotes();
                     if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/is", $notes, $matches)) {
                         //explicit course substitution
@@ -149,7 +154,13 @@
         }
 
         public function getIncompleteClasses() {
-            return array_filter($this->classes, function(Course $class) { return !$class->isComplete(); });
+            $ret = new ClassList();
+            foreach($this->classes as $class) {
+                if(!$class->isComplete()) {
+                    $ret[$class->getID()] = $class;
+                }
+            }
+            return $ret;
         }
 
         public function hasClass(Course $class) {

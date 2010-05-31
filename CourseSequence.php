@@ -40,6 +40,59 @@
         }
 
         public function display() {
+            $i = 0;
+            $year = $this->getYear();
+            $totalHours = 0;
+            $hoursCompleted = 0;
+            $this->displayHeader();
+                $notes = array();
+                foreach($this->semesters as $semester) {
+                    $semester->display($this->getYear(), $year, $i, $notes);
+                    $totalHours += $semester->getHours();
+                    $hoursCompleted += $semester->getCompletedHours();
+                    if($i++ % 2 == 1) {
+                        print '</tr><tr>';
+                    } else {
+                        $year++;
+                    }
+                }
+            $this->displayFooter($hoursCompleted, $totalHours, $notes);
+        }
+
+        public function displayColumn() {
+            $i = 0;
+            $year = $this->getYear();
+            $totalHours = 0;
+            $hoursCompleted = 0;
+            $this->displayHeader();
+                $notes = array();
+                foreach($this->semesters as $semester) {
+                    print '<tr>';
+                        $semester->display($this->getYear(), $year, $i, $notes);
+                        $totalHours += $semester->getHours();
+                        $hoursCompleted += $semester->getCompletedHours();
+                        if($i++ % 2 == 0) {
+                            $year++;
+                        }
+                    print '</tr>';
+                }
+            $this->displayFooter($hoursCompleted, $totalHours, $notes);
+        }
+
+        public function displayRequirementsList() {
+            $i = 0;
+            $year = $this->getYear();
+            $totalHours = 0;
+            $hoursCompleted = 0;
+            $this->displayHeader();
+                $notes = array();
+                foreach($this->semesters as $semester) {
+
+                }
+            $this->displayFooter($hoursCompleted, $totalHours, $notes);
+        }
+
+        public function displayHeader() {
             print '<table>';
                 print '<tr>';
                     print '<td colspan=2 class="majorTitle">';
@@ -48,22 +101,9 @@
                         print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
                     print '</td>';
                 print '</tr>';
-                print '<tr>';
-                    $i = 0;
-                    $year = $this->getYear();
-                    $totalHours = 0;
-                    $hoursCompleted = 0;
-                    $notes = array();
-                    foreach($this->semesters as $semester) {
-                        $semester->display($year, $year, $i, $notes);
-                        $totalHours += $semester->getHours();
-                        $hoursCompleted += $semester->getCompletedHours();
-                        if($i++ % 2 == 1) {
-                            print '</tr><tr>';
-                        } else {
-                            $year++;
-                        }
-                    }
+        }
+
+        public function displayFooter($hoursCompleted, $totalHours, $notes) {
                 print '<tr>';
                     print '<td colspan="2" align="center">';
                         print "Completed Hours: ".$hoursCompleted."<br>";
@@ -114,9 +154,9 @@
         }
 
         public function getIncompleteClasses() {
-            $ret = array();
+            $ret = new ClassList();
             foreach($this->semesters as $sem) {
-                $ret = array_merge($ret, $sem->getIncompleteClasses());
+                $ret = ClassList::merge($ret, $sem->getIncompleteClasses());
             }
             return $ret;
         }

@@ -136,6 +136,54 @@
         return $ret;
     }
 
+    /**
+     * Gets the user's ID either from the session or from database.
+     *
+     * @return INTEGER The user's ID.
+     */
+    function getUserID() {
+        if(!empty($_SESSION["userID"])) {
+            $userID = $_SESSION["userID"];
+        } else {
+            if(isset($_SERVER['PHP_AUTH_USER'])) {
+                //we need the name to be consistent
+                $name = encrypt($_SERVER["PHP_AUTH_USER"], md5($_SERVER["PHP_AUTH_USER"]));
+                $result = $db->query("SELECT ID FROM users WHERE user='".$name."'");
+                $row = $result->fetchArray(SQLITE3_ASSOC);
+                if($row != false) {
+                    $userID = $_SESSION["userID"] = $row["ID"];
+                } else {
+                    $db->insert("users", array("user"=>$name, "salt"=>$salt));
+                    $userID = $_SESSION["userID"] = $db->getLastInsertID();
+                }
+                unset($salt);
+                unset($name);
+            }
+        }
+
+        return $userID;
+    }
+
+    /**
+     * Substitutes one class for another in the database. Deletes any previous substitutions
+     * on this class.
+     *
+     * @param DatabaseManager $db Database connection object.
+     * @param INTEGER $userID The ID of the user.
+     * @param INTEGER $origID The ID of the original class.
+     * @param INTEGER $subID
+     * @return VOID
+     */
+    function substituteClass(SQLiteManager $db, $userID, $origID, $subID) {
+        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID;
+        $db->query($sql);
+
+        $fields["userID"] = $userID;
+        $fields["oldClassID"] = $origID;
+        $fields["newClassID"] = $subID;
+        $db->insert("userClassMap", $fields);
+    }
+
     function getKeyStr() {
         return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
     }
