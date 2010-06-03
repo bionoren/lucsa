@@ -78,7 +78,16 @@ td.endNote {
     font-size:10px;
 }
 
-.strike, tr.strike td {
-    text-decoration:line-through;
+.strike, tr.strike td, tr.strike td a {
+/*    text-decoration:line-through;*/
+    color:rgb(200, 200, 200);
     background-color:rgb(240, 239, 245);
+}
+
+.classOverlay {
+    position:absolute;
+    background-color:magenta;
+    padding:5px;
+    overflow:visible;
+    color:black;
 }

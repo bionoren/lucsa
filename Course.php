@@ -18,6 +18,7 @@
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID ";
+        protected static $divID = 1;
 
         protected $completeClass = null;
         protected $department;
@@ -58,7 +59,7 @@
                 print '<td style="width:0px;">';
                     print $this->getNumber();
                 print '</td>';
-                print '<td>';
+                print '<td onmouseover="$(\'class'.Course::$divID.'\').show()" onmouseout="$(\'class'.Course::$divID.'\').hide()">';
                     print '<a href="'.$url.'course='.$this->getLink().'">';
                         print $this->getTitle();
                     print '</a>';
@@ -98,10 +99,12 @@
                         print '</span>';
                     }
                     if($this->isComplete()) {
-                        print '<br>'.$this->getCompleteClass();
+                        print '<div id="class'.Course::$divID.'" class="classOverlay">'.$this->getCompleteClass().'</div>';
+                        print '<script>$("class'.Course::$divID.'").hide()</script>';
                     }
                 print '</td>';
             print '</tr>';
+            Course::$divID++;
         }
 
         protected function getCompleteClass() {
