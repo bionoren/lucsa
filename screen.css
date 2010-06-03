@@ -25,6 +25,7 @@ td {
 tr.course, .noborder, .semesterHours, .semesterTitle {
     border:0px;
     background-color:rgb(200, 200, 200);
+    vertical-align:top;
 }
 
 .semesterHeader, .semesterHours, .semesterTitle {
@@ -56,6 +57,12 @@ tr.course, .noborder, .semesterHours, .semesterTitle {
 
 .sequenceTitle {
     font-size:16px;
+}
+
+.sequenceLinks {
+    font-size:12px;
+    font-family:arial;
+    font-weight:normal;
 }
 
 .footnote, span.endNote {

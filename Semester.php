@@ -126,6 +126,10 @@
             return $this->completedHours;
         }
 
+        public function getClasses() {
+            return $this->classes;
+        }
+
         static function getFromDegree($degreeID, $semester) {
             $db = SQLiteManager::getInstance();
             $sql = "SELECT courseID, notes

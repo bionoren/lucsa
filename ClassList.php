@@ -28,13 +28,16 @@
 
         protected function diffHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
+            $this->count = $list1->count();
             foreach($this->classes as $id=>$arr) {
                 foreach($arr as $class) {
-                    if(isset($list2->classes[$id]) && in_array($class, $list2->classes[$id])) {
-                        $key = array_search($class, $list2->classes[$id]);
+                    if(isset($list2->classes[$id]) && in_array($class, $list2->classes[$id], true)) {
+                        $key = array_search($class, $list2->classes[$id], true);
                         unset($this->classes[$key][$key]);
+                        $this->count--;
                     } else {
                         $this->classes[$id][] = $class;
+                        $this->count++;
                     }
                 }
             }
@@ -55,14 +58,17 @@
 
         protected function intersectHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
+            $this->count = $list1->count();
             foreach($this->classes as $id=>$arr) {
                 if(!$list2->offsetExists($id)) {
+                    $this->count -= count($arr);
                     unset($this->classes[$id]);
                     continue;
                 }
                 foreach($arr as $key=>$class) {
-                    if(!in_array($class, $list2->classes[$id])) {
+                    if(!in_array($class, $list2->classes[$id], true)) {
                         unset($arr[$key]);
+                        $this->count--;
                     }
                 }
                 $this->classes[$id] = array_values($arr);
@@ -84,14 +90,17 @@
 
         protected function mergeHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
+            $this->count = $list1->count();
             foreach($list2->classes as $id=>$arr) {
                 if(empty($this->classes[$id])) {
                     $this->classes[$id] = $arr;
+                    $this->count += count($arr);
                     continue;
                 }
                 foreach($arr as $class) {
-                    if(!in_array($class, $this->classes[$id])) {
+                    if(!in_array($class, $this->classes[$id], true)) {
                         $this[$id] = $class;
+                        $this->count++;
                     }
                 }
             }

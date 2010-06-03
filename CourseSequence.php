@@ -44,7 +44,22 @@
             $year = $this->getYear();
             $totalHours = 0;
             $hoursCompleted = 0;
-            $this->displayHeader();
+            print '<table>';
+                print '<tr>';
+                    print '<td colspan=2 class="majorTitle">';
+                        print $this->name.' ('.$this->acronym.')';
+                        print '<br>';
+                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
+                        print '<br>';
+                        $_GET["disp"] = "%s";
+                        print '<span class="sequenceLinks">
+                            <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
+                            - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
+                            - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
+                        print '</span>';
+                        print '<br style="vertical-align:top; line-height:28px;">';
+                    print '</td>';
+                print '</tr>';
                 $notes = array();
                 foreach($this->semesters as $semester) {
                     $semester->display($this->getYear(), $year, $i, $notes);
@@ -56,54 +71,6 @@
                         $year++;
                     }
                 }
-            $this->displayFooter($hoursCompleted, $totalHours, $notes);
-        }
-
-        public function displayColumn() {
-            $i = 0;
-            $year = $this->getYear();
-            $totalHours = 0;
-            $hoursCompleted = 0;
-            $this->displayHeader();
-                $notes = array();
-                foreach($this->semesters as $semester) {
-                    print '<tr>';
-                        $semester->display($this->getYear(), $year, $i, $notes);
-                        $totalHours += $semester->getHours();
-                        $hoursCompleted += $semester->getCompletedHours();
-                        if($i++ % 2 == 0) {
-                            $year++;
-                        }
-                    print '</tr>';
-                }
-            $this->displayFooter($hoursCompleted, $totalHours, $notes);
-        }
-
-        public function displayRequirementsList() {
-            $i = 0;
-            $year = $this->getYear();
-            $totalHours = 0;
-            $hoursCompleted = 0;
-            $this->displayHeader();
-                $notes = array();
-                foreach($this->semesters as $semester) {
-
-                }
-            $this->displayFooter($hoursCompleted, $totalHours, $notes);
-        }
-
-        public function displayHeader() {
-            print '<table>';
-                print '<tr>';
-                    print '<td colspan=2 class="majorTitle">';
-                        print $this->name.' ('.$this->acronym.')';
-                        print '<br>';
-                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
-                    print '</td>';
-                print '</tr>';
-        }
-
-        public function displayFooter($hoursCompleted, $totalHours, $notes) {
                 print '<tr>';
                     print '<td colspan="2" align="center">';
                         print "Completed Hours: ".$hoursCompleted."<br>";
@@ -114,6 +81,58 @@
                 if(!empty($notes)) {
                     print '<tr>';
                         print '<td colspan="2" class="endNote">';
+                        print 'Notes:';
+                        foreach($notes as $i=>$note) {
+                            print '<br><span class="endNote">'.($i+1).'</span>';
+                            print ": ".$note;
+                        }
+                        print '</td>';
+                    print '</tr>';
+                }
+            print '</table>';
+        }
+
+        public function displayRequirementsList() {
+            print '<table>';
+                print '<tr>';
+                    print '<td colspan=3 class="majorTitle">';
+                        print $this->name.' ('.$this->acronym.')';
+                        print '<br>';
+                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
+                        print '<br>';
+                        $_GET["disp"] = "%s";
+                        print '<span class="sequenceLinks">
+                            <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
+                            - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
+                            - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
+                        print '</span>';
+                        print '<br style="vertical-align:top; line-height:28px;">';
+                    print '</td>';
+                print '</tr>';
+                $notes = array();
+                $allClasses = new ClassList();
+                foreach($this->semesters as $semester) {
+                    $allClasses = ClassList::merge($allClasses, $semester->getClasses());
+                }
+                $allClasses->sort();
+
+                $i = 0;
+                $count = $allClasses->count()/2;
+                print '<tr style="vertical-align:top;">';
+                    print '<td>';
+                        print '<table>';
+                            foreach($allClasses as $class) {
+                                print $class->display($this->year, $notes);
+                                if($i++ == round($count)) {
+                                    print '</table></td><td><table>';
+                                }
+                            }
+                        print '</table>';
+                    print '</td>';
+                print '</tr>';
+                if(!empty($notes)) {
+                    print '<tr>';
+                        print '<td colspan="3" class="endNote">';
                         print 'Notes:';
                         foreach($notes as $i=>$note) {
                             print '<br><span class="endNote">'.($i+1).'</span>';

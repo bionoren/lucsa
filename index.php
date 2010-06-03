@@ -231,9 +231,16 @@ require_once("header.php");
     print "</form>";
     print "<br>";
 
+//    print '<img src="images/image.php">';
+//    print '<br>';
+
 //display courses
     foreach($courseSequences as $courseSequence) {
-        $courseSequence->display();
+        if(empty($_GET["disp"]) || $_GET["disp"] == "summary") {
+            $courseSequence->display();
+        } elseif($_GET["disp"] == "list") {
+            $courseSequence->displayRequirementsList();
+        }
         print "<br";
     }
 

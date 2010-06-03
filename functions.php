@@ -188,4 +188,20 @@
     function getKeyStr() {
         return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
     }
+
+    function getQS() {
+        if(!empty($_GET)) {
+            $ret = "?";
+        }
+        foreach($_GET as $key=>$val) {
+            if(is_array($val)) {
+                foreach($val as $val2) {
+                    $ret .= $key."[]=".$val2."&";
+                }
+            } else {
+                $ret .= $key."=".$val."&";
+            }
+        }
+        return substr($ret, 0, -1);
+    }
 ?>
