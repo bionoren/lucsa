@@ -51,12 +51,14 @@
                         print '<br>';
                         print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
                         print '<br>';
+                        $dispVarSave = $_GET["disp"];
                         $_GET["disp"] = "%s";
                         print '<span class="sequenceLinks">
                             <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
                             - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
                             - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
                         print '</span>';
+                        $_GET["disp"] = $dispVarSave;
                         print '<br style="vertical-align:top; line-height:28px;">';
                     print '</td>';
                 print '</tr>';
@@ -100,12 +102,14 @@
                         print '<br>';
                         print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
                         print '<br>';
+                        $dispVarSave = $_GET["disp"];
                         $_GET["disp"] = "%s";
                         print '<span class="sequenceLinks">
                             <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
                             - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
                             - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
                         print '</span>';
+                        $_GET["disp"] = $dispVarSave;
                         print '<br style="vertical-align:top; line-height:28px;">';
                     print '</td>';
                 print '</tr>';
@@ -181,6 +185,10 @@
 
         protected function getYear() {
             return $this->year;
+        }
+
+        function __toString() {
+            return $this->name;
         }
     }
 ?>

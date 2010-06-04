@@ -241,7 +241,7 @@ require_once("header.php");
         } elseif($_GET["disp"] == "list") {
             $courseSequence->displayRequirementsList();
         }
-        print "<br";
+        print "<br>";
     }
 
 //footer form
