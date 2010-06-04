@@ -18,7 +18,6 @@
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID ";
-        protected static $divID = 1;
 
         protected $completeClass = null;
         protected $department;
@@ -45,13 +44,12 @@
         public function display($year, array &$notes) {
             $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
 
-            print '<tr class="course';
+            print '<tr class="course classOverlay';
             if($this->isComplete()) {
                 print ' strike';
             }
             print '">';
-                print '<td ';
-                print 'style="width:0px;">';
+                print '<td style="width:0px;">';
                     print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
                         print $this->getDepartment();
                     print '</a>';
@@ -59,7 +57,10 @@
                 print '<td style="width:0px;">';
                     print $this->getNumber();
                 print '</td>';
-                print '<td onmouseover="$(\'class'.Course::$divID.'\').show()" onmouseout="$(\'class'.Course::$divID.'\').hide()">';
+                print '<td>';
+                    if($this->isComplete()) {
+                        print '<span class="overlay">'.$this->getCompleteClass().'</span>';
+                    }
                     print '<a href="'.$url.'course='.$this->getLink().'">';
                         print $this->getTitle();
                     print '</a>';
@@ -98,13 +99,9 @@
                             print " (".($key+1).")";
                         print '</span>';
                     }
-                    if($this->isComplete()) {
-                        print '<div id="class'.Course::$divID.'" class="classOverlay">'.$this->getCompleteClass().'</div>';
-                        print '<script>$("class'.Course::$divID.'").hide()</script>';
-                    }
+                    print '</span>';
                 print '</td>';
             print '</tr>';
-            Course::$divID++;
         }
 
         protected function getCompleteClass() {

@@ -85,9 +85,22 @@ td.endNote {
 }
 
 .classOverlay {
-    position:absolute;
+    position: relative;
+    z-index: 0;
+}
+
+.classOverlay:hover {
+    z-index:50;
+}
+
+.classOverlay span.overlay {
+    position: absolute;
+    visibility: hidden;
     background-color:magenta;
     padding:5px;
-    overflow:visible;
     color:black;
+}
+
+.classOverlay:hover span.overlay {
+    visibility: visible;
 }
