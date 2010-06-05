@@ -17,12 +17,17 @@
     require_once("Course.php");
 
     class Semester {
-        public static $CARDINAL_STRINGS = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth");
+        //6 years with no summers
+        public static $CARDINAL_STRINGS = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelth");
+
+        public static $SEMESTERS = array("Spring", "Summer", "Fall");
 
         protected $classes;
         protected $completedHours = 0;
         protected $hours = 0;
         protected $order;
+        protected $year;
+        protected $semester;
 
         protected function __construct(array $classes=array(), $order) {
             $this->classes = new ClassList();
@@ -55,9 +60,9 @@
                                         print ' strike';
                                     }
                                     print '">';
-                                        print Semester::$CARDINAL_STRINGS[$semester].' Semester - ';
-                                        print ($this->order % 2 == 0)?"Fall":"Spring";
-                                        print " ".$year;
+                                        print Semester::$CARDINAL_STRINGS[$this->order-1].' Semester - ';
+                                        print $this->semester;
+                                        print " ".$this->year;
                                     print '</td>';
                                     print '<td class="semesterHours';
                                     if($this->completedHours == $this->hours) {
@@ -174,6 +179,14 @@
                 $this->completedHours -= $class->getHours();
             }
             unset($this->classes[$id]);
+        }
+
+        public function setSemester($semester) {
+            $this->semester = $semester;
+        }
+
+        public function setYear($year) {
+            $this->year = $year;
         }
     }
 ?>

@@ -31,8 +31,19 @@
             $this->acronym = $row["acronym"];
             $this->type = $row["type"]; //none, major, minor
             $this->notes = new Notes();
+            $year = $this->year;
+            $semNum = 2;
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
-                $this->semesters[] = Semester::getFromDegree($row["ID"], $i, $this->notes);
+                $tmp = Semester::getFromDegree($row["ID"], $i, $this->notes);
+                $tmp->setYear($year);
+                $tmp->setSemester(Semester::$SEMESTERS[($semNum++%count(Semester::$SEMESTERS))]);
+                if($semNum%count(Semester::$SEMESTERS) == 1) {
+                    $semNum++;
+                }
+                if($semNum%count(Semester::$SEMESTERS) == 0) {
+                    $year++;
+                }
+                $this->semesters[] = $tmp;
             }
         }
 
