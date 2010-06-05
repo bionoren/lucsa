@@ -22,10 +22,12 @@
         protected $classes;
         protected $completedHours = 0;
         protected $hours = 0;
+        protected $order;
 
-        protected function __construct(array $classes=array()) {
+        protected function __construct(array $classes=array(), $order) {
             $this->classes = new ClassList();
             array_walk($classes, array($this, "addClass"));
+            $this->order = $order;
         }
 
         public function addClass(Course $class) {
@@ -41,7 +43,7 @@
             $this->completedHours += $class->getHours();
         }
 
-        public function display($catalogYear, $year, $semester, &$notes) {
+        public function display($catalogYear, $year) {
             print '<td valign="top">';
                 print '<table style="width:100%;">';
                     print '<tr class="noborder">';
@@ -54,7 +56,7 @@
                                     }
                                     print '">';
                                         print Semester::$CARDINAL_STRINGS[$semester].' Semester - ';
-                                        print ($semester % 2 == 0)?"Fall":"Spring";
+                                        print ($this->order % 2 == 0)?"Fall":"Spring";
                                         print " ".$year;
                                     print '</td>';
                                     print '<td class="semesterHours';
@@ -69,13 +71,13 @@
                         print '</td>';
                     print '</tr>';
                     foreach($this->classes as $class) {
-                        $class->display($catalogYear, $notes);
+                        $class->display($catalogYear);
                     }
                 print '</table>';
             print '</td>';
         }
 
-        public function evalTaken(ClassList $classes, $mapping=null) {
+        public function evalTaken(ClassList $classes, $mapping=null, $notes=null) {
             if($mapping === null) {
                 //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
@@ -98,8 +100,8 @@
                     if($class->isComplete()) {
                         continue;
                     }
-                    $notes = $class->getNotes();
-                    if(!empty($notes) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $notes, $matches)) {
+                    $note = $notes->getNote($class->getNoteID());
+                    if(!empty($note) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $note, $matches)) {
                         //explicit course substitution
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
@@ -130,7 +132,7 @@
             return $this->classes;
         }
 
-        static function getFromDegree($degreeID, $semester) {
+        static function getFromDegree($degreeID, $semester, Notes $notes) {
             $db = SQLiteManager::getInstance();
             $sql = "SELECT courseID, notes
                        FROM degreeCourseMap
@@ -139,10 +141,12 @@
             $classes = array();
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $class = Course::getFromID($row["courseID"]);
-                $class->setNotes($row["notes"]);
+                if(!empty($row["notes"])) {
+                    $class->setNoteID($notes->add($row["notes"]));
+                }
                 $classes[] = $class;
             }
-            return new Semester($classes);
+            return new Semester($classes, $semester);
         }
 
         public function getHours() {

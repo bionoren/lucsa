@@ -22,6 +22,7 @@
         protected $type;
         protected $semesters;
         protected $year;
+        protected $notes;
 
         public function __construct(array $row) {
             $this->year = $row["year"];
@@ -29,8 +30,9 @@
             $this->name = $row["name"];
             $this->acronym = $row["acronym"];
             $this->type = $row["type"]; //none, major, minor
+            $this->notes = new Notes();
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
-                $this->semesters[] = Semester::getFromDegree($row["ID"], $i);
+                $this->semesters[] = Semester::getFromDegree($row["ID"], $i, $this->notes);
             }
         }
 
@@ -64,7 +66,7 @@
                 print '</tr>';
                 $notes = array();
                 foreach($this->semesters as $semester) {
-                    $semester->display($this->getYear(), $year, $i, $notes);
+                    $semester->display($this->getYear(), $year);
                     $totalHours += $semester->getHours();
                     $hoursCompleted += $semester->getCompletedHours();
                     if($i++ % 2 == 1) {
@@ -80,12 +82,12 @@
                         print "Total Hours: ".$totalHours;
                     print '</td>';
                 print '</tr>';
-                if(!empty($notes)) {
+                if($this->notes->count() > 0) {
                     print '<tr>';
                         print '<td colspan="2" class="endNote">';
                         print 'Notes:';
-                        foreach($notes as $i=>$note) {
-                            print '<br><span class="endNote">'.($i+1).'</span>';
+                        foreach($this->notes->getNotes() as $i=>$note) {
+                            print '<br><span class="endNote">'.$i.'</span>';
                             print ": ".$note;
                         }
                         print '</td>';
@@ -125,7 +127,7 @@
                     print '<td>';
                         print '<table>';
                             foreach($allClasses as $class) {
-                                print $class->display($this->year, $notes);
+                                print $class->display($this->year);
                                 if($i++ == $count) {
                                     print '</table></td><td><table>';
                                 }
@@ -133,12 +135,12 @@
                         print '</table>';
                     print '</td>';
                 print '</tr>';
-                if(!empty($notes)) {
+                if($this->notes->count() > 0) {
                     print '<tr>';
                         print '<td colspan="3" class="endNote">';
                         print 'Notes:';
-                        foreach($notes as $i=>$note) {
-                            print '<br><span class="endNote">'.($i+1).'</span>';
+                        foreach($this->notes->getNotes() as $i=>$note) {
+                            print '<br><span class="endNote">'.$i.'</span>';
                             print ": ".$note;
                         }
                         print '</td>';
@@ -161,7 +163,7 @@
                 $mapping[$row["oldClassID"]] = $row["newClassID"];
             }
             foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken, $mapping);
+                $semester->evalTaken($classesTaken, $mapping, $this->notes);
             }
         }
 
@@ -187,8 +189,37 @@
             return $this->year;
         }
 
-        function __toString() {
+        public function __toString() {
             return $this->name;
+        }
+    }
+
+    class Notes implements Countable {
+        protected $notes = array();
+
+        function add($note) {
+            $key = array_search($note, $this->notes);
+            if($key === false) {
+                $key = count($this->notes)+1;
+                $this->notes[$key] = $note;
+            }
+            return $key;
+        }
+
+        function count() {
+            return count($this->notes);
+        }
+
+        function getNote($id) {
+            return $this->notes[$id];
+        }
+
+        function getNotes() {
+            return $this->notes;
+        }
+
+        function __toString() {
+            return "Notes";
         }
     }
 ?>

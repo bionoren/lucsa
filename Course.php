@@ -25,7 +25,7 @@
         protected $hours;
         protected $ID;
         protected $linkid;
-        protected $notes;
+        protected $noteID = null;
         protected $number;
         protected $title;
 
@@ -41,7 +41,7 @@
             $this->years = $row["years"];
         }
 
-        public function display($year, array &$notes) {
+        public function display($year) {
             $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
 
             print '<tr class="course classOverlay';
@@ -59,7 +59,10 @@
                 print '</td>';
                 print '<td>';
                     if($this->isComplete()) {
-                        print '<span class="overlay">'.$this->getCompleteClass().'</span>';
+                        print '<span class="overlay">';
+                        print 'Completed By:<br>';
+                        print $this->getCompleteClass();
+                        print '</span>';
                     }
                     print '<a href="'.$url.'course='.$this->getLink().'">';
                         print $this->getTitle();
@@ -89,14 +92,9 @@
                             print " only)";
                         print '</span>';
                     }
-                    if(!empty($this->notes)) {
-                        $key = array_search($this->getNotes(), $notes);
-                        if($key === false) {
-                            $key = count($notes);
-                            $notes[] = $this->getNotes();
-                        }
+                    if(!empty($this->noteID)) {
                         print '<span class="footnote">';
-                            print " (".($key+1).")";
+                            print " (".$this->noteID.")";
                         print '</span>';
                     }
                     print '</span>';
@@ -151,8 +149,8 @@
             return $this->linkid;
         }
 
-        public function getNotes() {
-            return $this->notes;
+        public function getNoteID() {
+            return $this->noteID;
         }
 
         public function getNumber() {
@@ -177,13 +175,10 @@
 
         public function setComplete(Course $class) {
             $this->completeClass = $class;
-            if(!$class->isComplete()) {
-                $class->setComplete($this);
-            }
         }
 
-        public function setNotes($note) {
-            $this->notes = $note;
+        public function setNoteID($id) {
+            $this->noteID = $id;
         }
 
         public function __toString() {
