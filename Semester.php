@@ -21,6 +21,9 @@
         public static $CARDINAL_STRINGS = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelth");
 
         public static $SEMESTERS = array("Spring", "Summer", "Fall");
+        const SPRING = 0;
+        const SUMMER = 1;
+        const FALL = 2;
 
         protected $classes;
         protected $completedHours = 0;

@@ -32,15 +32,15 @@
             $this->type = $row["type"]; //none, major, minor
             $this->notes = new Notes();
             $year = $this->year;
-            $semNum = 2;
+            $semNum = Semester::FALL;
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
                 $tmp = Semester::getFromDegree($row["ID"], $i, $this->notes);
                 $tmp->setYear($year);
                 $tmp->setSemester(Semester::$SEMESTERS[($semNum++%count(Semester::$SEMESTERS))]);
-                if($semNum%count(Semester::$SEMESTERS) == 1) {
+                if($semNum%count(Semester::$SEMESTERS) == Semester::SUMMER) {
                     $semNum++;
                 }
-                if($semNum%count(Semester::$SEMESTERS) == 0) {
+                if($semNum%count(Semester::$SEMESTERS) == Semester::SPRING) {
                     $year++;
                 }
                 $this->semesters[] = $tmp;
