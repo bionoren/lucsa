@@ -36,7 +36,7 @@
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
                 $tmp = Semester::getFromDegree($row["ID"], $i, $this->notes);
                 $tmp->setYear($year);
-                $tmp->setSemester(Semester::$SEMESTERS[($semNum++%count(Semester::$SEMESTERS))]);
+                $tmp->setSemester($semNum++%count(Semester::$SEMESTERS));
                 if($semNum%count(Semester::$SEMESTERS) == Semester::SUMMER) {
                     $semNum++;
                 }
@@ -53,80 +53,68 @@
         }
 
         public function display() {
-            $i = 0;
-            $year = $this->getYear();
             $totalHours = 0;
             $hoursCompleted = 0;
             print '<table>';
-                print '<tr>';
-                    print '<td colspan=2 class="majorTitle">';
-                        print $this->name.' ('.$this->acronym.')';
-                        print '<br>';
-                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
-                        print '<br>';
-                        $dispVarSave = $_GET["disp"];
-                        $_GET["disp"] = "%s";
-                        print '<span class="sequenceLinks">
-                            <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
-                            - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
-                            - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
-                        print '</span>';
-                        $_GET["disp"] = $dispVarSave;
-                        print '<br style="vertical-align:top; line-height:28px;">';
-                    print '</td>';
-                print '</tr>';
-                $notes = array();
+                $this->displayHeader();
                 foreach($this->semesters as $semester) {
-                    $semester->display($this->getYear(), $year);
+                    $semester->display($this->getYear());
                     $totalHours += $semester->getHours();
                     $hoursCompleted += $semester->getCompletedHours();
-                    if($i++ % 2 == 1) {
+                    if($semester->getSemesterID() == Semester::SPRING) {
                         print '</tr><tr>';
-                    } else {
-                        $year++;
                     }
                 }
-                print '<tr>';
-                    print '<td colspan="2" align="center">';
-                        print "Completed Hours: ".$hoursCompleted."<br>";
-                        print "Remaining Hours: ".($totalHours-$hoursCompleted)."<br>";
-                        print "Total Hours: ".$totalHours;
-                    print '</td>';
-                print '</tr>';
-                if($this->notes->count() > 0) {
-                    print '<tr>';
-                        print '<td colspan="2" class="endNote">';
-                        print 'Notes:';
-                        foreach($this->notes->getNotes() as $i=>$note) {
-                            print '<br><span class="endNote">'.$i.'</span>';
-                            print ": ".$note;
-                        }
-                        print '</td>';
-                    print '</tr>';
-                }
+                $this->displayFooter($hoursCompleted, $totalHours);
             print '</table>';
         }
 
-        public function displayRequirementsList() {
-            print '<table>';
+        protected function displayHeader() {
+            print '<tr>';
+                print '<td colspan=2 class="majorTitle">';
+                    print $this->name.' ('.$this->acronym.')';
+                    print '<br>';
+                    print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
+                    print '<br>';
+                    $dispVarSave = $_GET["disp"];
+                    $_GET["disp"] = "%s";
+                    print '<span class="sequenceLinks">
+                        <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
+                        - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
+                        - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
+                    print '</span>';
+                    $_GET["disp"] = $dispVarSave;
+                    print '<br style="vertical-align:top; line-height:28px;">';
+                print '</td>';
+            print '</tr>';
+        }
+
+        protected function displayFooter($hoursCompleted, $totalHours) {
+            print '<tr>';
+                print '<td colspan="2" align="center">';
+                    print "Completed Hours: ".$hoursCompleted."<br>";
+                    print "Remaining Hours: ".($totalHours-$hoursCompleted)."<br>";
+                    print "Total Hours: ".$totalHours;
+                print '</td>';
+            print '</tr>';
+            if($this->notes->count() > 0) {
                 print '<tr>';
-                    print '<td colspan=3 class="majorTitle">';
-                        print $this->name.' ('.$this->acronym.')';
-                        print '<br>';
-                        print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
-                        print '<br>';
-                        $dispVarSave = $_GET["disp"];
-                        $_GET["disp"] = "%s";
-                        print '<span class="sequenceLinks">
-                            <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
-                            - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
-                            - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
-                        print '</span>';
-                        $_GET["disp"] = $dispVarSave;
-                        print '<br style="vertical-align:top; line-height:28px;">';
+                    print '<td colspan="3" class="endNote">';
+                    print 'Notes:';
+                    foreach($this->notes->getNotes() as $i=>$note) {
+                        print '<br><span class="endNote">'.$i.'</span>';
+                        print ": ".$note;
+                    }
                     print '</td>';
                 print '</tr>';
-                $notes = array();
+            }
+        }
+
+        public function displayRequirementsList() {
+            $totalHours = 0;
+            $hoursCompleted = 0;
+            print '<table>';
+                $this->displayHeader();
                 $allClasses = new ClassList();
                 foreach($this->semesters as $semester) {
                     $allClasses = ClassList::merge($allClasses, $semester->getClasses());
@@ -139,6 +127,10 @@
                         print '<table>';
                             foreach($allClasses as $class) {
                                 print $class->display($this->year);
+                                $totalHours += $class->getHours();
+                                if($class->isComplete()) {
+                                    $hoursCompleted += $class->getHours();
+                                }
                                 if($i++ == $count) {
                                     print '</table></td><td><table>';
                                 }
@@ -146,17 +138,7 @@
                         print '</table>';
                     print '</td>';
                 print '</tr>';
-                if($this->notes->count() > 0) {
-                    print '<tr>';
-                        print '<td colspan="3" class="endNote">';
-                        print 'Notes:';
-                        foreach($this->notes->getNotes() as $i=>$note) {
-                            print '<br><span class="endNote">'.$i.'</span>';
-                            print ": ".$note;
-                        }
-                        print '</td>';
-                    print '</tr>';
-                }
+                $this->displayFooter($hoursCompleted, $totalHours);
             print '</table>';
         }
 

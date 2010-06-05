@@ -30,7 +30,7 @@
         protected $hours = 0;
         protected $order;
         protected $year;
-        protected $semester;
+        protected $semesterID;
 
         protected function __construct(array $classes=array(), $order) {
             $this->classes = new ClassList();
@@ -51,7 +51,7 @@
             $this->completedHours += $class->getHours();
         }
 
-        public function display($catalogYear, $year) {
+        public function display($catalogYear) {
             print '<td valign="top">';
                 print '<table style="width:100%;">';
                     print '<tr class="noborder">';
@@ -64,7 +64,7 @@
                                     }
                                     print '">';
                                         print Semester::$CARDINAL_STRINGS[$this->order-1].' Semester - ';
-                                        print $this->semester;
+                                        print Semester::$SEMESTERS[$this->semesterID];
                                         print " ".$this->year;
                                     print '</td>';
                                     print '<td class="semesterHours';
@@ -161,6 +161,10 @@
             return $this->hours;
         }
 
+        public function getSemesterID() {
+            return $this->semesterID;
+        }
+
         public function getIncompleteClasses() {
             $ret = new ClassList();
             foreach($this->classes as $class) {
@@ -184,8 +188,8 @@
             unset($this->classes[$id]);
         }
 
-        public function setSemester($semester) {
-            $this->semester = $semester;
+        public function setSemester($semesterID) {
+            $this->semesterID = $semesterID;
         }
 
         public function setYear($year) {
