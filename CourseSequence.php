@@ -75,9 +75,9 @@
             print '<tr>';
                 print '<td colspan=2 class="majorTitle">';
                     print $this->name.' ('.$this->acronym.')';
-                    print '<br>';
+                    print '<br/>';
                     print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
-                    print '<br>';
+                    print '<br/>';
                     $dispVarSave = $_GET["disp"];
                     $_GET["disp"] = "%s";
                     print '<span class="sequenceLinks">
@@ -86,7 +86,7 @@
                         - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
                     print '</span>';
                     $_GET["disp"] = $dispVarSave;
-                    print '<br style="vertical-align:top; line-height:28px;">';
+                    print '<br style="vertical-align:top; line-height:28px;"/>';
                 print '</td>';
             print '</tr>';
         }
@@ -104,7 +104,7 @@
                     print '<td colspan="3" class="endNote">';
                     print 'Notes:';
                     foreach($this->notes->getNotes() as $i=>$note) {
-                        print '<br><span class="endNote">'.$i.'</span>';
+                        print '<br/><span class="endNote">'.$i.'</span>';
                         print ": ".$note;
                     }
                     print '</td>';

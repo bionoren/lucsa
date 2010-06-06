@@ -206,7 +206,7 @@ require_once("header.php");
         print "<br/>";
 
         print '<select name="degree[]" size="5" multiple="multiple">';
-            print '<optgroup label="-- Majors"';
+            print '<optgroup label="-- Majors">';
                 foreach($majors as $key=>$deg) {
                     print '<option value="'.$key.'"';
                     if(is_array($degree) && in_array($key, $degree)) {
@@ -215,13 +215,13 @@ require_once("header.php");
                     print '>'.$deg["name"].' ('.$key.')</option>';
                 }
             print '</optgroup>';
-            print '<optgroup label="-- Minors"';
+            print '<optgroup label="-- Minors">';
                 foreach($minors as $key=>$deg) {
                     print '<option value="'.$key.'"';
                     if(is_array($degree) && in_array($key, $degree)) {
                         print " selected='selected'";
                     }
-                    print ' disabled>'.$deg["name"].' ('.$key.')</option>';
+                    print ' disabled="disabled">'.$deg["name"].' ('.$key.')</option>';
                 }
             print '</optgroup>';
         print "</select>";

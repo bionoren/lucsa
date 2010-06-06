@@ -68,7 +68,7 @@
             print '">';
                 print $this->getHours().' hours';
             print '</span>';
-            print '<br>';
+            print '<br/>';
             foreach($this->classes as $class) {
                 $class->display($catalogYear);
             }

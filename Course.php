@@ -41,7 +41,7 @@
             $this->years = $row["years"];
         }
 
-        public function display($year) {
+        public function display($year, $extended=true) {
             $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
             print '<span class="classOverlay';
             if($this->isComplete()) {
@@ -52,8 +52,8 @@
             print '">';
                 if($this->isComplete()) {
                     print '<span class="overlay">';
-                        print 'Completed By:<br>';
-                        print $this->getCompleteClass()->display($year);
+                        print 'Completed By:<br/>';
+                        print '<img src="images/x.gif" class="ximage"/>'.$this->getCompleteClass()->display($year, false);
                     print '</span>';
                 }
                 print '<span class="classDepartment">';
@@ -78,26 +78,28 @@
                             print ")";
                         print '</span>';
                     }
-                    if($this->getOffered() < 3 || $this->getYears() < 3) {
-                        print '<span class="note">';
-                            print " (";
-                            if($this->getOffered() < 3) {
-                                print ($this->getOffered() == 1)?"Spring":"Fall";
-                                if($this->getYears() < 3) {
-                                    print ", ";
+                    if($extended) {
+                        if($this->getOffered() < 3 || $this->getYears() < 3) {
+                            print '<span class="note">';
+                                print " (";
+                                if($this->getOffered() < 3) {
+                                    print ($this->getOffered() == 1)?"Spring":"Fall";
+                                    if($this->getYears() < 3) {
+                                        print ", ";
+                                    }
                                 }
-                            }
-                            if($this->getYears() < 3) {
-                                print ($this->getYears() == 1)?"Odd":"Even";
-                                print " years";
-                            }
-                            print " only)";
-                        print '</span>';
-                    }
-                    if(!empty($this->noteID)) {
-                        print '<span class="footnote">';
-                            print " (".$this->noteID.")";
-                        print '</span>';
+                                if($this->getYears() < 3) {
+                                    print ($this->getYears() == 1)?"Odd":"Even";
+                                    print " years";
+                                }
+                                print " only)";
+                            print '</span>';
+                        }
+                        if(!empty($this->noteID)) {
+                            print '<span class="footnote">';
+                                print " (".$this->noteID.")";
+                            print '</span>';
+                        }
                     }
                 print '</span>';
             print '</span>';
