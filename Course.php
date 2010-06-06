@@ -43,18 +43,21 @@
 
         public function display($year, $extended=true) {
             $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
-            print '<span class="classOverlay';
-            if($this->isComplete()) {
-                print ' strike';
-            } else {
-                print ' nostrike';
-            }
-            print '">';
+            if($extended) {
+                print '<span class="classOverlay';
                 if($this->isComplete()) {
-                    print '<span class="overlay">';
+                    print ' strike';
+                } else {
+                    print ' nostrike';
+                }
+                print '">';
+            }
+                if($this->isComplete()) {
+                    print '<div class="overlay">';
                         print 'Completed By:<br/>';
-                        print '<img src="images/x.gif" class="ximage"/>'.$this->getCompleteClass()->display($year, false);
-                    print '</span>';
+                        print '<a href="'.getQS().'" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
+                        $this->getCompleteClass()->display($year, false);
+                    print '</div>';
                 }
                 print '<span class="classDepartment">';
                     print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
@@ -102,7 +105,9 @@
                         }
                     }
                 print '</span>';
-            print '</span>';
+            if($extended) {
+                print '</span>';
+            }
         }
 
         public function equals(Course $class) {
