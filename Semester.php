@@ -52,37 +52,26 @@
         }
 
         public function display($catalogYear) {
-            print '<td valign="top">';
-                print '<table style="width:100%;">';
-                    print '<tr class="noborder">';
-                        print '<td colspan="3">';
-                            print '<table width="100%" class="semesterHeader">';
-                                print '<tr>';
-                                    print '<td class="semesterTitle';
-                                    if($this->completedHours == $this->hours) {
-                                        print ' strike';
-                                    }
-                                    print '">';
-                                        print Semester::$CARDINAL_STRINGS[$this->order-1].' Semester - ';
-                                        print Semester::$SEMESTERS[$this->semesterID];
-                                        print " ".$this->year;
-                                    print '</td>';
-                                    print '<td class="semesterHours';
-                                    if($this->completedHours == $this->hours) {
-                                        print ' strike';
-                                    }
-                                    print '">';
-                                        print $this->getHours().' hours';
-                                    print '</td>';
-                                print '</tr>';
-                            print '</table>';
-                        print '</td>';
-                    print '</tr>';
-                    foreach($this->classes as $class) {
-                        $class->display($catalogYear);
-                    }
-                print '</table>';
-            print '</td>';
+            print '<span class="semesterTitle';
+            if($this->completedHours == $this->hours) {
+                print ' strike';
+            }
+            print '">';
+                print Semester::$CARDINAL_STRINGS[$this->order-1].' Semester - ';
+                print Semester::$SEMESTERS[$this->semesterID];
+                print " ".$this->year;
+            print '</span>';
+            print '<span class="semesterHours';
+            if($this->completedHours == $this->hours) {
+                print ' strike';
+            }
+            print '">';
+                print $this->getHours().' hours';
+            print '</span>';
+            print '<br>';
+            foreach($this->classes as $class) {
+                $class->display($catalogYear);
+            }
         }
 
         public function evalTaken(ClassList $classes, $mapping=null, $notes=null) {

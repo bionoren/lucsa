@@ -22,7 +22,7 @@ td {
     border:inherit;
 }
 
-tr.course, .noborder, .semesterHours, .semesterTitle {
+.noborder, .semesterHours, .semesterTitle {
     border:0px;
     background-color:rgb(200, 200, 200);
     vertical-align:top;
@@ -45,6 +45,7 @@ tr.course, .noborder, .semesterHours, .semesterTitle {
 .semesterHours {
     text-align:right;
     font-size:12px;
+    float:right;
 }
 
 .majorTitle, .sequenceTitle {
@@ -78,15 +79,39 @@ td.endNote {
     font-size:10px;
 }
 
-.strike, tr.strike td, tr.strike td a {
-/*    text-decoration:line-through;*/
+.strike {
     color:rgb(200, 200, 200);
     background-color:rgb(240, 239, 245);
+}
+
+.nostrike {
+    color:black;
+    background-color:rgb(200, 200, 200);
+}
+
+.classDepartment, .classNumber, .classTitle {
+    border:0px;
+    vertical-align:top;
+    background-color:inherit;
+}
+
+.classDepartment {
+    width:38px;
+    float:left;
+}
+
+.classNumber {
+    width:36px;
+    float:left;
+}
+
+.classTitle {
 }
 
 .classOverlay {
     position: relative;
     z-index: 0;
+    display:block;
 }
 
 .classOverlay:hover {
@@ -99,6 +124,7 @@ td.endNote {
     background-color:magenta;
     padding:5px;
     color:black;
+    display:block;
 }
 
 .classOverlay:hover span.overlay {

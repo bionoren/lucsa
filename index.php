@@ -229,7 +229,7 @@ require_once("header.php");
 
         print '<input type="submit" name="submit" value="submit"/>';
     print "</form>";
-    print "<br>";
+    print "<br/>";
 
 //    print '<img src="images/image.php">';
 //    print '<br>';
@@ -241,7 +241,7 @@ require_once("header.php");
         } elseif($_GET["disp"] == "list") {
             $courseSequence->displayRequirementsList();
         }
-        print "<br>";
+        print "<br/>";
     }
 
 //footer form
@@ -250,7 +250,7 @@ require_once("header.php");
         displayClassSelect("sub", $substitute);
         print ' for ';
         displayClassSelect("orig", $substituteCandidates);
-        print '<br>';
+        print '<br/>';
         print '<input type="submit" name="substitute" value="Substitute">';
         print '&nbsp;&nbsp;&nbsp;&nbsp;';
         print '<input type="submit" name="reset" value="Reset">';

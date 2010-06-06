@@ -43,27 +43,29 @@
 
         public function display($year) {
             $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
-
-            print '<tr class="course classOverlay';
+            print '<span class="classOverlay';
             if($this->isComplete()) {
                 print ' strike';
+            } else {
+                print ' nostrike';
             }
             print '">';
-                print '<td style="width:0px;">';
+                if($this->isComplete()) {
+                    print '<span class="overlay">';
+                        print 'Completed By:<br>';
+                        print $this->getCompleteClass()->display($year);
+                    print '</span>';
+                }
+                print '<span class="classDepartment">';
                     print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
                         print $this->getDepartment();
                     print '</a>';
-                print '</td>';
-                print '<td style="width:0px;">';
-                    print $this->getNumber();
-                print '</td>';
-                print '<td>';
-                    if($this->isComplete()) {
-                        print '<span class="overlay">';
-                        print 'Completed By:<br>';
-                        print $this->getCompleteClass();
-                        print '</span>';
-                    }
+                print '</span>';
+                print '<span class="classNumber">';
+                    print "| ".$this->getNumber();
+                print '</span>';
+                print '<span class="classTitle">';
+                    print "| ";
                     print '<a href="'.$url.'course='.$this->getLink().'">';
                         print $this->getTitle();
                     print '</a>';
@@ -97,9 +99,8 @@
                             print " (".$this->noteID.")";
                         print '</span>';
                     }
-                    print '</span>';
-                print '</td>';
-            print '</tr>';
+                print '</span>';
+            print '</span>';
         }
 
         protected function getCompleteClass() {

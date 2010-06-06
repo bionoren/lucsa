@@ -58,12 +58,14 @@
             print '<table>';
                 $this->displayHeader();
                 foreach($this->semesters as $semester) {
-                    $semester->display($this->getYear());
-                    $totalHours += $semester->getHours();
-                    $hoursCompleted += $semester->getCompletedHours();
-                    if($semester->getSemesterID() == Semester::SPRING) {
-                        print '</tr><tr>';
-                    }
+                    print '<td valign="top">';
+                        $semester->display($this->getYear());
+                        $totalHours += $semester->getHours();
+                        $hoursCompleted += $semester->getCompletedHours();
+                        if($semester->getSemesterID() == Semester::SPRING) {
+                            print '</tr><tr>';
+                        }
+                    print '</td>';
                 }
                 $this->displayFooter($hoursCompleted, $totalHours);
             print '</table>';
