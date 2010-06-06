@@ -221,7 +221,7 @@ require_once("header.php");
                     if(is_array($degree) && in_array($key, $degree)) {
                         print " selected='selected'";
                     }
-                    print '>'.$deg["name"].' ('.$key.')</option>';
+                    print ' disabled>'.$deg["name"].' ('.$key.')</option>';
                 }
             print '</optgroup>';
         print "</select>";

@@ -103,6 +103,10 @@
             print '</span>';
         }
 
+        public function equals(Course $class) {
+            return $class->getID() == $this->getID() && $class->getTitle() == $this->getTitle();
+        }
+
         protected function getCompleteClass() {
             return $this->completeClass;
         }

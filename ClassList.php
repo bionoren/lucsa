@@ -32,9 +32,13 @@
             foreach($this->classes as $id=>$arr) {
                 foreach($arr as $class) {
                     if(isset($list2->classes[$id]) && in_array($class, $list2->classes[$id], true)) {
-                        $key = array_search($class, $list2->classes[$id], true);
-                        unset($this->classes[$key][$key]);
-                        $this->count--;
+                        foreach($list2->classes[$id] as $class2) {
+                            if($class->equals($class2)) {
+                                unset($this->classes[$key][$key]);
+                                $this->count--;
+                                break;
+                            }
+                        }
                     } else {
                         $this->classes[$id][] = $class;
                         $this->count++;
@@ -66,10 +70,13 @@
                     continue;
                 }
                 foreach($arr as $key=>$class) {
-                    if(!in_array($class, $list2->classes[$id], true)) {
-                        unset($arr[$key]);
-                        $this->count--;
+                    foreach($list2->classes[$id] as $class2) {
+                        if($class->equals($class2)) {
+                            break 2;
+                        }
                     }
+                    unset($arr[$key]);
+                    $this->count--;
                 }
                 $this->classes[$id] = array_values($arr);
             }
@@ -98,10 +105,13 @@
                     continue;
                 }
                 foreach($arr as $class) {
-                    if(!in_array($class, $this->classes[$id], true)) {
-                        $this[$id] = $class;
-                        $this->count++;
+                    foreach($this->classes[$id] as $class2) {
+                        if($class->equals($class2)) {
+                            break 2;
+                        }
                     }
+                    $this[$id] = $class;
+                    $this->count++;
                 }
             }
             return $this;
