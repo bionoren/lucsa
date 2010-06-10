@@ -59,6 +59,7 @@
     $db->createTable("classes", $fields);
     //department, year, and number
     $db->createUniqueConstraint("classes", array_slice($fields, 0, 2));
+    $db->query("CREATE INDEX IF NOT EXISTS deptnum ON classes (departmentID, number)");
 
     //class prerequisites and corequisites
     $fields = array();
@@ -77,6 +78,7 @@
     $fields[] = new DBField("semester", DBField::NUM);
     $fields[] = new DBField("notes", DBField::STRING);
     $db->createTable("degreeCourseMap", $fields);
+    $db->query("CREATE INDEX IF NOT EXISTS degreeSemester ON degreeCourseMap (degreeID, semester)");
 
     //users
     $fields = array();
@@ -95,6 +97,7 @@
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
     $db->createUniqueConstraint("userClassMap", array_slice($fields, 0, 2));
+    $db->query("CREATE INDEX IF NOT EXISTS userID ON userClassMap (userID)");
 
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");

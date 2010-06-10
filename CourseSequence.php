@@ -157,16 +157,13 @@
                 $mapping[$row["oldClassID"]] = $row["newClassID"];
             }
 
-            if(count($mapping == 0) && count($classesTaken) > 0) {
+            if(count($mapping) == 0 && count($classesTaken) > 0) {
+                $mapping = array();
                 foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user);
+                    $semester->initEvalTaken($classesTaken, $user, $mapping);
                 }
                 foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user, $this->notes);
-                }
-                $result = $db->query($sql);
-                while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                    $mapping[$row["oldClassID"]] = $row["newClassID"];
+                    $semester->initEvalTaken($classesTaken, $user, $mapping, $this->notes);
                 }
             }
 

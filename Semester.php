@@ -74,15 +74,16 @@
             }
         }
 
-        public function initEvalTaken(ClassList $classes, $user, $notes=null) {
-            //Identical classes must be valid substitutes. Seeing as they're identical...
+        public function initEvalTaken(ClassList $classes, $user, &$mapping, $notes=null) {
             $map["userID"] = $user;
             if(empty($notes)) {
+                //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
                     if(isset($classes[$key])) {
                         $map["oldClassID"] = $class->getID();
                         $map["newClassID"] = $classes[$key]->getID();
                         SQLiteManager::getInstance()->insert("userClassMap", $map);
+                        $mapping[$map["oldClassID"]] = $map["newClassID"];
                     }
                 }
             } else {
@@ -98,6 +99,7 @@
                                 $map["oldClassID"] = $class->getID();
                                 $map["newClassID"] = $class2->getID();
                                 SQLiteManager::getInstance()->insert("userClassMap", $map);
+                                $mapping[$map["oldClassID"]] = $map["newClassID"];
                                 break;
                             }
                         }
@@ -108,6 +110,7 @@
                                 $map["oldClassID"] = $class->getID();
                                 $map["newClassID"] = $class2->getID();
                                 SQLiteManager::getInstance()->insert("userClassMap", $map);
+                                $mapping[$map["oldClassID"]] = $map["newClassID"];
                                 break;
                             }
                         }
