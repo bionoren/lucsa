@@ -74,25 +74,18 @@
             }
         }
 
-        public function evalTaken(ClassList $classes, $mapping=null, $notes=null) {
-            if($mapping === null) {
-                //Identical classes must be valid substitutes. Seeing as they're identical...
+        public function initEvalTaken(ClassList $classes, $user, $notes=null) {
+            //Identical classes must be valid substitutes. Seeing as they're identical...
+            $map["userID"] = $user;
+            if(empty($notes)) {
                 foreach($this->classes as $key=>$class) {
                     if(isset($classes[$key])) {
-                        $this->completeClass($class, $classes[$key]);
-                        unset($classes[$key]);
+                        $map["oldClassID"] = $class->getID();
+                        $map["newClassID"] = $classes[$key]->getID();
+                        SQLiteManager::getInstance()->insert("userClassMap", $map);
                     }
                 }
             } else {
-                //elective evaluation + basic subsititution attempts (ie from notes)
-                //also, user-defined substitutions via $mapping
-                //always evaluate user mappings first
-                foreach($mapping as $old=>$new) {
-                    if(isset($this->classes[$old]) && isset($classes[$new])) {
-                        $this->completeClass($this->classes[$old], $classes[$new]);
-                        unset($classes[$new]);
-                    }
-                }
                 foreach($this->classes as $class) {
                     if($class->isComplete()) {
                         continue;
@@ -102,8 +95,9 @@
                         //explicit course substitution
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
-                                $this->completeClass($class, $class2);
-                                unset($classes[$key]);
+                                $map["oldClassID"] = $class->getID();
+                                $map["newClassID"] = $class2->getID();
+                                SQLiteManager::getInstance()->insert("userClassMap", $map);
                                 break;
                             }
                         }
@@ -111,12 +105,23 @@
                         //elective substitution
                         foreach($classes as $key=>$class2) {
                             if($class->getDepartment() == $class2->getDepartment() && $class2->getHours() >= $class->getHours()) {
-                                $this->completeClass($class, $class2);
-                                unset($classes[$key]);
+                                $map["oldClassID"] = $class->getID();
+                                $map["newClassID"] = $class2->getID();
+                                SQLiteManager::getInstance()->insert("userClassMap", $map);
                                 break;
                             }
                         }
                     }
+                }
+            }
+        }
+
+        public function evalTaken(ClassList $classes, $mapping) {
+            foreach($this->classes as $old=>$class) {
+                $new = $mapping[$old];
+                if(isset($mapping[$old]) && isset($classes[$new])) {
+                    $this->completeClass($this->classes[$old], $classes[$new]);
+                    unset($classes[$new]);
                 }
             }
         }

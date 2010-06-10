@@ -76,7 +76,9 @@
                 print '<td colspan=2 class="majorTitle">';
                     print $this->name.' ('.$this->acronym.')';
                     print '<br/>';
-                    print '<span class="sequenceTitle">Sequence Sheet for '.$this->year.'-'.($this->year+1).'</span>';
+                    print '<span class="sequenceTitle">';
+                        print 'Sequence Sheet for '.$this->year.'-'.($this->year+1);
+                    print '</span>';
                     print '<br/>';
                     $dispVarSave = $_GET["disp"];
                     $_GET["disp"] = "%s";
@@ -146,19 +148,30 @@
 
         public function evalTaken(ClassList $classesTaken, $user) {
             $db = SQLiteManager::getInstance();
-            //do direct subsitutions first. This needs to be an entirely seperate pass
-            foreach($this->semesters as $key=>$semester) {
-                $semester->evalTaken($classesTaken);
-            }
             //evaluate user-defined substitutions and substitutions from notes
             //need to translate classTaken department and number keys into a DB class key
             $mapping = array();
-            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user);
+            $sql = "SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user;
+            $result = $db->query($sql);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $mapping[$row["oldClassID"]] = $row["newClassID"];
             }
+
+            if(count($mapping == 0) && count($classesTaken) > 0) {
+                foreach($this->semesters as $semester) {
+                    $semester->initEvalTaken($classesTaken, $user);
+                }
+                foreach($this->semesters as $semester) {
+                    $semester->initEvalTaken($classesTaken, $user, $this->notes);
+                }
+                $result = $db->query($sql);
+                while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    $mapping[$row["oldClassID"]] = $row["newClassID"];
+                }
+            }
+
             foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken, $mapping, $this->notes);
+                $semester->evalTaken($classesTaken, $mapping);
             }
         }
 
