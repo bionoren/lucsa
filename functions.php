@@ -166,23 +166,27 @@
     }
 
     /**
-     * Substitutes one class for another in the database. Deletes any previous substitutions
-     * on this class.
+     * Substitutes one class for another in the database.
+     *
+     * Deletes any previous substitutions on this class. If $subID is null, simply removes
+     * any existing substitutions on the old class.
      *
      * @param SQLiteManager $db Database connection object.
      * @param INTEGER $userID The ID of the user.
      * @param INTEGER $origID The ID of the original class.
-     * @param INTEGER $subID
+     * @param INTEGER $subID The ID of the class to substitute (if any).
      * @return VOID
      */
-    function substituteClass(SQLiteManager $db, $userID, $origID, $subID) {
+    function substituteClass(SQLiteManager $db, $userID, $origID, $subID=null) {
         $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID;
         $db->query($sql);
 
-        $fields["userID"] = $userID;
-        $fields["oldClassID"] = $origID;
-        $fields["newClassID"] = $subID;
-        $db->insert("userClassMap", $fields);
+        if(!empty($subID)) {
+            $fields["userID"] = $userID;
+            $fields["oldClassID"] = $origID;
+            $fields["newClassID"] = $subID;
+            $db->insert("userClassMap", $fields);
+        }
     }
 
     function getKeyStr() {

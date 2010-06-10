@@ -208,4 +208,6 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
 //    print "starting normal cache...<br>\n";
     unset($db);
     require_once("cache.php");
+
+    SQLiteManager::getInstance()->query("ANALYZE");
 ?>

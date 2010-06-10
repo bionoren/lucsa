@@ -55,6 +55,9 @@
                 if($this->isComplete()) {
                     print '<div class="overlay">';
                         print 'Completed By:<br/>';
+                        $_GET["substitute"] = true;
+                        $_GET["orig"] = $this->ID;
+                        $_GET["sub"] = null;
                         print '<a href="'.getQS().'" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
                         $this->getCompleteClass()->display($year, false);
                     print '</div>';
