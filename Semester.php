@@ -74,7 +74,7 @@
             }
         }
 
-        public function initEvalTaken(ClassList $classes, $user, &$mapping, $notes=null) {
+        public function initEvalTaken(ClassList $classes, $user, $notes=null) {
             $map["userID"] = $user;
             if(empty($notes)) {
                 //Identical classes must be valid substitutes. Seeing as they're identical...
@@ -83,7 +83,8 @@
                         $map["oldClassID"] = $class->getID();
                         $map["newClassID"] = $classes[$key]->getID();
                         SQLiteManager::getInstance()->insert("userClassMap", $map);
-                        $mapping[$map["oldClassID"]] = $map["newClassID"];
+                        $this->completeClass($class, $classes[$key]);
+                        unset($classes[$key]);
                     }
                 }
             } else {
@@ -96,21 +97,29 @@
                         //explicit course substitution
                         foreach($classes as $key=>$class2) {
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
-                                $map["oldClassID"] = $class->getID();
-                                $map["newClassID"] = $class2->getID();
-                                SQLiteManager::getInstance()->insert("userClassMap", $map);
-                                $mapping[$map["oldClassID"]] = $map["newClassID"];
+                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
+                                $this->completeClass($class, $class2);
+                                unset($classes[$key]);
                                 break;
                             }
                         }
-                    } elseif(!$class->getNumber()) {
+                    } elseif($class->getNumber()) {
+                        //title & department matching (they change the middle two number sometimes, seemingly for no good reason...
+                        foreach($classes as $key=>$class2) {
+                            if($class->getDepartment() == $class2->getDepartment() && $class->getTitle() == $class2->getTitle()) {
+                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
+                                $this->completeClass($class, $class2);
+                                unset($classes[$key]);
+                                break;
+                            }
+                        }
+                    } else {
                         //elective substitution
                         foreach($classes as $key=>$class2) {
-                            if($class->getDepartment() == $class2->getDepartment() && $class2->getHours() >= $class->getHours()) {
-                                $map["oldClassID"] = $class->getID();
-                                $map["newClassID"] = $class2->getID();
-                                SQLiteManager::getInstance()->insert("userClassMap", $map);
-                                $mapping[$map["oldClassID"]] = $map["newClassID"];
+                            if($class->getDepartment() == $class2->getDepartment() && $class->getHours() <= $class2->getHours()) {
+                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
+                                $this->completeClass($class, $class2);
+                                unset($classes[$key]);
                                 break;
                             }
                         }
@@ -121,8 +130,8 @@
 
         public function evalTaken(ClassList $classes, $mapping) {
             foreach($this->classes as $old=>$class) {
-                $new = $mapping[$old];
-                if(isset($mapping[$old]) && isset($classes[$new])) {
+                if(isset($mapping[$old]) && isset($classes[$mapping[$old]])) {
+                    $new = $mapping[$old];
                     $this->completeClass($this->classes[$old], $classes[$new]);
                     unset($classes[$new]);
                 }

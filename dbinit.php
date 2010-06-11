@@ -96,7 +96,6 @@
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
-    $db->createUniqueConstraint("userClassMap", array_slice($fields, 0, 2));
     $db->query("CREATE INDEX IF NOT EXISTS userID ON userClassMap (userID)");
 
     //initialize the years

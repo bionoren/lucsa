@@ -160,10 +160,10 @@
             if(count($mapping) == 0 && count($classesTaken) > 0) {
                 $mapping = array();
                 foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user, $mapping);
+                    $semester->initEvalTaken($classesTaken, $user);
                 }
                 foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user, $mapping, $this->notes);
+                    $semester->initEvalTaken($classesTaken, $user, $this->notes);
                 }
             }
 
