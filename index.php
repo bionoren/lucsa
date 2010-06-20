@@ -1,4 +1,7 @@
 <?php
+//TODO substitutions of honors lit electives looks odd because they're the same class in the database.
+//TODO for multiple majors, classes used by one aren't showing as available to the second major.
+
     /*
      *	Copyright 2010 Bion Oren
      *
