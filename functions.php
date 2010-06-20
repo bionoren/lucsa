@@ -177,15 +177,14 @@
      * @param INTEGER $subID The ID of the class to substitute (if any).
      * @return VOID
      */
-    function substituteClass(SQLiteManager $db, $userID, $origID, $subID=null) {
-        $sql = "DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID;
-        $db->query($sql);
-
+    function substituteClass($userID, $origID, $subID=null) {
         if(!empty($subID)) {
             $fields["userID"] = $userID;
             $fields["oldClassID"] = $origID;
             $fields["newClassID"] = $subID;
-            $db->insert("userClassMap", $fields);
+            SQLiteManager::getInstance()->insert("userClassMap", $fields);
+        } else {
+            SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID);
         }
     }
 

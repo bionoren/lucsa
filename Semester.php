@@ -80,60 +80,55 @@
                 //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
                     if(isset($classes[$key])) {
+                        substituteClass($user, $class->getID(), $classes[$key]->getID());
                         $map["oldClassID"] = $class->getID();
                         $map["newClassID"] = $classes[$key]->getID();
                         SQLiteManager::getInstance()->insert("userClassMap", $map);
                         $this->completeClass($class, $classes[$key]);
-                        unset($classes[$key]);
                     }
                 }
             } else {
-                foreach($this->classes as $class) {
-                    if($class->isComplete()) {
+                foreach($classes as $key=>$class2) {
+                    if($class2->isSubstitute) {
                         continue;
                     }
-                    $note = $notes->getNote($class->getNoteID());
-                    if(!empty($note) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $note, $matches)) {
-                        //explicit course substitution
-                        foreach($classes as $key=>$class2) {
+                    foreach($this->classes as $class) {
+                        if($class->isComplete()) {
+                            continue;
+                        }
+                        $note = $notes->getNote($class->getNoteID());
+                        if(!empty($note) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $note, $matches)) {
+                            //explicit course substitution
                             if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
-                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
+                                substituteClass($user, $class->getID(), $class2->getID());
                                 $this->completeClass($class, $class2);
-                                unset($classes[$key]);
                                 break;
                             }
                         }
-                    } elseif($class->getNumber()) {
-                        //title & department matching (they change the middle two number sometimes, seemingly for no good reason...
-                        foreach($classes as $key=>$class2) {
+                        if($class->getNumber()) {
+                            //title & department matching (they change the middle two number sometimes, seemingly for no good reason...
                             if($class->getDepartment() == $class2->getDepartment() && $class->getTitle() == $class2->getTitle()) {
-                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
+                                substituteClass($user, $class->getID(), $class2->getID());
                                 $this->completeClass($class, $class2);
-                                unset($classes[$key]);
                                 break;
                             }
                         }
-                    } else {
-                        //elective substitution
-                        foreach($classes as $key=>$class2) {
-                            if($class->getDepartment() == $class2->getDepartment() && $class->getHours() <= $class2->getHours()) {
-                                substituteClass(SQLiteManager::getInstance(), $user, $class->getID(), $class2->getID());
-                                $this->completeClass($class, $class2);
-                                unset($classes[$key]);
-                                break;
-                            }
+                        if($class->getDepartment() == $class2->getDepartment() && $class->getHours() <= $class2->getHours()) {
+                            substituteClass($user, $class->getID(), $class2->getID());
+                            $this->completeClass($class, $class2);
+                            break;
                         }
                     }
                 }
             }
         }
 
-        public function evalTaken(ClassList $classes, $mapping) {
+        public function evalTaken(ClassList $classes, ClassList $mapping) {
             foreach($this->classes as $old=>$class) {
-                if(isset($mapping[$old]) && isset($classes[$mapping[$old]])) {
+                if(isset($mapping[$old])) {
                     $new = $mapping[$old];
                     $this->completeClass($this->classes[$old], $classes[$new]);
-                    unset($classes[$new]);
+                    unset($mapping[$old]);
                 }
             }
         }

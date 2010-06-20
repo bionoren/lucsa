@@ -28,6 +28,7 @@
         protected $noteID = null;
         protected $number;
         protected $title;
+        public $isSubstitute = false;
 
         protected function __construct(array $row) {
             $this->ID = intval($row["ID"]);
@@ -190,6 +191,7 @@
 
         public function setComplete(Course $class) {
             $this->completeClass = $class;
+            $class->isSubstitute = true;
         }
 
         public function setNoteID($id) {

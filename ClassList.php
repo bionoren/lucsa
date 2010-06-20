@@ -10,6 +10,20 @@
             }
         }
 
+        public function filter($function) {
+            $ret = new ClassList();
+            return $ret->filterHelper($this, $function);
+        }
+
+        protected function filterHelper(ClassList $classes, $function) {
+            foreach($classes as $class) {
+                if($function($class)) {
+                    $this[$class->getID()] = $class;
+                }
+            }
+            return $this;
+        }
+
         public function sort() {
             uasort($this->classes, function(array $first, array $second) { return strcmp($first[0], $second[0]); });
         }

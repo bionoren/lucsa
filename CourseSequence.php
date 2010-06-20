@@ -150,7 +150,7 @@
             $db = SQLiteManager::getInstance();
             //evaluate user-defined substitutions and substitutions from notes
             //need to translate classTaken department and number keys into a DB class key
-            $mapping = array();
+            $mapping = new ClassList();
             $sql = "SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user;
             $result = $db->query($sql);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -158,7 +158,7 @@
             }
 
             if(count($mapping) == 0 && count($classesTaken) > 0) {
-                $mapping = array();
+                $mapping = new ClassList();
                 foreach($this->semesters as $semester) {
                     $semester->initEvalTaken($classesTaken, $user);
                 }

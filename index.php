@@ -150,7 +150,7 @@
 
     //course substitutions
     if(isset($_REQUEST["substitute"])) {
-        substituteClass($db, $userID, $_REQUEST["orig"], $_REQUEST["sub"]);
+        substituteClass($userID, $_REQUEST["orig"], $_REQUEST["sub"]);
     }
 
     if(isset($_REQUEST["reset"])) {
@@ -166,6 +166,8 @@
     } else {
         list($courses, $degree) = getUserInfo($majors);
     }
+    $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
+    $courses[$transferClass->getID()] = $transferClass;
 
     $degOptions = array_merge($majors, $minors);
     $degrees = array();
@@ -173,23 +175,17 @@
         $degrees[] = $degOptions[$deg];
     }
 
-    $masterCourses = $courses;
     $courseSequences = array();
-    $substitute = clone $masterCourses;
     $substituteCandidates = new ClassList();
     foreach($degrees as $deg) {
-        $courses = clone $masterCourses;
         $courseSequence = CourseSequence::getFromID($deg["ID"]);
         $courseSequence->evalTaken($courses, $_SESSION["userID"]);
         $courseSequences[] = $courseSequence;
 
-        $tmp = ClassList::diff($courses, $masterCourses);
-        $substitute = ClassList::intersect($substitute, $tmp);
-
         $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
     }
-    $class = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-    $substitute[$class->getID()] = $class;
+    $courses[$transferClass->getID()]->isSubstitute = false;
+    $substitute = $courses->filter(function(Course $class) { return !$class->isSubstitute; });
 
 require_once("header.php");
 //header form
