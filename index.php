@@ -1,7 +1,4 @@
 <?php
-//TODO substitutions of honors lit electives looks odd because they're the same class in the database.
-//TODO for multiple majors, classes used by one aren't showing as available to the second major.
-
     /*
      *	Copyright 2010 Bion Oren
      *
@@ -178,17 +175,20 @@
         $degrees[] = $degOptions[$deg];
     }
 
+    $masterCourses = $courses;
     $courseSequences = array();
+    $substitute = new ClassList();
     $substituteCandidates = new ClassList();
     foreach($degrees as $deg) {
+        $courses = clone $masterCourses;
         $courseSequence = CourseSequence::getFromID($deg["ID"]);
         $courseSequence->evalTaken($courses, $_SESSION["userID"]);
         $courseSequences[] = $courseSequence;
 
+        $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
         $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
     }
     $courses[$transferClass->getID()]->isSubstitute = false;
-    $substitute = $courses->filter(function(Course $class) { return !$class->isSubstitute; });
 
 require_once("header.php");
 //header form

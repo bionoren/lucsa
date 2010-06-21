@@ -47,16 +47,20 @@
         print '<select name="'.$name.'">';
             $classes->sort();
             $dept = null;
+            $lastTitle = "";
             foreach($classes as $class) {
                 if($class->getDepartment() != $dept) {
                     $dept = $class->getDepartment();
                     print '<optgroup label="'.$dept.'">';
                 }
-                print '<option value="'.$class->getID().'"';
-                if($class->isComplete()) {
-                    print ' style="color:rgb(177, 177, 177);"';
+                if($lastTitle != $class->getTitle()) {
+                    $lastTitle = $class->getTitle();
+                    print '<option value="'.$class->getID().'"';
+                    if($class->isComplete()) {
+                        print ' style="color:rgb(177, 177, 177);"';
+                    }
+                    print '>'.$lastTitle.'</option>';
                 }
-                print '>'.$class->getTitle().'</option>';
             }
         print '</select>';
     }
