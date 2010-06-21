@@ -129,6 +129,9 @@
                     $new = $mapping[$old];
                     $this->completeClass($this->classes[$old], $classes[$new]);
                     unset($mapping[$old]);
+                    if(!($classes[$new]->getDepartment() == "LETU" && $classes[$new]->getNumber() == "4999")) {
+                        unset($classes[$new]);
+                    }
                 }
             }
         }
