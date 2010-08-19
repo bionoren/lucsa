@@ -1,4 +1,12 @@
 <?php
+    /*
+     * You know, the whole reason this class exists is because there are classes that, from
+     * the API's perspective, are the same. But, from the user's perspective, they're
+     * completely different. You might be able to encapsulate the differences in arrays
+     * inside the classes themseles (kind of like reference counters). If this becomes a
+     * performance bottleneck...
+     */
+
     class ClassList implements ArrayAccess, Countable, Iterator {
         protected $classes = array();
         protected $count = 0;

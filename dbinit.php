@@ -57,8 +57,8 @@
     $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
     $fields[] = new DBField("hours", DBField::NUM, 3);
     $db->createTable("classes", $fields);
-    //department, year, and number
-    $db->createUniqueConstraint("classes", array_slice($fields, 0, 2));
+    //department and number
+    $db->createUniqueConstraint("classes", array_slice($fields, 0, 3));
     $db->query("CREATE INDEX IF NOT EXISTS deptnum ON classes (departmentID, number)");
 
     //class prerequisites and corequisites

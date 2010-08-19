@@ -189,6 +189,7 @@
         $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
     }
     $courses[$transferClass->getID()]->isSubstitute = false;
+    $substitute[$transferClass->getID()] = $transferClass;
 
 require_once("header.php");
 //header form

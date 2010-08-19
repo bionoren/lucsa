@@ -79,7 +79,9 @@
             if(empty($notes)) {
                 //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
+					print "Key: $key -> $class<br>";
                     if(isset($classes[$key])) {
+						print " - ".$classes[$key]."<br>";
                         substituteClass($user, $class->getID(), $classes[$key]->getID());
                         $map["oldClassID"] = $class->getID();
                         $map["newClassID"] = $classes[$key]->getID();

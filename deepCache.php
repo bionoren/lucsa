@@ -128,6 +128,12 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                 } else {
                     $tmp = $db->select("classes", array_slice($fields, 0, 3, true), array("ID"))->fetchArray(SQLITE3_ASSOC);
                     $classID = $tmp["ID"];
+					if(empty($classID)) {
+						dump("fields", array_slice($fields, 0, 3, true));
+						dump("tmp", $tmp);
+						dump("number", $number);
+						print "year = $year<br>";
+					}
                 }
 
                 if(!empty($match["extra"])) {

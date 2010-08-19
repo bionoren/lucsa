@@ -82,7 +82,7 @@
                 return;
             }
 
-            $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".current($fields)->getName()." ON ".$name." (";
+            $sql = "CREATE UNIQUE INDEX ".current($fields)->getName().rand(1, 100)." ON ".$name." (";
             $tmp = "";
             foreach($fields as $field) {
                 $tmp .= $field->getName().",";
