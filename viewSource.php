@@ -1,3 +1,1 @@
-<?php
-    highlight_file("index.php");
-?>
+<?php highlight_file("index.php"); ?>

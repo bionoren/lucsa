@@ -14,15 +14,18 @@
      */
 
     session_start();
+    $path = "./";
+//--DEBUG
     if($_GET["reset"] == 1) {
         session_destroy();
         session_write_close();
         die("reset");
     }
-    require_once("functions.php");
-    require_once("SQLiteManager.php");
-    require_once("CourseSequence.php");
-    require_once("ClassList.php");
+//--END DEBUG
+    require_once($path."functions.php");
+    require_once($path."db/SQLiteManager.php");
+    require_once($path."CourseSequence.php");
+    require_once($path."ClassList.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -149,9 +152,14 @@
     $minors = getMinors($yearKey);
 
     //course substitutions
+
+
     if(isset($_REQUEST["substitute"])) {
         substituteClass($userID, $_REQUEST["orig"], $_REQUEST["sub"]);
     }
+
+//    $_REQUEST["reset"] = true;
+//    $_REQUEST["autosub"] = true;
 
     if(isset($_REQUEST["reset"])) {
         $db->query("DELETE FROM userClassMap WHERE userID=".$userID);
@@ -164,25 +172,28 @@
         require("privacy.php?hideBack=1");
         die();
     } else {
-        list($courses, $degree) = getUserInfo($majors);
+        list($masterCourses, $degree) = getUserInfo($majors);
     }
     $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-    $courses[$transferClass->getID()] = $transferClass;
+    $masterCourses[$transferClass->getID()] = $transferClass;
 
     $degOptions = array_merge($majors, $minors);
     $degrees = array();
     foreach($degree as $deg) {
-        $degrees[] = $degOptions[$deg];
+        $degrees[] = $degOptions[$deg]["ID"];
     }
 
-    $masterCourses = $courses;
     $courseSequences = array();
     $substitute = new ClassList();
     $substituteCandidates = new ClassList();
+    $user = $_SESSION["userID"];
     foreach($degrees as $deg) {
         $courses = clone $masterCourses;
-        $courseSequence = CourseSequence::getFromID($deg["ID"]);
-        $courseSequence->evalTaken($courses, $_SESSION["userID"]);
+        $courseSequence = CourseSequence::getFromID($deg);
+        if(isset($_REQUEST["autosub"])) {
+            $courseSequence->autocompleteClasses($courses, $user);
+        }
+        $courseSequence->applySubstitions($courses, $user);
         $courseSequences[] = $courseSequence;
 
         $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
@@ -193,67 +204,65 @@
 
 require_once("header.php");
 //header form
-    print '<form method="get" action=".">';
-        print 'Year: <select name="year">';
-            foreach($years as $yr) {
-                print "<option value='$yr'";
-                if($yr == $year) {
-                    print " selected='selected'";
-                }
-                print ">".$yr."</option>";
-            }
-        print "</select>";
-        print "<br/>";
-
-        print '<select name="degree[]" size="5" multiple="multiple">';
-            print '<optgroup label="-- Majors">';
-                foreach($majors as $key=>$deg) {
-                    print '<option value="'.$key.'"';
-                    if(is_array($degree) && in_array($key, $degree)) {
-                        print " selected='selected'";
-                    }
-                    print '>'.$deg["name"].' ('.$key.')</option>';
-                }
-            print '</optgroup>';
-            print '<optgroup label="-- Minors">';
-                foreach($minors as $key=>$deg) {
-                    print '<option value="'.$key.'"';
-                    if(is_array($degree) && in_array($key, $degree)) {
-                        print " selected='selected'";
-                    }
-                    print ' disabled="disabled">'.$deg["name"].' ('.$key.')</option>';
-                }
-            print '</optgroup>';
-        print "</select>";
-        print "<br/>";
-
-        print '<input type="submit" name="submit" value="submit"/>';
-    print "</form>";
-    print "<br/>";
-
-//    print '<img src="images/image.php">';
-//    print '<br>';
-
-//display courses
-    foreach($courseSequences as $courseSequence) {
-        if(empty($_GET["disp"]) || $_GET["disp"] == "summary") {
-            $courseSequence->display();
-        } elseif($_GET["disp"] == "list") {
-            $courseSequence->displayRequirementsList();
-        }
-        print "<br/>";
-    }
-
-//footer form
-    print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
-        print 'Substitute ';
+    print '<div style="float:left; width:250px; font-size:12px;">';
         displayClassSelect("sub", $substitute);
-        print ' for ';
-        displayClassSelect("orig", $substituteCandidates);
-        print '<br/>';
-        print '<input type="submit" name="substitute" value="Substitute">';
-        print '&nbsp;&nbsp;&nbsp;&nbsp;';
-        print '<input type="submit" name="reset" value="Reset">';
-    print '</form>';
+        print '<br>';
+        print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
+            print '<input type="submit" name="autosub" value="Auto Substitute">';
+            print '&nbsp;&nbsp;&nbsp;&nbsp;';
+            print '<input type="submit" name="reset" value="Reset">';
+        print '</form>';
+    print '</div>';
+    print '<div style="display:inline; float:left;">';
+        print '<form method="get" action=".">';
+            print 'Year: <select name="year">';
+                foreach($years as $yr) {
+                    print "<option value='$yr'";
+                    if($yr == $year) {
+                        print " selected='selected'";
+                    }
+                    print ">".$yr."</option>";
+                }
+            print "</select>";
+            print "<br/>";
+
+            print '<select name="degree[]" size="5" multiple="multiple">';
+                print '<optgroup label="-- Majors">';
+                    foreach($majors as $key=>$deg) {
+                        print '<option value="'.$key.'"';
+                        if(is_array($degree) && in_array($key, $degree)) {
+                            print " selected='selected'";
+                        }
+                        print '>'.$deg["name"].' ('.$key.')</option>';
+                    }
+                print '</optgroup>';
+                print '<optgroup label="-- Minors">';
+                    foreach($minors as $key=>$deg) {
+                        print '<option value="'.$key.'"';
+                        if(is_array($degree) && in_array($key, $degree)) {
+                            print " selected='selected'";
+                        }
+                        print ' disabled="disabled">'.$deg["name"].' ('.$key.')</option>';
+                    }
+                print '</optgroup>';
+            print "</select>";
+            print "<br/>";
+
+            print '<input type="submit" name="submit" value="submit"/>';
+        print "</form>";
+        print "<br/>";
+
+    //    print '<img src="images/image.php">';
+    //    print '<br>';
+
+    //display courses
+        foreach($courseSequences as $courseSequence) {
+            if(empty($_GET["disp"]) || $_GET["disp"] == "summary") {
+                $courseSequence->display();
+            } elseif($_GET["disp"] == "list") {
+                $courseSequence->displayRequirementsList();
+            }
+            print "<br/>";
+        }
 require_once("footer.php");
 ?>

@@ -13,8 +13,8 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("ClassList.php");
-    require_once("Course.php");
+    require_once($path."ClassList.php");
+    require_once($path."Course.php");
 
     class Semester {
         //6 years with no summers
@@ -79,9 +79,7 @@
             if(empty($notes)) {
                 //Identical classes must be valid substitutes. Seeing as they're identical...
                 foreach($this->classes as $key=>$class) {
-					print "Key: $key -> $class<br>";
                     if(isset($classes[$key])) {
-						print " - ".$classes[$key]."<br>";
                         substituteClass($user, $class->getID(), $classes[$key]->getID());
                         $map["oldClassID"] = $class->getID();
                         $map["newClassID"] = $classes[$key]->getID();
@@ -129,7 +127,10 @@
             foreach($this->classes as $old=>$class) {
                 if(isset($mapping[$old])) {
                     $new = $mapping[$old];
-                    $this->completeClass($this->classes[$old], $classes[$new]);
+					print "$old -> $new<br>";
+					print "class = $class<br>";
+					print "class = ".$classes[$new]."<br>";
+                    $this->completeClass($class, $classes[$new]);
                     unset($mapping[$old]);
                     if(!($classes[$new]->getDepartment() == "LETU" && $classes[$new]->getNumber() == "4999")) {
                         unset($classes[$new]);

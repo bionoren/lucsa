@@ -13,8 +13,9 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("SQLiteManager.php");
-    require_once("functions.php");
+    $path = "../";
+    require_once($path."db/SQLiteManager.php");
+    require_once($path."functions.php");
 
     $db = SQLiteManager::getInstance();
     $departmentLookup = array();

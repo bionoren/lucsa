@@ -15,11 +15,12 @@
 
     unset($_SERVER['PHP_AUTH_USER']);
     session_start();
+    $path = "./";
     unset($_SESSION["userID"]);
     session_write_close();
-    require_once("functions.php");
-    require_once("SQLiteManager.php");
-    require_once("dbinit.php");
+    require_once($path."functions.php");
+    require_once($path."db/SQLiteManager.php");
+    require_once($path."dbinit.php");
 
     $findSchoolsPattern = "/\<option[^\>]*?value=.(\d+)[^\>]*?\>(?:School|honors|LeTourneau).*?\</is";
 

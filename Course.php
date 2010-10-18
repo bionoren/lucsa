@@ -14,7 +14,7 @@
 	 */
 
     class Course {
-        protected static $fetchSQL = "SELECT classes.*,
+        const fetchSQL = "SELECT classes.*,
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID ";
@@ -42,76 +42,85 @@
             $this->years = $row["years"];
         }
 
-        public function display($year, $extended=true) {
-            $url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
-            if($extended) {
-                print '<span class="classOverlay';
-                if($this->isComplete()) {
-                    print ' strike';
-                } else {
-                    print ' nostrike';
-                }
-                print '">';
-            }
-                if($this->isComplete()) {
-                    print '<div class="overlay">';
-                        print 'Completed By:<br/>';
-                        $_GET["substitute"] = true;
-                        $_GET["orig"] = $this->ID;
-                        $_GET["sub"] = null;
-                        print '<a href="'.getQS().'" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
-                        $this->getCompleteClass()->display($year, false);
-                    print '</div>';
-                }
-                print '<span class="classDepartment">';
-                    print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
-                        print $this->getDepartment();
-                    print '</a>';
-                print '</span>';
-                print '<span class="classNumber">';
-                    print "| ".$this->getNumber();
-                print '</span>';
-                print '<span class="classTitle">';
-                    print "| ";
-                    print '<a href="'.$url.'course='.$this->getLink().'">';
-                        print $this->getTitle();
-                    print '</a>';
-                    if(!$this->getNumber()) {
-                        print '<span class="note">';
-                            print " (".$this->getHours()." hour";
-                            if($this->getHours() != 1) {
-                                print "s";
-                            }
-                            print ")";
-                        print '</span>';
-                    }
-                    if($extended) {
-                        if($this->getOffered() < 3 || $this->getYears() < 3) {
-                            print '<span class="note">';
-                                print " (";
-                                if($this->getOffered() < 3) {
-                                    print ($this->getOffered() == 1)?"Spring":"Fall";
-                                    if($this->getYears() < 3) {
-                                        print ", ";
-                                    }
-                                }
-                                if($this->getYears() < 3) {
-                                    print ($this->getYears() == 1)?"Odd":"Even";
-                                    print " years";
-                                }
-                                print " only)";
-                            print '</span>';
-                        }
-                        if(!empty($this->noteID)) {
-                            print '<span class="footnote">';
-                                print " (".$this->noteID.")";
-                            print '</span>';
-                        }
-                    }
-                print '</span>';
-            if($extended) {
-                print '</span>';
-            }
+        public function display($year=null, $extended=true) {
+			$url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
+			if($extended) {
+				print '<span id="classDisplay'.$this->getUID().'" class="classOverlay';
+				print ($this->isComplete())?' strike':' nostrike';
+				print '">';
+                print '<script type="text/javascript">
+                    Droppables.add("classDisplay'.$this->getUID().'", {overlap:"vertical", onDrop: function(dragged, dropped, event) {
+                        alert(dropped.id);
+                    } });
+                </script>';
+			}
+				if($this->isComplete()) {
+					print '<div class="overlay">';
+						print 'Completed By:<br/>';
+						$_GET["substitute"] = true;
+						$_GET["orig"] = $this->ID;
+						$_GET["sub"] = null;
+						print '<a href="'.getQS().'" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
+						$this->getCompleteClass()->display($year, false);
+					print '</div>';
+				}
+				print '<span class="classDepartment">';
+					if($year) {
+						print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
+					}
+					print $this->getDepartment();
+					if($year) {
+						print '</a>';
+					}
+				print '</span>';
+				print '<span class="classNumber">';
+					print "| ".$this->getNumber();
+				print '</span>';
+				print '<span class="classTitle">';
+					print "| ";
+					if($year) {
+						print '<a href="'.$url.'course='.$this->getLink().'">';
+					}
+						print $this->getTitle();
+					if($year) {
+						print '</a>';
+					}
+					if(!$this->getNumber()) {
+						print '<span class="note">';
+							print " (".$this->getHours()." hour";
+							if($this->getHours() != 1) {
+								print "s";
+							}
+							print ")";
+						print '</span>';
+					}
+					if($extended) {
+						if($this->getOffered() < 3 || $this->getYears() < 3) {
+							print '<span class="note">';
+								print " (";
+								if($this->getOffered() < 3) {
+									print ($this->getOffered() == 1)?"Spring":"Fall";
+									if($this->getYears() < 3) {
+										print ", ";
+									}
+								}
+								if($this->getYears() < 3) {
+									print ($this->getYears() == 1)?"Odd":"Even";
+									print " years";
+								}
+								print " only)";
+							print '</span>';
+						}
+						if(!empty($this->noteID)) {
+							print '<span class="footnote">';
+								print " (".$this->noteID.")";
+							print '</span>';
+						}
+					}
+				print '</span>';
+			if($extended) {
+				print '</span>';
+			}
         }
 
         public function equals(Course $class) {
@@ -132,7 +141,7 @@
 
         public static function getFromID($id) {
             $db = SQLiteManager::getInstance();
-            $sql = Course::$fetchSQL."WHERE classes.ID=".$id;
+            $sql = Course::fetchSQL."WHERE classes.ID=".$id;
             $result = $db->query($sql);
             return new Course($result->fetchArray(SQLITE3_ASSOC));
         }
@@ -140,7 +149,7 @@
         public static function getFromDepartmentNumber($dept, $num, $title="") {
             $db = SQLiteManager::getInstance();
             //try to get the class from our year if we can
-            $sql = Course::$fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber";
+            $sql = Course::fetchSQL."WHERE departments.department='".$dept."' AND ".$num." BETWEEN classes.number AND classes.endNumber";
             $result = $db->query($sql);
             $ret = $result->fetchArray(SQLITE3_ASSOC);
             if($ret === false) {
@@ -181,6 +190,10 @@
             return $this->title;
         }
 
+		public function getUID() {
+			return $this->getDepartment().$this->getNumber();
+		}
+
         public function getYears() {
             return $this->years;
         }
@@ -193,6 +206,12 @@
             $this->completeClass = $class;
             $class->isSubstitute = true;
         }
+
+		public function setAvailableForCompletion() {
+			print '<script type="text/javascript">';
+				print 'new Draggable("'.$this->getUID().'", {revert:true, scroll:window, ghosting:true})';
+			print '</script>';
+		}
 
         public function setNoteID($id) {
             $this->noteID = $id;

@@ -13,7 +13,7 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("SQLiteManager.php");
+    require_once($path."db/SQLiteManager.php");
 
 	//DEBUGGING FUNCTIONS
 	function dump($name, $array, $member=null) {
@@ -44,25 +44,22 @@
     //FUNCTIONS
 
     function displayClassSelect($name, ClassList $classes) {
-        print '<select name="'.$name.'">';
-            $classes->sort();
-            $dept = null;
-            $lastTitle = "";
-            foreach($classes as $class) {
-                if($class->getDepartment() != $dept) {
-                    $dept = $class->getDepartment();
-                    print '<optgroup label="'.$dept.'">';
-                }
-                if($lastTitle != $class->getTitle()) {
-                    $lastTitle = $class->getTitle();
-                    print '<option value="'.$class->getID().'"';
-                    if($class->isComplete()) {
-                        print ' style="color:rgb(177, 177, 177);"';
-                    }
-                    print '>'.$lastTitle.'</option>';
-                }
-            }
-        print '</select>';
+		$classes->sort();
+		$dept = null;
+		$lastTitle = "";
+		foreach($classes as $class) {
+			if($class->getDepartment() != $dept) {
+				$dept = $class->getDepartment();
+				print '<b>'.$dept.'</b><br/>';
+			}
+			if($lastTitle != $class->getTitle()) {
+				$lastTitle = $class->getTitle();
+				print '<div id="'.$class->getUID().'" style="border:1px black solid; margin:2px; padding:1px;">';
+					print $class->display(null, false);
+				print '</div>';
+				$class->setAvailableForCompletion();
+			}
+		}
     }
 
     function getCache($file) {

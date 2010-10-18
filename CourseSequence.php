@@ -13,7 +13,7 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("Semester.php");
+    require_once($path."Semester.php");
 
     class CourseSequence {
         protected $acronym;
@@ -47,10 +47,23 @@
             }
         }
 
-        //call this before merging in majors or minors
-        //because elective substitutions will need to be cleared
-        public function clearTaken() {
+		public function applySubstitions(ClassList $classesTaken, $user) {
+			$mapping = CourseSequence::getUserClassMap($user);
+			$mapping->sort();
+			$mapping->dump("mapping");
+            foreach($this->semesters as $semester) {
+                $semester->evalTaken($classesTaken, $mapping);
+            }
         }
+
+		public function autocompleteClasses(ClassList $classes, $user) {
+			foreach($this->semesters as $semester) {
+				$semester->initEvalTaken($classes, $user);
+			}
+			foreach($this->semesters as $semester) {
+				$semester->initEvalTaken($classes, $user, $this->notes);
+			}
+		}
 
         public function display() {
             $totalHours = 0;
@@ -146,31 +159,17 @@
             print '</table>';
         }
 
-        public function evalTaken(ClassList $classesTaken, $user) {
-            $db = SQLiteManager::getInstance();
+		protected static function getUserClassMap($user) {
+			$db = SQLiteManager::getInstance();
             //evaluate user-defined substitutions and substitutions from notes
             //need to translate classTaken department and number keys into a DB class key
-            $mapping = new ClassList();
-            $sql = "SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user;
-            $result = $db->query($sql);
+            $ret = new ClassList();
+            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $mapping[$row["oldClassID"]] = $row["newClassID"];
+                $ret[$row["oldClassID"]] = $row["newClassID"];
             }
-
-            if(count($mapping) == 0 && count($classesTaken) > 0) {
-                $mapping = new ClassList();
-                foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user);
-                }
-                foreach($this->semesters as $semester) {
-                    $semester->initEvalTaken($classesTaken, $user, $this->notes);
-                }
-            }
-
-            foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken, $mapping);
-            }
-        }
+			return $ret;
+		}
 
         public static function getFromID($id) {
             $db = SQLiteManager::getInstance();

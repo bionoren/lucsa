@@ -13,7 +13,7 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("DBField.php");
+    require_once($path."db/DBField.php");
 
     class SQLiteManager {
         protected static $instance = null;
@@ -93,12 +93,9 @@
 
         public static function getInstance($debug=false) {
             if(SQLiteManager::$instance == null) {
-                if($debug) {
-                    $name = "test";
-                } else {
-                    $name = "lucsa";
-                }
-                SQLiteManager::$instance = new SQLiteManager($name.".sqlite");
+                global $path;
+                $name = "db/lucsa";
+                SQLiteManager::$instance = new SQLiteManager($path.$name.".sqlite");
             }
             return SQLiteManager::$instance;
         }

@@ -13,8 +13,9 @@
 	 *	limitations under the License.
 	 */
 
-    require_once("SQLiteManager.php");
-    require_once("functions.php");
+    $path = "../";
+    require_once($path."db/SQLiteManager.php");
+    require_once($path."functions.php");
 
     $db = SQLiteManager::getInstance();
 
@@ -93,6 +94,7 @@
     //course subsitutions for individual users
     $fields = array();
     $fields[] = new DBField("userID", DBField::NUM, -1, "users");
+	$fields[] = new DBField("degreeID", DBField::NUM, -1, "degrees");
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);

@@ -1,6 +1,7 @@
 <?php
     session_start();
-    require_once("header.php");
+    $path = "./";
+    require_once($path."header.php");
     if(!isset($_REQUEST["hideBack"])) {
         print "<a href='index.php'>Back</a><br><br>";
     }

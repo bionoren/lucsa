@@ -199,5 +199,9 @@
         public function dump($name) {
             dump($name, $this->classes);
         }
+
+        public function __clone() {
+//            $this->classes = unserialize(serialize($this->classes));
+        }
     }
 ?>
