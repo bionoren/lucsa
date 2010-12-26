@@ -52,26 +52,7 @@
         }
 
         public function display($catalogYear) {
-            print '<span class="semesterTitle';
-            if($this->completedHours == $this->hours) {
-                print ' strike';
-            }
-            print '">';
-                print Semester::$CARDINAL_STRINGS[$this->order-1].' Semester - ';
-                print Semester::$SEMESTERS[$this->semesterID];
-                print " ".$this->year;
-            print '</span>';
-            print '<span class="semesterHours';
-            if($this->completedHours == $this->hours) {
-                print ' strike';
-            }
-            print '">';
-                print $this->getHours().' hours';
-            print '</span>';
-            print '<br/>';
-            foreach($this->classes as $class) {
-                $class->display($catalogYear);
-            }
+
         }
 
         public function initEvalTaken(ClassList $classes, $user, $notes=null) {
@@ -168,7 +149,7 @@
             return $this->hours;
         }
 
-        public function getSemesterID() {
+        public function getID() {
             return $this->semesterID;
         }
 
@@ -180,6 +161,10 @@
                 }
             }
             return $ret;
+        }
+
+        public function getYear() {
+            return $this->year;
         }
 
         public function hasClass(Course $class) {

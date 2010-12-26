@@ -66,97 +66,7 @@
 		}
 
         public function display() {
-            $totalHours = 0;
-            $hoursCompleted = 0;
-            print '<table>';
-                $this->displayHeader();
-                foreach($this->semesters as $semester) {
-                    print '<td valign="top">';
-                        $semester->display($this->getYear());
-                        $totalHours += $semester->getHours();
-                        $hoursCompleted += $semester->getCompletedHours();
-                        if($semester->getSemesterID() == Semester::SPRING) {
-                            print '</tr><tr>';
-                        }
-                    print '</td>';
-                }
-                $this->displayFooter($hoursCompleted, $totalHours);
-            print '</table>';
-        }
 
-        protected function displayHeader() {
-            print '<tr>';
-                print '<td colspan=2 class="majorTitle">';
-                    print $this->name.' ('.$this->acronym.')';
-                    print '<br/>';
-                    print '<span class="sequenceTitle">';
-                        print 'Sequence Sheet for '.$this->year.'-'.($this->year+1);
-                    print '</span>';
-                    print '<br/>';
-                    $dispVarSave = $_GET["disp"];
-                    $_GET["disp"] = "%s";
-                    print '<span class="sequenceLinks">
-                        <a href="'.sprintf(getQS(), "list").'">Requirements List</a>
-                        - <a href="'.sprintf(getQS(), "detail").'">Detail View</a>
-                        - <a href="'.sprintf(getQS(), "summary").'">Summary View</a>';
-                    print '</span>';
-                    $_GET["disp"] = $dispVarSave;
-                    print '<br style="vertical-align:top; line-height:28px;"/>';
-                print '</td>';
-            print '</tr>';
-        }
-
-        protected function displayFooter($hoursCompleted, $totalHours) {
-            print '<tr>';
-                print '<td colspan="2" align="center">';
-                    print "Completed Hours: ".$hoursCompleted."<br>";
-                    print "Remaining Hours: ".($totalHours-$hoursCompleted)."<br>";
-                    print "Total Hours: ".$totalHours;
-                print '</td>';
-            print '</tr>';
-            if($this->notes->count() > 0) {
-                print '<tr>';
-                    print '<td colspan="3" class="endNote">';
-                    print 'Notes:';
-                    foreach($this->notes->getNotes() as $i=>$note) {
-                        print '<br/><span class="endNote">'.$i.'</span>';
-                        print ": ".$note;
-                    }
-                    print '</td>';
-                print '</tr>';
-            }
-        }
-
-        public function displayRequirementsList() {
-            $totalHours = 0;
-            $hoursCompleted = 0;
-            print '<table>';
-                $this->displayHeader();
-                $allClasses = new ClassList();
-                foreach($this->semesters as $semester) {
-                    $allClasses = ClassList::merge($allClasses, $semester->getClasses());
-                }
-                $allClasses->sort();
-                $i = 2;
-                $count = floor($allClasses->count()/2);
-                print '<tr style="vertical-align:top;">';
-                    print '<td>';
-                        print '<table>';
-                            foreach($allClasses as $class) {
-                                print $class->display($this->year);
-                                $totalHours += $class->getHours();
-                                if($class->isComplete()) {
-                                    $hoursCompleted += $class->getHours();
-                                }
-                                if($i++ == $count) {
-                                    print '</table></td><td><table>';
-                                }
-                            }
-                        print '</table>';
-                    print '</td>';
-                print '</tr>';
-                $this->displayFooter($hoursCompleted, $totalHours);
-            print '</table>';
         }
 
 		protected static function getUserClassMap($user) {
@@ -187,6 +97,22 @@
                 $ret = ClassList::merge($ret, $sem->getIncompleteClasses());
             }
             return $ret;
+        }
+
+        public function getAcronym() {
+            return $this->acronym;
+        }
+
+        public function getName() {
+            return $this->name;
+        }
+
+        public function getNotes() {
+            return $this->notes;
+        }
+
+        public function getSemesters() {
+            return $this->semesters;
         }
 
         protected function getYear() {

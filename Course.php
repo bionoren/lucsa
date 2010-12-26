@@ -19,6 +19,8 @@
                        FROM classes
                        JOIN departments ON classes.departmentID = departments.ID ";
 
+        protected static $instanceID = 1;
+
         protected $completeClass = null;
         protected $department;
         protected $departmentlinkid;
@@ -28,9 +30,11 @@
         protected $noteID = null;
         protected $number;
         protected $title;
+        protected $UID;
         public $isSubstitute = false;
 
         protected function __construct(array $row) {
+            $this->UID = Course::$instanceID++;
             $this->ID = intval($row["ID"]);
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
@@ -42,92 +46,14 @@
             $this->years = $row["years"];
         }
 
-        public function display($year=null, $extended=true) {
-			$url = 'http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year='.$year."&";
-			if($extended) {
-				print '<span id="classDisplay'.$this->getUID().'" class="classOverlay';
-				print ($this->isComplete())?' strike':' nostrike';
-				print '">';
-                print '<script type="text/javascript">
-                    Droppables.add("classDisplay'.$this->getUID().'", {overlap:"vertical", onDrop: function(dragged, dropped, event) {
-                        alert(dropped.id);
-                    } });
-                </script>';
-			}
-				if($this->isComplete()) {
-					print '<div class="overlay">';
-						print 'Completed By:<br/>';
-						$_GET["substitute"] = true;
-						$_GET["orig"] = $this->ID;
-						$_GET["sub"] = null;
-						print '<a href="'.getQS().'" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>';
-						$this->getCompleteClass()->display($year, false);
-					print '</div>';
-				}
-				print '<span class="classDepartment">';
-					if($year) {
-						print '<a href="'.$url.'school='.$this->getDepartmentLink().'&cmd=courselist">';
-					}
-					print $this->getDepartment();
-					if($year) {
-						print '</a>';
-					}
-				print '</span>';
-				print '<span class="classNumber">';
-					print "| ".$this->getNumber();
-				print '</span>';
-				print '<span class="classTitle">';
-					print "| ";
-					if($year) {
-						print '<a href="'.$url.'course='.$this->getLink().'">';
-					}
-						print $this->getTitle();
-					if($year) {
-						print '</a>';
-					}
-					if(!$this->getNumber()) {
-						print '<span class="note">';
-							print " (".$this->getHours()." hour";
-							if($this->getHours() != 1) {
-								print "s";
-							}
-							print ")";
-						print '</span>';
-					}
-					if($extended) {
-						if($this->getOffered() < 3 || $this->getYears() < 3) {
-							print '<span class="note">';
-								print " (";
-								if($this->getOffered() < 3) {
-									print ($this->getOffered() == 1)?"Spring":"Fall";
-									if($this->getYears() < 3) {
-										print ", ";
-									}
-								}
-								if($this->getYears() < 3) {
-									print ($this->getYears() == 1)?"Odd":"Even";
-									print " years";
-								}
-								print " only)";
-							print '</span>';
-						}
-						if(!empty($this->noteID)) {
-							print '<span class="footnote">';
-								print " (".$this->noteID.")";
-							print '</span>';
-						}
-					}
-				print '</span>';
-			if($extended) {
-				print '</span>';
-			}
+        public function display() {
         }
 
         public function equals(Course $class) {
             return $class->getID() == $this->getID() && $class->getTitle() == $this->getTitle();
         }
 
-        protected function getCompleteClass() {
+        public function getCompleteClass() {
             return $this->completeClass;
         }
 
@@ -170,6 +96,10 @@
             return $this->ID;
         }
 
+        public function getLabel() {
+			return $this->getDepartment().$this->getNumber();
+		}
+
         public function getLink() {
             return $this->linkid;
         }
@@ -190,9 +120,9 @@
             return $this->title;
         }
 
-		public function getUID() {
-			return $this->getDepartment().$this->getNumber();
-		}
+        public function getUID() {
+            return $this->getID()."~".$this->UID;
+        }
 
         public function getYears() {
             return $this->years;
@@ -206,12 +136,6 @@
             $this->completeClass = $class;
             $class->isSubstitute = true;
         }
-
-		public function setAvailableForCompletion() {
-			print '<script type="text/javascript">';
-				print 'new Draggable("'.$this->getUID().'", {revert:true, scroll:window, ghosting:true})';
-			print '</script>';
-		}
 
         public function setNoteID($id) {
             $this->noteID = $id;

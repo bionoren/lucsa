@@ -22,6 +22,7 @@
         die("reset");
     }
 //--END DEBUG
+    require_once($path."smarty/Smarty.class.php");
     require_once($path."functions.php");
     require_once($path."db/SQLiteManager.php");
     require_once($path."CourseSequence.php");
@@ -149,20 +150,10 @@
     }
     //get all the degree options
     $majors = getMajors($yearKey);
-    $minors = getMinors($yearKey);
 
     //course substitutions
-
-
     if(isset($_REQUEST["substitute"])) {
         substituteClass($userID, $_REQUEST["orig"], $_REQUEST["sub"]);
-    }
-
-//    $_REQUEST["reset"] = true;
-//    $_REQUEST["autosub"] = true;
-
-    if(isset($_REQUEST["reset"])) {
-        $db->query("DELETE FROM userClassMap WHERE userID=".$userID);
     }
 
     //get the list of classes the user is already enrolled in and their currently declared degree(s)
@@ -177,92 +168,41 @@
     $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
     $masterCourses[$transferClass->getID()] = $transferClass;
 
-    $degOptions = array_merge($majors, $minors);
+    $degOptions = $majors;
     $degrees = array();
     foreach($degree as $deg) {
         $degrees[] = $degOptions[$deg]["ID"];
     }
 
-    $courseSequences = array();
+    $courseSequence;
     $substitute = new ClassList();
-    $substituteCandidates = new ClassList();
+//    $substituteCandidates = new ClassList();
     $user = $_SESSION["userID"];
     foreach($degrees as $deg) {
         $courses = clone $masterCourses;
         $courseSequence = CourseSequence::getFromID($deg);
-        if(isset($_REQUEST["autosub"])) {
-            $courseSequence->autocompleteClasses($courses, $user);
-        }
+//        if(isset($_REQUEST["autosub"])) {
+//            $courseSequence->autocompleteClasses($courses, $user);
+//        }
         $courseSequence->applySubstitions($courses, $user);
         $courseSequences[] = $courseSequence;
 
         $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
-        $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
+//        $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
+        break;
     }
     $courses[$transferClass->getID()]->isSubstitute = false;
     $substitute[$transferClass->getID()] = $transferClass;
+    $substitute->sort();
 
-require_once("header.php");
-//header form
-    print '<div style="float:left; width:250px; font-size:12px;">';
-        displayClassSelect("sub", $substitute);
-        print '<br>';
-        print '<form method="post" action="'.$_SERVER["REQUEST_URI"].'">';
-            print '<input type="submit" name="autosub" value="Auto Substitute">';
-            print '&nbsp;&nbsp;&nbsp;&nbsp;';
-            print '<input type="submit" name="reset" value="Reset">';
-        print '</form>';
-    print '</div>';
-    print '<div style="display:inline; float:left;">';
-        print '<form method="get" action=".">';
-            print 'Year: <select name="year">';
-                foreach($years as $yr) {
-                    print "<option value='$yr'";
-                    if($yr == $year) {
-                        print " selected='selected'";
-                    }
-                    print ">".$yr."</option>";
-                }
-            print "</select>";
-            print "<br/>";
 
-            print '<select name="degree[]" size="5" multiple="multiple">';
-                print '<optgroup label="-- Majors">';
-                    foreach($majors as $key=>$deg) {
-                        print '<option value="'.$key.'"';
-                        if(is_array($degree) && in_array($key, $degree)) {
-                            print " selected='selected'";
-                        }
-                        print '>'.$deg["name"].' ('.$key.')</option>';
-                    }
-                print '</optgroup>';
-                print '<optgroup label="-- Minors">';
-                    foreach($minors as $key=>$deg) {
-                        print '<option value="'.$key.'"';
-                        if(is_array($degree) && in_array($key, $degree)) {
-                            print " selected='selected'";
-                        }
-                        print ' disabled="disabled">'.$deg["name"].' ('.$key.')</option>';
-                    }
-                print '</optgroup>';
-            print "</select>";
-            print "<br/>";
+    $smarty = new Smarty();
+    $data = new Smarty_Data();
+    $data->assign("year", $year);
+    $data->assign("years", $years);
+    $data->assign("majors", $majors);
+    $data->assign("subClasses", $substitute);
+    $data->assign("courseSequences", $courseSequences);
 
-            print '<input type="submit" name="submit" value="submit"/>';
-        print "</form>";
-        print "<br/>";
-
-    //    print '<img src="images/image.php">';
-    //    print '<br>';
-
-    //display courses
-        foreach($courseSequences as $courseSequence) {
-            if(empty($_GET["disp"]) || $_GET["disp"] == "summary") {
-                $courseSequence->display();
-            } elseif($_GET["disp"] == "list") {
-                $courseSequence->displayRequirementsList();
-            }
-            print "<br/>";
-        }
-require_once("footer.php");
+    $smarty->display("index.tpl", $data);
 ?>

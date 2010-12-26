@@ -1,3 +1,14 @@
+html, body {
+    height: 100%;
+}
+
+.wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -4em;
+}
+
 body {
     background-color:rgb(240, 239, 245);
     font-family:arial, sans-serif;
@@ -145,4 +156,16 @@ td.endNote {
 
 .ximage:active {
     background-image:url("images/x_clicked.gif");
+}
+
+.classSubHover {
+    background-color:yellow;
+}
+
+.hidden {
+    display:none;
+}
+
+.footer {
+    clear: both;
 }

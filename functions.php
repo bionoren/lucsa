@@ -43,25 +43,6 @@
 
     //FUNCTIONS
 
-    function displayClassSelect($name, ClassList $classes) {
-		$classes->sort();
-		$dept = null;
-		$lastTitle = "";
-		foreach($classes as $class) {
-			if($class->getDepartment() != $dept) {
-				$dept = $class->getDepartment();
-				print '<b>'.$dept.'</b><br/>';
-			}
-			if($lastTitle != $class->getTitle()) {
-				$lastTitle = $class->getTitle();
-				print '<div id="'.$class->getUID().'" style="border:1px black solid; margin:2px; padding:1px;">';
-					print $class->display(null, false);
-				print '</div>';
-				$class->setAvailableForCompletion();
-			}
-		}
-    }
-
     function getCache($file) {
         $name = "cache/".md5($file).".tmp";
         if(file_exists($name)) {

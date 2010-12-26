@@ -1,6 +1,8 @@
 .DS_Store
 *.kpf
+*.komodoproject
 *.sqlite
 cache*
 future*
 documentation/*
+templates_c
