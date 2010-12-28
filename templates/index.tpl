@@ -1,17 +1,16 @@
 {extends file="page.tpl"}
 {block name="body"}
-<div style="float:left; width:250px; font-size:12px;">
+<div id="classSubs" style="float:left; width:250px; font-size:12px;">
     {$dept = null}
     {$lastTitle = ""}
     {foreach $subClasses as $class}
         {if $class->getDepartment() != $dept}
             {$dept = $class->getDepartment()}
-            <b>{$dept}</b>
-            <br/>
+            <div class="deptHeader">{$dept}</div>
         {/if}
         {if $lastTitle != $class->getTitle()}
             {$lastTitle = $class->getTitle()}
-            <div id="{$class->getUID()}" style="border:1px black solid; margin:2px; padding:1px;">
+            <div id="{$class->getUID()}" class="incompleteClass">
                 {include file="course_sub.tpl"}
             </div>
         {/if}

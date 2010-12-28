@@ -2,9 +2,9 @@
     <div id="{$class->getUID()}complete" class="overlay{if !{$class->isComplete()}} hidden{/if}">
         Completed By:
         <br/>
-        <a href="" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-        {if {$completedClassTemplate}}
-            {$completedClassTemplate}
+        <a href="javascript:void(0)" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        {if {$class->getCompleteClass()}}
+            {include file="course_sub.tpl" class=$class->getCompleteClass()}
         {/if}
     </div>
     <span class="classDepartment">

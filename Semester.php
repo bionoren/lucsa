@@ -108,9 +108,6 @@
             foreach($this->classes as $old=>$class) {
                 if(isset($mapping[$old])) {
                     $new = $mapping[$old];
-					print "$old -> $new<br>";
-					print "class = $class<br>";
-					print "class = ".$classes[$new]."<br>";
                     $this->completeClass($class, $classes[$new]);
                     unset($mapping[$old]);
                     if(!($classes[$new]->getDepartment() == "LETU" && $classes[$new]->getNumber() == "4999")) {

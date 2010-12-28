@@ -16,6 +16,7 @@
     require_once($path."Semester.php");
 
     class CourseSequence {
+        protected $id;
         protected $acronym;
         protected $linkid;
         protected $name;
@@ -23,8 +24,10 @@
         protected $semesters;
         protected $year;
         protected $notes;
+        protected $hours;
 
         public function __construct(array $row) {
+            $this->id = $row["ID"];
             $this->year = $row["year"];
             $this->linkid = $row["linkid"];
             $this->name = $row["name"];
@@ -34,7 +37,7 @@
             $year = $this->year;
             $semNum = Semester::FALL;
             for($i = 1; $i <= $row["numSemesters"]; $i++) {
-                $tmp = Semester::getFromDegree($row["ID"], $i, $this->notes);
+                $tmp = Semester::getFromDegree($this->id, $i, $this->notes);
                 $tmp->setYear($year);
                 $tmp->setSemester($semNum++%count(Semester::$SEMESTERS));
                 if($semNum%count(Semester::$SEMESTERS) == Semester::SUMMER) {
@@ -43,6 +46,7 @@
                 if($semNum%count(Semester::$SEMESTERS) == Semester::SPRING) {
                     $year++;
                 }
+                $this->hours += $tmp->getHours();
                 $this->semesters[] = $tmp;
             }
         }
@@ -50,7 +54,6 @@
 		public function applySubstitions(ClassList $classesTaken, $user) {
 			$mapping = CourseSequence::getUserClassMap($user);
 			$mapping->sort();
-			$mapping->dump("mapping");
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken, $mapping);
             }
@@ -101,6 +104,14 @@
 
         public function getAcronym() {
             return $this->acronym;
+        }
+
+        public function getHours() {
+            return $this->hours;
+        }
+
+        public function getID() {
+            return $this->id;
         }
 
         public function getName() {

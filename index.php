@@ -200,6 +200,7 @@
     $data = new Smarty_Data();
     $data->assign("year", $year);
     $data->assign("years", $years);
+    $data->assign("degree", $degree);
     $data->assign("majors", $majors);
     $data->assign("subClasses", $substitute);
     $data->assign("courseSequences", $courseSequences);

@@ -155,13 +155,15 @@
      *
      * @param SQLiteManager $db Database connection object.
      * @param INTEGER $userID The ID of the user.
+     * @param INTEGER $degreeID The ID of the degree the original class is in.
      * @param INTEGER $origID The ID of the original class.
      * @param INTEGER $subID The ID of the class to substitute (if any).
      * @return VOID
      */
-    function substituteClass($userID, $origID, $subID=null) {
+    function substituteClass($userID, $degreeID, $origID, $subID=null) {
         if(!empty($subID)) {
             $fields["userID"] = $userID;
+			$fields["degreeID"] = $degreeID;
             $fields["oldClassID"] = $origID;
             $fields["newClassID"] = $subID;
             SQLiteManager::getInstance()->insert("userClassMap", $fields);

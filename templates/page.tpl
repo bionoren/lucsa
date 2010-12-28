@@ -12,7 +12,7 @@
         <script src="layout/libs/scriptaculous.js" type="text/javascript"></script>
         <script src="layout/functions.js" type="text/javascript"></script>
     </head>
-    <body lang="en">
+    <body lang="en" onload="lusa.init();">
         <div class="wrapper">
             {block name="body"}{/block}
         </div>

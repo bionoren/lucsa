@@ -149,13 +149,13 @@ td.endNote {
 .ximage {
     float:left;
     border:0px;
-    background-image:url("images/x.gif");
+    background-image:url("../images/x.gif");
     background-repeat:no-repeat;
     text-decoration:none;
 }
 
 .ximage:active {
-    background-image:url("images/x_clicked.gif");
+    background-image:url("../images/x_clicked.gif");
 }
 
 .classSubHover {
@@ -168,4 +168,14 @@ td.endNote {
 
 .footer {
     clear: both;
+}
+
+.incompleteClass {
+    border:1px black solid;
+    margin:2px;
+    padding:1px;
+}
+
+.deptHeader {
+    font-weight: bold;
 }
