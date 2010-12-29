@@ -151,11 +151,6 @@
     //get all the degree options
     $majors = getMajors($yearKey);
 
-    //course substitutions
-    if(isset($_REQUEST["substitute"])) {
-        substituteClass($userID, $_REQUEST["orig"], $_REQUEST["sub"]);
-    }
-
     //get the list of classes the user is already enrolled in and their currently declared degree(s)
     if(empty($_SERVER['PHP_AUTH_USER'])) {
         header('WWW-Authenticate: Basic realm="LETU Login"');

@@ -125,7 +125,7 @@
             return $this->classes;
         }
 
-        static function getFromDegree($degreeID, $semester, Notes $notes) {
+        static function getFromDegree($degreeID, $semester, Notes &$notes) {
             $db = SQLiteManager::getInstance();
             $sql = "SELECT courseID, notes
                        FROM degreeCourseMap

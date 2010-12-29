@@ -13,7 +13,7 @@
 	 *	limitations under the License.
 	 */
 
-    $path = "../";
+    $path = "./";
     require_once($path."db/SQLiteManager.php");
     require_once($path."functions.php");
 
@@ -63,10 +63,9 @@ while($row = $result->fetchArray()) {
         $minors[$match[1]][1] = $db->getLastInsertID();
     }
 
-//    goto minors;
     foreach($majors as $majorID=>$arr) {
         $major = $arr[0];
-//        print "--Evaluating major $major for year $year<br>";
+        print "--Evaluating major $major for year $year<br>\n";
         $key2 = $arr[1];
         $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&degree=".$majorID);
         $matches = array();
@@ -140,7 +139,7 @@ while($row = $result->fetchArray()) {
                     $db->insert("classes", $fields, true);
                     if($db->changed()) {
                         $classID = $db->getLastInsertID();
-//                      print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
+                        print "Added class ".$classID." ".$fields["title"]." - ".$dept.":".$fields["number"]."<br>\n";
                     } else {
                         $select = array();
                         if(isset($fields["departmentID"])) {
@@ -154,16 +153,6 @@ while($row = $result->fetchArray()) {
                         $classID = $tmp["ID"];
                     }
                 }
-                /*
-                $fields[] = new DBField("departmentID", DBField::NUM, "-1", "departments", "ID");
-                $fields[] = new DBField("number", DBField::NUM);
-                $fields[] = new DBField("title", DBField::STRING);
-                $fields[] = new DBField("linkid", DBField::NUM);
-                $fields[] = new DBField("offered", DBField::NUM, 3); //never, spring, fall, both
-                $fields[] = new DBField("years", DBField::NUM, 3); //never, odd, even, both
-                $fields[] = new DBField("hours", DBField::NUM, 3);
-                $db->createTable("classes", $fields);
-                */
 
                 $fields = array();
                 $fields["degreeID"] = trim($key2);

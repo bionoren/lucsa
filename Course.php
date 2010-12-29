@@ -17,7 +17,7 @@
         const fetchSQL = "SELECT classes.*,
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
-                       JOIN departments ON classes.departmentID = departments.ID ";
+                       LEFT OUTER JOIN departments ON classes.departmentID = departments.ID ";
 
         protected static $instanceID = 1;
 

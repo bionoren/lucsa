@@ -13,7 +13,9 @@
 	 *	limitations under the License.
 	 */
 
-    $path = "../";
+    if(!isset($path)) {
+        $path = "../";
+    }
     require_once($path."db/SQLiteManager.php");
     require_once($path."functions.php");
 

@@ -20,7 +20,7 @@
     session_write_close();
     require_once($path."functions.php");
     require_once($path."db/SQLiteManager.php");
-    require_once($path."dbinit.php");
+    require_once($path."db/dbinit.php");
 
     $findSchoolsPattern = "/\<option[^\>]*?value=.(\d+)[^\>]*?\>(?:School|honors|LeTourneau).*?\</is";
 
@@ -86,16 +86,6 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                 }
             }
 
-/*            $matches = array();
-            //find class information
-            $pattern = "/\<div([^\>]*\>(?!\s*\<\/div))*?(\w{4})\s*(\d{4})([^\>]*\>(?!\s*\<\/a))*";
-            $pattern .= "[^\>]*course=(\d+)[^\>]*\>([^\<]*)";
-            //try for prereq/coreq information. We'll have to split this out in another pass...
-            $pattern .= "([^\>]*\>(?!\s*(prereq|coreq|\(|\<\/div)))*((prereq|coreq)([^\>]*\>(?!\s*(\(|\<\/div)))*";
-            //grap semester/year offering info if it exists
-            $pattern .= "(\([^\)]*\))?)";
-            $pattern .= "/is";
-            preg_match_all($pattern, $data, $matches, PREG_SET_ORDER);*/
 //            dump("matches", $matches); continue;
             foreach($matches as $match) {
                 $fields = array();
@@ -170,17 +160,11 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
         }
     }
 
-    //add transfer credit class
-/*    $fields = array();
-    $fields["department"] = "LETU";
-    $fields["title"] = "LeTourneau University";
-    $fields["linkid"] = "1543";
-    $db->insert("departments", $fields, true);*/
-
     $sql = "SELECT ID FROM departments WHERE department='LETU'";
     $result = $db->query($sql);
     $result = $result->fetchArray(SQLITE3_ASSOC);
 
+    //add transfer credit class
     $fields = array();
     $fields["departmentID"] = $result["ID"];
     $fields["number"] = "4991";
