@@ -79,7 +79,7 @@
 
     function getMajors($year) {
         $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1'");
+        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1' ORDER BY name");
         $majors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $majors[$row["acronym"]] = $row;
@@ -89,7 +89,7 @@
 
     function getMinors($year) {
         $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='2'");
+        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='2' ORDER BY name");
         $minors = array();
         while($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $minors[$row["acronym"]] = $row;

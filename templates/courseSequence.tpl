@@ -23,11 +23,11 @@
             Total Hours: {$cs->getHours()}
         </td>
     </tr>
-    {if count($cs->getNotes()) > 0}
+    {if $cs->getNotes()->count() > 0}
         <tr>
             <td colspan="3" class="endNote">
                 Notes:
-            {foreach $cs->getNotes() as $i=>$note}
+            {foreach $cs->getNotes()->getNotes() as $i=>$note}
                 <br/>
                 <span class="endNote">{$i}</span>: {$note}
             {/foreach}

@@ -41,9 +41,9 @@
                 only)
             </span>
         {/if}
-        {if !empty($class->noteID)}
-            <span class="footnote">';
-                 {$class->noteID}
+        {if $class->getNoteID()}
+            <span class="footnote">
+                 {$class->getNoteID()}
             </span>
         {/if}
     </span>
