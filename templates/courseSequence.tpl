@@ -16,9 +16,9 @@
     {block name=classInfo}{/block}
     <tr>
         <td colspan="2" align="center">
-            Completed Hours: 0
+            Completed Hours: <span id="{$cs->getID()}-completedHours">{$cs->getCompletedHours()}</span>
             <br/>
-            Remaining Hours: {$cs->getHours()}
+            Remaining Hours: <span id="{$cs->getID()}-remainingHours">{$cs->getHours()-$cs->getCompletedHours()}</span>
             <br/>
             Total Hours: {$cs->getHours()}
         </td>

@@ -25,6 +25,7 @@
         protected $year;
         protected $notes;
         protected $hours;
+        protected $completeHours;
 
         public function __construct(array $row) {
             $this->id = $row["ID"];
@@ -56,6 +57,7 @@
 			$mapping->sort();
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken, $mapping);
+                $this->completeHours += $semester->getCompletedHours();
             }
         }
 
@@ -65,12 +67,9 @@
 			}
 			foreach($this->semesters as $semester) {
 				$semester->initEvalTaken($classes, $user, $this->notes);
+                $this->completeHours += $semester->getCompletedHours();
 			}
 		}
-
-        public function display() {
-
-        }
 
 		protected static function getUserClassMap($user) {
 			$db = SQLiteManager::getInstance();
@@ -104,6 +103,10 @@
 
         public function getAcronym() {
             return $this->acronym;
+        }
+
+        public function getCompletedHours() {
+            return $this->completeHours;
         }
 
         public function getHours() {

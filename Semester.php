@@ -51,10 +51,6 @@
             $this->completedHours += $class->getHours();
         }
 
-        public function display($catalogYear) {
-
-        }
-
         public function initEvalTaken(ClassList $classes, $user, $notes=null) {
             $map["userID"] = $user;
             if(empty($notes)) {

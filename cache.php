@@ -65,7 +65,7 @@ while($row = $result->fetchArray()) {
 
     foreach($majors as $majorID=>$arr) {
         $major = $arr[0];
-        print "--Evaluating major $major for year $year<br>\n";
+//        print "--Evaluating major $major for year $year<br>\n";
         $key2 = $arr[1];
         $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&degree=".$majorID);
         $matches = array();
@@ -139,7 +139,7 @@ while($row = $result->fetchArray()) {
                     $db->insert("classes", $fields, true);
                     if($db->changed()) {
                         $classID = $db->getLastInsertID();
-                        print "Added class ".$classID." ".$fields["title"]." - ".$dept.":".$fields["number"]."<br>\n";
+//                        print "Added class ".$classID." ".$fields["title"]." - ".$dept.":".$fields["number"]."<br>\n";
                     } else {
                         $select = array();
                         if(isset($fields["departmentID"])) {

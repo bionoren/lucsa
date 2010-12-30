@@ -1,13 +1,8 @@
-var lusa = {
-}
+var lusa = {}
 
 lusa.init = function() {
     //init the substitutable classes
-    $$(".incompleteClass").each(function(course) {
-        id = course.id;
-        options = {revert: true, scroll: window};
-        new Draggable(id, options);
-    });
+    lusa.makeClassesDraggable();
 
     //init the course sequence classes
     $$(".classOverlay").each(function(course) {
@@ -22,6 +17,14 @@ lusa.init = function() {
         lusa.markUncompletableClass(course);
     });
 };
+
+lusa.makeClassesDraggable = function() {
+    $$(".incompleteClass").each(function(course) {
+        id = course.id;
+        options = {revert: true, scroll: window};
+        new Draggable(id, options);
+    });
+}
 
 lusa.makeClassDroppable = function(course) {
     degreeID = course.up("table").id;
@@ -48,6 +51,12 @@ lusa.makeClassDroppable = function(course) {
                         Element.remove(drag);
                         Droppables.remove(drop);
                     }
+                    hours = drop.down(".classNumber").innerHTML.strip();
+                    hours = hours.substring(hours.length-1);
+                    if(hours == "|") {
+                        hours = num.substring(num.length-1);
+                    }
+                    lusa.addHours(drop.up("table").id, drop.previous(".semesterTitle"), -hours);
                 }
             });
         }
@@ -71,11 +80,22 @@ lusa.markUncompletableClass = function(course) {
                 title = this.next(".classTitle").innerHTML.strip().substring(2);
                 lusa.insertIncompleteClass(dept, number, title);
 
+                hours = this.up().next(".classNumber").innerHTML.strip();
+                hours = hours.substring(hours.length-1);
+                if(hours == "|") {
+                    hours = this.next(".classNumber").innerHTML.strip();
+                    hours = hours.substring(hours.length-1);
+                }
+                lusa.addHours(this.up("table").id, this.up(".classOverlay").previous(".semesterTitle"), hours);
+
                 ele = this.next()
                 while(ele) {
                     Element.remove(ele);
                     ele = this.next()
                 }
+            }.bind(this),
+            onComplete: function(transport) {
+                lusa.makeClassDroppable(this.up(".classOverlay"));
             }.bind(this)
         });
     });
@@ -119,8 +139,18 @@ lusa.insertIncompleteClass = function(targetDept, targetNum, title) {
         insertion: insertion,
         parameters: {mode: "getClassFromDeptNum", dept: targetDept, num: targetNum, title: title, needDept: needDept},
         onComplete: function(transport) {
+            lusa.makeClassesDraggable();
         }
     });
+}
+
+lusa.addHours = function(csID, semester, hours) {
+    hours = parseInt(hours);
+    semHours = semester.next(".semesterHours")
+    semHours.innerHTML = parseInt(semHours.innerHTML.strip().split(" ")[0]) + hours;
+    semHours.innerHTML += " hours";
+    $(csID+'-completedHours').innerHTML = parseInt($(csID+'-completedHours').innerHTML) - hours;
+    $(csID+'-remainingHours').innerHTML = parseInt($(csID+'-remainingHours').innerHTML) + hours;
 }
 
 lusa.isTransferCourse = function(course) {

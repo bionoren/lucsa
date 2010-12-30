@@ -46,9 +46,6 @@
             $this->years = $row["years"];
         }
 
-        public function display() {
-        }
-
         public function equals(Course $class) {
             return $class->getID() == $this->getID() && $class->getTitle() == $this->getTitle();
         }

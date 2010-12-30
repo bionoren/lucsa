@@ -1,5 +1,5 @@
 Alpha 1.0
-Be able to view a summary of a single major
+✓Be able to view a summary of a single major
 ✓Show a list of courses taken
 ✓Be able to manually complete classes
 ✓Be able to manually uncomplete classes
