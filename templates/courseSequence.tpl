@@ -1,3 +1,6 @@
+{* @param CourseSequence $cs *}
+{* @param INTEGER $year *}
+
 <table id="{$cs->getID()}">
     <tr>
         <td colspan=2 class="majorTitle">

@@ -20,11 +20,13 @@
     $db = SQLiteManager::getInstance();
     $departmentLookup = array();
     $result = $db->query("SELECT ID,department FROM departments");
-    while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+    //note that the odd departure from C syntax is to make doxygen happy. Don't ask why it was angry...
+    while($row = $result->fetchArray(SQLITE3_ASSOC)):
         $departmentLookup[$row["department"]] = $row["ID"];
-    }
+    endwhile;
 
-    $result = $db->query("SELECT * FROM years");// WHERE updated&2=0");
+    $result = $db->query("SELECT * FROM years");
+//    $result = $db->query("SELECT * FROM years WHERE updated&2=0");
 //    $yearArray = $result->fetchArray(SQLITE3_ASSOC);
 //    $year = $yearArray["year"];
 //    $yearID = $yearArray["ID"];
@@ -149,7 +151,7 @@ while($row = $result->fetchArray()) {
                             $select["number"] = $fields["number"];
                             $select["endNumber"] = $fields["endNumber"];
                         }
-                        $tmp = $db->select("classes", $select, array("ID"))->fetchArray(SQLITE3_ASSOC);
+                        $tmp = $db->select("classes", array("ID"), $select)->fetchArray(SQLITE3_ASSOC);
                         $classID = $tmp["ID"];
                     }
                 }

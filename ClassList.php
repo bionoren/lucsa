@@ -7,33 +7,48 @@
      * performance bottleneck...
      */
 
+    /**
+     * Defines an associative array of classes that may contain duplicates.
+     *
+     * @author Bion Oren
+     */
     class ClassList implements ArrayAccess, Countable, Iterator {
+        /** ARRAY Internal class structure of the form $classes[KEY] = array(item, item, ...). */
         protected $classes = array();
+        /** INTEGER Number of elements in the array. */
         protected $count = 0;
+        /** INTEGER index into the current element of the current element in $classes. */
         protected $innerCount = 0;
 
+        /**
+         * Constructs a new object.
+         *
+         * @param ARRAY $vals Simple array of items to prepopulate this list with.
+         */
         public function __construct(array $vals=array()) {
             foreach($vals as $val) {
                 $this[$val->getID()] = $val;
             }
         }
 
-        public function filter($function) {
-            $ret = new ClassList();
-            return $ret->filterHelper($this, $function);
+        /**
+         * Returns the total number of elements in the list.
+         *
+         * @return INTEGER Number of elements.
+         * @see count
+         */
+        public function count() {
+            return $this->count;
         }
 
-        protected function filterHelper(ClassList $classes, $function) {
-            foreach($classes as $class) {
-                if($function($class)) {
-                    $this[$class->getID()] = $class;
-                }
-            }
-            return $this;
-        }
-
-        public function sort() {
-            uasort($this->classes, function(array $first, array $second) { return strcmp($first[0], $second[0]); });
+        /**
+         * Returns the current element in the array.
+         *
+         * @return MIXED Current item in the list.
+         */
+        public function current() {
+            $arr = current($this->classes);
+            return $arr[$this->innerCount];
         }
 
         /**
@@ -48,6 +63,13 @@
             return $ret->diffHelper($list1, $list2);
         }
 
+        /**
+         * Returns this ClassList with all the elements in $list1 XOR $list2.
+         *
+         * @param ClassList $list1 One list.
+         * @param ClassList $list2 Another list.
+         * @return ClassList $list1 xor $list2.
+         */
         protected function diffHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
             $this->count = $list1->count();
@@ -71,6 +93,44 @@
         }
 
         /**
+         * Debug function to print the internal contents of this list.
+         *
+         * @param STRING $name Name to use to identify the output.
+         * @return VOID
+         */
+        public function dump($name) {
+            dump($name, $this->classes);
+        }
+
+        /**
+         * Filters the class list based on a user defined function.
+         *
+         * @param FUNCTION $function Returns true if the element should be returned.
+         * @return ClassList New filtered ClassList instance.
+         */
+        public function filter($function) {
+            $ret = new ClassList();
+            return $ret->filterHelper($this, $function);
+        }
+
+        /**
+         * Performs the actual filter operation.
+         *
+         * @param ClassList $classes List of classes to filter.
+         * @param FUNCTION $function Returns true if the element should be returned.
+         * @return ClassList Filtered ClassList.
+         * @see filter
+         */
+        protected function filterHelper(ClassList $classes, $function) {
+            foreach($classes as $class) {
+                if($function($class)) {
+                    $this[$class->getID()] = $class;
+                }
+            }
+            return $this;
+        }
+
+        /**
          * Returns a new ClassList with all the elements in $list1 AND $list2.
          *
          * @param ClassList $list1 One list.
@@ -82,6 +142,13 @@
             return $ret->intersectHelper($list1, $list2);
         }
 
+        /**
+         * Returns this ClassList with all the elements in $list1 AND $list2.
+         *
+         * @param ClassList $list1 One list.
+         * @param ClassList $list2 Another list.
+         * @return ClassList $list1 AND $list2.
+         */
         protected function intersectHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
             $this->count = $list1->count();
@@ -106,6 +173,14 @@
         }
 
         /**
+         * Returns the key for the current element in the array.
+         * @return STRING Item key.
+         */
+        public function key() {
+            return $this->current()->getID();
+        }
+
+        /**
          * Returns a new ClassList with all the elements in $list1 OR $list2.
          *
          * @param ClassList $list1 One list.
@@ -117,6 +192,13 @@
             return $ret->mergeHelper($list1, $list2);
         }
 
+        /**
+         * Returns this ClassList with all the elements in $list1 OR $list2.
+         *
+         * @param ClassList $list1 One list.
+         * @param ClassList $list2 Another list.
+         * @return ClassList $list1 OR $list2.
+         */
         protected function mergeHelper(ClassList $list1, ClassList $list2) {
             $this->classes = $list1->classes;
             $this->count = $list1->count();
@@ -139,19 +221,11 @@
             return $this;
         }
 
-        public function count() {
-            return $this->count;
-        }
-
-        public function current() {
-            $arr = current($this->classes);
-            return $arr[$this->innerCount];
-        }
-
-        public function key() {
-            return $this->current()->getID();
-        }
-
+        /**
+         * Moves to the next element in the list.
+         *
+         * @return VOID
+         */
         public function next() {
             if(++$this->innerCount == count(current($this->classes))) {
                 $this->innerCount = 0;
@@ -159,19 +233,22 @@
             }
         }
 
-        public function rewind() {
-            $this->innerCount = 0;
-            reset($this->classes);
-        }
-
-        public function valid() {
-            return current($this->classes) !== false;
-        }
-
+        /**
+         * Checks to see if $index is a valid key.
+         *
+         * @param STRING $index Key to test.
+         * @return BOOLEAN True if the index $key exists.
+         */
         public function offsetExists($index) {
             return !empty($this->classes[$index]);
         }
 
+        /**
+         * Returns the first element at the given offset.
+         *
+         * @param STRING $index Key to use.
+         * @return MIXED The first item at the given key, or null if the index doesn't exist.
+         */
         public function offsetGet($index) {
             if(isset($this->classes[$index])) {
                 return $this->classes[$index][0];
@@ -180,11 +257,24 @@
             }
         }
 
+        /**
+         * Adds a value to the list.
+         *
+         * @param STRING $index Key to insert with.
+         * @param Course $value Item to insert at $index.
+         * @return VOID
+         */
         public function offsetSet($index, $value) {
             $this->count++;
             $this->classes[$index][] = $value;
         }
 
+        /**
+         * Removes an element at the specified index.
+         *
+         * @param STRING $index Index to remove an element from.
+         * @return VOID
+         */
         public function offsetUnset($index) {
             if(isset($this->classes[$index])) {
                 $this->count--;
@@ -196,12 +286,32 @@
             }
         }
 
-        public function dump($name) {
-            dump($name, $this->classes);
+        /**
+         * Resets the internal array pointers to the beginning of the list.
+         *
+         * @return VOID
+         */
+        public function rewind() {
+            $this->innerCount = 0;
+            reset($this->classes);
         }
 
-        public function __clone() {
-//            $this->classes = unserialize(serialize($this->classes));
+        /**
+         * Sorts the internal class list.
+         *
+         * @return ARRAY Sorted internal class list.
+         */
+        public function sort() {
+            uasort($this->classes, function(array $first, array $second) { return strcmp($first[0], $second[0]); });
+        }
+
+        /**
+         * Returns true if we haven't hit the end of the list yet.
+         *
+         * @return BOOLEAN True if there are more elements.
+         */
+        public function valid() {
+            return current($this->classes) !== false;
         }
     }
 ?>

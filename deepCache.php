@@ -117,7 +117,7 @@ while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
                     $classID = $db->getLastInsertID();
 //                    print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
                 } else {
-                    $tmp = $db->select("classes", array_slice($fields, 0, 3, true), array("ID"))->fetchArray(SQLITE3_ASSOC);
+                    $tmp = $db->select("classes", array("ID"), array_slice($fields, 0, 3, true))->fetchArray(SQLITE3_ASSOC);
                     $classID = $tmp["ID"];
 					if(empty($classID)) {
 						dump("fields", array_slice($fields, 0, 3, true));

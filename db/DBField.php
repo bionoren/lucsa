@@ -13,20 +13,37 @@
 	 *	limitations under the License.
 	 */
 
+    /**
+     * Manages creating and modifying a SQLite table field.
+     *
+     * @author Bion Oren
+     */
     class DBField {
+        /** STRING Constant for a text data type. */
         const STRING = "TEXT";
+        /** STRING Constant for an integer data type. */
         const NUM = "INTEGER";
 
+        /** STRING The name of this field. */
         protected $name;
+        /** STRING One of the field type constants in this class. */
         protected $type;
+        /** MIXED The default value for this field. */
         protected $default;
+        /** STRING If this field is a foreign key, the name of the table it is linked back to. */
         protected $keyTable;
+        /** STRING If this field is a foreign key, the name of the field in $keyTable it is linked to. */
         protected $keyField;
+        /** BOOLEAN True if this field is unique. */
         protected $unique;
+        /** BOOLEAN True if this field should be indexed. */
         protected $indexed;
+        /** BOOLEAN True if this is the primary key. */
         protected $primary;
 
         /**
+         * Creates a new field manager.
+         *
          * @param STRING $name The name of this database field.
          * @param INTEGER $type One of the class' type constants.
          * @param MIXED $default Default value for the field.
@@ -46,6 +63,11 @@
             }
         }
 
+        /**
+         * Creates the SQL necessary to create this field.
+         *
+         * @return STRING SQL statement.
+         */
         public function createInTable() {
             $ret = $this->name." ".$this->type;
             if($this->default != null) {
@@ -73,31 +95,66 @@
             return $this->name;
         }
 
-        public function setUnique() {
-            $this->unique = true;
-            $this->indexed = false;
+        /**
+         * Getter for indexed
+         *
+         * @return BOOLEAN
+         * @see indexed
+         */
+        public function isIndexed() {
+            return $this->indexed;
         }
 
+        /**
+         * Getter for primary
+         *
+         * @return BOOLEAN
+         * @see primary
+         */
+        public function isPrimary() {
+            return $this->primary;
+        }
+
+        /**
+         * Getter for unique
+         *
+         * @return BOOLEAN
+         * @see unique
+         */
+        public function isUnique() {
+            return $this->unique;
+        }
+
+        /**
+         * Marks this field to be indexed if it is not already unique.
+         *
+         * @return VOID
+         * @see setUnique
+         */
         public function setIndexed() {
             if(!$this->unique) {
                 $this->indexed = true;
             }
         }
 
-        public function isUnique() {
-            return $this->unique;
-        }
-
-        public function isIndexed() {
-            return $this->indexed;
-        }
-
+        /**
+         * Makes this field primary
+         *
+         * @return VOID
+         * @see primary
+         */
         public function setPrimary() {
             $this->primary = true;
         }
 
-        public function isPrimary() {
-            return $this->primary;
+        /**
+         * Marks this field to be unique and not indexed (since unique is an index).
+         *
+         * @return VOID
+         */
+        public function setUnique() {
+            $this->unique = true;
+            $this->indexed = false;
         }
     }
 ?>

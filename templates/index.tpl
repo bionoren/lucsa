@@ -1,3 +1,10 @@
+{* @param ARRAY $subClasses List of classes that have been taken. *}
+{* @param INTEGER $year *}
+{* @param ARRAY $years List of years that have data *}
+{* @param ARRAY $majors List of majors that are offered for $year *}
+{* @param ARRAY $degree List of degrees the user is currently enrolled in *}
+{* @param ARRAY $courseSequences List of course sequences for $year *}
+
 {extends file="page.tpl"}
 {block name="body"}
 <div id="classSubs" style="float:left; width:250px; font-size:12px;">

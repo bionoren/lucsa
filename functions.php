@@ -15,7 +15,18 @@
 
     require_once($path."db/SQLiteManager.php");
 
-	//DEBUGGING FUNCTIONS
+	//-----------------------------
+	//	   DEBUGGING FUNCTIONS
+	//-----------------------------
+
+	/**
+     * Useful debug function that displays variables or arrays in a pretty format.
+     *
+     * @param STRING $name Name of the array (for pretty display purposes).
+     * @param MIXED $array Array of data, but if it isn't an array we try to print it by itself.
+     * @param STRING $member Calls a function on $array when outputing $array (assumes $array is an object or array of objects).
+     * @return VOID
+     */
 	function dump($name, $array, $member=null) {
 		if(is_array($array) || (is_object($array) && $array instanceof Iterator)) {
 			foreach($array as $key=>$val) {
@@ -41,8 +52,16 @@
         }
 	}
 
-    //FUNCTIONS
+    //-----------------------------
+	//			FUNCTIONS
+	//-----------------------------
 
+	/**
+	 * Fetches a file and caches it for future requests.
+	 *
+	 * @param STRING $file Full path to the file to fetch.
+	 * @return STRING File contents.
+	 */
     function getCache($file) {
         $name = "cache/".md5($file).".tmp";
         if(file_exists($name)) {
@@ -54,29 +73,21 @@
         }
     }
 
-    function guessMajor(array $majors, $major) {
-        $min = 1000;
-        $ret = "";
-        foreach($majors as $key=>$mjr) {
-            $try = levenshtein($major, $mjr["name"], 1, 6, 6);
-            if($try < $min) {
-                $min = $try;
-                $ret = $key;
-            }
-        }
-        return $ret;
+	/**
+	 * Returns a private key for use in encryption.
+	 *
+	 * @return STRING Private key.
+	 */
+    function getKeyStr() {
+        return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
     }
 
-    function getYears() {
-        $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID,year FROM years ORDER BY year DESC");
-        $years = array();
-        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $years[$row["ID"]] = $row["year"];
-        }
-        return $years;
-    }
-
+	/**
+	 * Gets a list of all the majors we have data for.
+	 *
+	 * @param INTEGER $year The year to fetch data for.
+	 * @return ARRAY List of valid majors.
+	 */
     function getMajors($year) {
         $db = SQLiteManager::getInstance();
         $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1' ORDER BY name");
@@ -87,6 +98,12 @@
         return $majors;
     }
 
+	/**
+	 * Gets a list of all the minors we have data for.
+	 *
+	 * @param INTEGER $year The year to fetch data for.
+	 * @return ARRAY List of valid minors.
+	 */
     function getMinors($year) {
         $db = SQLiteManager::getInstance();
         $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='2' ORDER BY name");
@@ -95,27 +112,6 @@
             $minors[$row["acronym"]] = $row;
         }
         return $minors;
-    }
-
-    function getCourses(array $degrees) {
-        $db = SQLiteManager::getInstance();
-        $ret = array();
-        foreach($degrees as $degree) {
-            $sql = "SELECT degreeCourseMap.semester, degreeCourseMap.notes,
-                    classes.number, classes.title, classes.linkid, classes.offered, classes.years, classes.hours,
-                    years.year,
-                    departments.department, departments.linkid AS deptlinkid
-                    FROM degreeCourseMap
-                    JOIN classes ON degreeCourseMap.courseID=classes.ID
-                    JOIN years ON classes.yearID=years.ID
-                    JOIN departments ON classes.departmentID=departments.ID
-                    WHERE degreeCourseMap.degreeID='".$degree["ID"]."' ORDER BY degreeCourseMap.semester";
-            $result = $db->query($sql);
-            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $ret[] = $row;
-            }
-        }
-        return $ret;
     }
 
     /**
@@ -147,13 +143,47 @@
         return $userID;
     }
 
+	/**
+	 * Gets a list of all the years we have data for.
+	 *
+	 * @return ARRAY List of valid years.
+	 */
+    function getYears() {
+        $db = SQLiteManager::getInstance();
+        $result = $db->query("SELECT ID,year FROM years ORDER BY year DESC");
+        $years = array();
+        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $years[$row["ID"]] = $row["year"];
+        }
+        return $years;
+    }
+
+	/**
+	 * Translates between the CXWeb version of your major's title and the course catalog's version.
+	 *
+	 * @param ARRAY $majors List of majors in the catalog.
+	 * @param STRING $major What CXWeb thinks your major is.
+	 * @return STRING $major The key for your major, but from the catalog.
+	 */
+    function guessMajor(array $majors, $major) {
+        $min = 1000;
+        $ret = "";
+        foreach($majors as $key=>$mjr) {
+            $try = levenshtein($major, $mjr["name"], 1, 6, 6);
+            if($try < $min) {
+                $min = $try;
+                $ret = $key;
+            }
+        }
+        return $ret;
+    }
+
     /**
      * Substitutes one class for another in the database.
      *
      * Deletes any previous substitutions on this class. If $subID is null, simply removes
      * any existing substitutions on the old class.
      *
-     * @param SQLiteManager $db Database connection object.
      * @param INTEGER $userID The ID of the user.
      * @param INTEGER $degreeID The ID of the degree the original class is in.
      * @param INTEGER $origID The ID of the original class.
@@ -170,25 +200,5 @@
         } else {
             SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID);
         }
-    }
-
-    function getKeyStr() {
-        return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
-    }
-
-    function getQS() {
-        if(!empty($_GET)) {
-            $ret = "?";
-        }
-        foreach($_GET as $key=>$val) {
-            if(is_array($val)) {
-                foreach($val as $val2) {
-                    $ret .= $key."[]=".$val2."&";
-                }
-            } else {
-                $ret .= $key."=".$val."&";
-            }
-        }
-        return substr($ret, 0, -1);
     }
 ?>

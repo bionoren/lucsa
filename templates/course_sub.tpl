@@ -1,4 +1,5 @@
-{* Assumes an input variable $class of type Course *}
+{* @param Course $class *}
+
 <span class="classDepartment">
     {$class->getDepartment()}
 </span>

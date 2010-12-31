@@ -15,14 +15,28 @@
 
     require_once($path."db/DBField.php");
 
+    /**
+     * Manages interaction with a SQLite database.
+     *
+     * @author Bion Oren
+     */
     class SQLiteManager {
+        /** SQLiteManager Conntainer for the singleton instance. */
         protected static $instance = null;
 
+        /** STRING Database journaling mode. */
         private $journal = "MEMORY";
+        /** STRING Database SYNC mode. */
         private $sync = "OFF";
 
+        /** RESOURCE Link to the database. */
         protected $db;
 
+        /**
+         * Constructs the maanger.
+         *
+         * @param STRING $db Database name.
+         */
         protected function __construct($db) {
             try {
                 $this->db = new SQLite3($db, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
@@ -34,14 +48,32 @@
             $this->query("PRAGMA foreign_keys = ON");
         }
 
+        /**
+         * Returns true if the database changed in the last query.
+         *
+         * @return BOOLEAN True if the db changed.
+         */
         public function changed() {
             return $this->db->changes() != 0;
         }
 
+        /**
+         * Closes the database connection.
+         *
+         * @return VOID
+         */
         public function close() {
             $this->db->close();
         }
 
+        /**
+         * Creates a new database table.
+         *
+         * @param STRING $name Table name.
+         * @param ARRAY $fields Array of DBField objects.
+         * @return BOOLEAN True if table creation succeeded.
+         * @see DBField
+         */
         public function createTable($name, array $fields) {
             if(empty($fields)) {
                 print "Error: Cannot create an empty table<br>";
@@ -75,8 +107,16 @@
                     $this->query($sql);
                 }
             }
+            return true;
         }
 
+        /**
+         * Creates a unique constraint in the given table on the given set of fields.
+         *
+         * @param STRING $name Table name.
+         * @param ARRAY $fields Array of DBField objects.
+         * @return BOOLEAN True if the query succeeded.
+         */
         public function createUniqueConstraint($name, array $fields) {
             if(empty($name) || empty($fields)) {
                 return;
@@ -91,7 +131,12 @@
             return $this->query($sql);
         }
 
-        public static function getInstance($debug=false) {
+        /**
+         * Returns the singleton instance, creating it if necessary.
+         *
+         * @return SQLiteManager Singleton instance.
+         */
+        public static function getInstance() {
             if(SQLiteManager::$instance == null) {
                 global $path;
                 $name = "db/lucsa";
@@ -100,10 +145,41 @@
             return SQLiteManager::$instance;
         }
 
+        /**
+         * Returns the last row insert ID.
+         *
+         * @return INTEGER Last row insert ID.
+         */
         public function getLastInsertID() {
             return $this->db->lastInsertRowID();
         }
 
+        /**
+         * Constructs a where clause from a given set of fields ANDed together.
+         *
+         * @param ARRAY $whereFields Associative array mapping field names to their values.
+         * @return STRING Where clause.
+         */
+        protected function getWhereClause(array $whereFields) {
+            $sql = "";
+            if(!empty($whereFields)) {
+                $sql = " WHERE ";
+                foreach($whereFields as $key=>$val) {
+                    $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
+                }
+                $sql = substr($sql, 0, -5);
+            }
+            return $sql;
+        }
+
+        /**
+         * Inserts a new table row.
+         *
+         * @param STRING $table Table name.
+         * @param ARRAY $fields Associative array mapping field names to their values.
+         * @param BOOLEAN $ignore If true, insert failure will be ignored.
+         * @return BOOLEAN True if the query succeeded.
+         */
         public function insert($table, array $fields, $ignore=false) {
             if(empty($fields) || empty($table)) {
                 return;
@@ -128,6 +204,13 @@
             return $this->query($sql);
         }
 
+        /**
+         * Performs an arbitrary query on the database.
+         *
+         * @param STRING $sql SQL Statement.
+         * @return MIXED SQLite3Result or true if the query was simply successful.
+         * @throws InvalidArgumentException if an error occurs.
+         */
         public function query($sql) {
             if(empty($sql)) {
                 return false;
@@ -141,7 +224,15 @@
             return $ret;
         }
 
-        public function select($table, array $whereFields=null, array $fields=null) {
+        /**
+         * Runs a simple select statement.
+         *
+         * @param STRING $table Table name.
+         * @param ARRAY $fields Array of field names to select.
+         * @param ARRAY $whereFields Associative array mapping field names to their values for building the where clause.
+         * @return SQLite3Result Result of the select statement.
+         */
+        public function select($table, array $fields=null, array $whereFields=null) {
             if(empty($table)) {
                 return;
             }
@@ -159,6 +250,14 @@
             return $this->query($sql);
         }
 
+        /**
+         * Runs a simple update statement.
+         *
+         * @param STRING $table Table name.
+         * @param ARRAY $fields Array of field names to select.
+         * @param ARRAY $whereFields Associative array mapping field names to their values for building the where clause.
+         * @return BOOLEAN True if the update succeeded.
+         */
         public function update($table, array $fields, array $whereFields=null) {
             if(empty($table) || empty($fields)) {
                 return;
@@ -172,18 +271,11 @@
             return $this->query($sql);
         }
 
-        protected function getWhereClause(array $whereFields) {
-            $sql = "";
-            if(!empty($whereFields)) {
-                $sql = " WHERE ";
-                foreach($whereFields as $key=>$val) {
-                    $sql .= $key."='".SQLite3::escapeString($val)."' AND ";
-                }
-                $sql = substr($sql, 0, -5);
-            }
-            return $sql;
-        }
-
+        /**
+         * Releases database resources when the object is dealloced.
+         *
+         * @return VOID
+         */
         function __destruct() {
             $this->close();
         }

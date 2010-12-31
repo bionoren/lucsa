@@ -1,3 +1,5 @@
+{* @param Course $class *}
+
 <span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}">
     <div id="{$class->getUID()}complete" class="overlay{if !{$class->isComplete()}} hidden{/if}">
         Completed By:
