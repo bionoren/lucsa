@@ -14,6 +14,7 @@
      */
 
     session_start();
+    date_default_timezone_set("America/Chicago");
     $path = "./";
 //--DEBUG
     if($_GET["reset"] == 1) {
@@ -77,9 +78,13 @@
      * @return ARRAY array(CourseList courses, array degree)
      */
     function storeUserInfo($sec, array $majors) {
+        //SECURITY NOTE: Remove this in production!
         $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
         unset($_SERVER['PHP_AUTH_USER']);
         unset($_SERVER['PHP_AUTH_PW']);
+        if(empty($data)) {
+            requestLogin();
+        }
         $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
         $matches = array();
         preg_match("/(?:\<td.*?){3}.*?\>(.*?)\<.*?\>(.*?)\</is", $data, $matches);
@@ -134,6 +139,19 @@
         return $ret;
     }
 
+    /**
+     * Ask the user to logon.
+     *
+     * @return VOID
+     */
+    function requestLogin() {
+        global $path;
+        header('WWW-Authenticate: Basic realm="LETU Login"');
+        header('HTTP/1.0 401 Unauthorized');
+        require($path."privacy.php");
+        die();
+    }
+
     //==========================================================================
     //                      END FUNCTION DEFINITIONS
     //==========================================================================
@@ -152,11 +170,12 @@
     $majors = getMajors($yearKey);
 
     //get the list of classes the user is already enrolled in and their currently declared degree(s)
+
+    if(isset($_SERVER['HTTP_AUTHORIZATION']) && empty($_SERVER['PHP_AUTH_USER'])) {
+        list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+    }
     if(empty($_SERVER['PHP_AUTH_USER'])) {
-        header('WWW-Authenticate: Basic realm="LETU Login"');
-        header('HTTP/1.0 401 Unauthorized');
-        require("privacy.php?hideBack=1");
-        die();
+        requestLogin();
     } else {
         list($masterCourses, $degree) = getUserInfo($majors);
     }

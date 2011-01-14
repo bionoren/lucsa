@@ -12,8 +12,9 @@
 	 *	See the License for the specific language governing permissions and
 	 *	limitations under the License.
 	 */
-    
+
     session_start();
+    date_default_timezone_set("America/Chicago");
     $path = "./";
 
     require_once($path."smarty/Smarty.class.php");

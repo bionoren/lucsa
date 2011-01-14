@@ -12,10 +12,9 @@
 	 *	See the License for the specific language governing permissions and
 	 *	limitations under the License.
 	 */
-    
+
     session_start();
     $path = "./";
-    require_once($path."header.php");
     if(!isset($_REQUEST["hideBack"])) {
         print "<a href='index.php'>Back</a><br><br>";
     }
@@ -38,4 +37,3 @@ The source for that page is:
 <br>
 <?php highlight_file("viewSource.php"); ?>
 <br>
-<?php require_once("footer.php");
