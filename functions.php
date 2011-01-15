@@ -60,11 +60,12 @@
 	 * Fetches a file and caches it for future requests.
 	 *
 	 * @param STRING $file Full path to the file to fetch.
+	 * @param BOOLEAN $cache False if the cache should be bypassed
 	 * @return STRING File contents.
 	 */
-    function getCache($file) {
+    function getCache($file, $cache=true) {
         $name = "cache/".md5($file).".tmp";
-        if(file_exists($name)) {
+        if($cache && file_exists($name)) {
             return file_get_contents($name);
         } else {
             $ret = file_get_contents($file);

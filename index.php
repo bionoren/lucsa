@@ -79,7 +79,7 @@
      */
     function storeUserInfo($sec, array $majors) {
         //SECURITY NOTE: Remove this in production!
-        $data = getCache("http://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi");
+        $data = getCache("https://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
         unset($_SERVER['PHP_AUTH_USER']);
         unset($_SERVER['PHP_AUTH_PW']);
         if(empty($data)) {
