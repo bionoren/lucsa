@@ -18,6 +18,12 @@
     $path = "./";
 //--DEBUG
     if($_GET["reset"] == 1) {
+        require_once($path."db/SQLiteManager.php");
+        require_once($path."functions.php");
+        $db = SQLiteManager::getInstance();
+        $id = getUserID($db);
+        $db->query("DELETE FROM users WHERE ID='".$id."'");
+        $db->query("DELETE FROM userClassMap WHERE userID='".$id."'");
         session_destroy();
         session_write_close();
         die("reset");

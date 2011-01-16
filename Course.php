@@ -247,7 +247,7 @@
          * @see UID
          */
         public function getUID() {
-            return $this->getID()."~".$this->UID;
+            return "c-".$this->getID()."-".$this->UID;
         }
 
         /**

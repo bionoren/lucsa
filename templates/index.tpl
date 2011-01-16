@@ -23,24 +23,26 @@
         {/if}
     {/foreach}
 </div>
-<div style="display:inline; float:left;">
+<div style="display:inline;">
     <form method="get" action=".">
-        Year: <select name="year">
-            {foreach $years as $yr}
-                <option value='{$yr}'{if $yr == $year} selected='selected'{/if}>{$yr}</option>
-            {/foreach}
-        </select>
-        <br/>
-        Major: <select name="degree[]">
-            <optgroup label="-- Majors">
-                {foreach $majors as $key=>$deg}
-                    <option value="{$key}"{if is_array($degree) && in_array($key, $degree)} selected='selected'{/if}>{$deg.name} ({$key})</option>
+        <div>
+            Year: <select name="year">
+                {foreach $years as $yr}
+                    <option value='{$yr}'{if $yr == $year} selected='selected'{/if}>{$yr}</option>
                 {/foreach}
-            </optgroup>
-        </select>
-        <br/>
+            </select>
+            <br/>
+            Major: <select name="degree[]">
+                <optgroup label="-- Majors">
+                    {foreach $majors as $key=>$deg}
+                        <option value="{$key}"{if is_array($degree) && in_array($key, $degree)} selected='selected'{/if}>{$deg.name} ({$key})</option>
+                    {/foreach}
+                </optgroup>
+            </select>
+            <br/>
 
-        <input type="submit" name="submit" value="submit"/>
+            <input type="submit" name="submit" value="submit"/>
+        </div>
     </form>
     <br/>
 

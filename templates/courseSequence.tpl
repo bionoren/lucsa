@@ -3,7 +3,7 @@
 
 <table id="{$cs->getID()}">
     <tr>
-        <td colspan=2 class="majorTitle">
+        <td colspan="2" class="majorTitle">
             {$cs->getName()} ({$cs->getAcronym()})
             <br/>
             <span class="sequenceTitle">

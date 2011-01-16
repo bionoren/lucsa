@@ -5,22 +5,24 @@ Alpha 1.0
 ✓Be able to manually uncomplete classes
 
 Alpha 2.0
+more padding on the class cells (larger drop area)
+Ability to autosubstitute classes
 Be able to reset all class associations
-From summary view, ability to reorder semesters
-From summary view, ability to move classes between semesters
-From summary view, ability to add and remove semesters
 
 Alpha 3.0
+Ability to add arbitrary classes
 Add requirements list view
 Add detail view
-Add minors view
 
 Beta 1.0
+Add minors view
+From summary view, ability to move classes between semesters
+From summary view, ability to add and remove semesters
 Provide links where appropriate back to the course catalog
-Ability to autosubstitute classes
 
 Beta 2.0
 Support for 0 to many majors and 0 to many minors
+    Tabs for multiple majors, with one tab showing the combined course sequence
 
 Beta 3.0
 Integration with LUSA
