@@ -5,7 +5,7 @@ Alpha 1.0
 ✓Be able to manually uncomplete classes
 
 Alpha 2.0
-more padding on the class cells (larger drop area)
+✓more padding on the class cells (larger drop area)
 Ability to autosubstitute classes
 Be able to reset all class associations
 

@@ -122,6 +122,7 @@ td.endNote {
 .classOverlay {
     position:relative;
     display:block;
+    padding:2px;
 }
 
 .classOverlay:hover {
