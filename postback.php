@@ -39,8 +39,8 @@
     }
 
     if($mode == "uncompleteClass") {
-        $target = explode("~", $_REQUEST["target"]);
-        substituteClass($_SESSION["userID"], $_REQUEST["degree"], $target[0]);
+        $target = explode("-", $_REQUEST["target"]);
+        substituteClass($_SESSION["userID"], $_REQUEST["degree"], $target[1]);
     }
 
     if($mode == "getClassFromDeptNum") {
