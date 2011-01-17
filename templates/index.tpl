@@ -24,6 +24,13 @@
     {/foreach}
 </div>
 <div style="display:inline;">
+    {if $courseSequences}
+        {$courseSequence = $courseSequences[0]}
+        {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}
+            {include file="courseSequence_summary.tpl" cs=$courseSequence}
+        {/if}
+        <br/>
+    {/if}
     <form method="get" action=".">
         <div>
             Year: <select name="year">
@@ -44,14 +51,5 @@
             <input type="submit" name="submit" value="submit"/>
         </div>
     </form>
-    <br/>
-
-    {if $courseSequences}
-        {$courseSequence = $courseSequences[0]}
-        {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}
-            {include file="courseSequence_summary.tpl" cs=$courseSequence}
-        {/if}
-        <br/>
-    {/if}
 </div>
 {/block}

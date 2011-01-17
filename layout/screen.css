@@ -175,6 +175,7 @@ td.endNote {
     border:1px black solid;
     margin:2px;
     padding:1px;
+    cursor:move;
 }
 
 .deptHeader {
