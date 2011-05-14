@@ -30,6 +30,8 @@ Integration with LUSA
 ---------------------FEATURE FREEZE----------------------
 RC1
 XHTML, CSS, Section 508 compliant
+
+RC2
 Security Audit
 
 Version 1.0

@@ -1,10 +1,3 @@
-katervyet
-laps (prounounced lops)
-miu (means mouse)
-mesues (teacher)
-try translator - one word for one word
-meso (teach / learn)
-
 requires PHP >= 5.3.1 for bundled sqlite >= 3.6.19 support, which includes foreign keys (or PHP >= 5.3 with SQLite >= 3.6.19 bindings)
 NOTE: PHP >= 5.3.3 is STRONGLY recommended because of stability concerns with 5.3.1 through 5.3.2
 requires Smarty >= 3.0

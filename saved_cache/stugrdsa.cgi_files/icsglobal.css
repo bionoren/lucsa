@@ -1,0 +1,176 @@
+.altdataline0
+{
+    BACKGROUND-COLOR: #efefef;
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.altdataline1
+{
+    BACKGROUND-COLOR: #ffffff;
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glbdarkcolor
+{
+    BACKGROUND-COLOR: #1c0474;
+    COLOR: #ffffff;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 9pt;
+    FONT-WEIGHT: bold
+}
+.glblightcolor
+{
+    BACKGROUND-COLOR: #7c7bbd;
+    COLOR: #ffffff;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 9pt;
+    FONT-WEIGHT: bold
+}
+A.glbportletlink:link
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    TEXT-DECORATION: underline
+}
+A.glbportletlink:active
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    TEXT-DECORATION: underline
+}
+A.glbportletlink:hover
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    TEXT-DECORATION: none
+}
+A.glbportletlink:visited
+{
+    COLOR: #1c0474;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    TEXT-DECORATION: underline
+}
+A.glbportletlink:visited:hover
+{
+    COLOR: #1c0474;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    TEXT-DECORATION: none
+}
+.glbdata
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glbdatabold
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: bold
+}
+.glbdatadark
+{
+    BACKGROUND-COLOR: #efefef;
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glbdatalight
+{
+    BACKGROUND-COLOR: #ffffff;
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glbdatacolor
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+TD{
+	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glbfieldname 
+{
+    BACKGROUND-COLOR: #bababa;
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: bold
+}
+
+.glbtableheader
+{
+    BACKGROUND-COLOR: #1c0474;
+    COLOR: #ffffff;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: bold
+}
+SELECT
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+INPUT
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.glberror
+{
+    COLOR: #ff0000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+TABLE
+{
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}
+.tabinactive
+{
+    BACKGROUND-COLOR: #bababa;
+    COLOR: #ffffff;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: bold
+}
+.tabactive
+{
+    BACKGROUND-COLOR: #1c0474;
+    COLOR: #ffffff;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: bold
+}
+TEXTAREA
+{
+    COLOR: #000000;
+    FONT-FAMILY: Verdana, Arial, Helvetica, Sans-Serif;
+    FONT-SIZE: 8pt;
+    FONT-WEIGHT: normal
+}

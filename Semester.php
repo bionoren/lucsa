@@ -104,67 +104,6 @@
         }
 
         /**
-         * Used by autosubstitution to infer associations.
-         *
-         * This function assumes that all classes are available to be completed and all
-         * provided classes are available to complete other classes.
-         * THIS IS NOT TESTED!
-         *
-         * @param ClassList $classes List of classes that have been taken.
-         * @param INTEGER $user ID of the user who has taken classes.
-         * @param Notes $notes Optional Notes object.
-         * @return VOID
-         */
-        public function initEvalTaken(ClassList $classes, $user, $notes=null) {
-            $map["userID"] = $user;
-            if(empty($notes)) {
-                //Identical classes must be valid substitutes. Seeing as they're identical...
-                foreach($this->classes as $key=>$class) {
-                    if(isset($classes[$key])) {
-                        substituteClass($user, $class->getID(), $classes[$key]->getID());
-                        $map["oldClassID"] = $class->getID();
-                        $map["newClassID"] = $classes[$key]->getID();
-                        SQLiteManager::getInstance()->insert("userClassMap", $map);
-                        $this->completeClass($class, $classes[$key]);
-                    }
-                }
-            } else {
-                foreach($classes as $key=>$class2) {
-                    if($class2->isSubstitute) {
-                        continue;
-                    }
-                    foreach($this->classes as $class) {
-                        if($class->isComplete()) {
-                            continue;
-                        }
-                        $note = $notes->getNote($class->getNoteID());
-                        if(!empty($note) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $note, $matches)) {
-                            //explicit course substitution
-                            if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
-                                substituteClass($user, $class->getID(), $class2->getID());
-                                $this->completeClass($class, $class2);
-                                break;
-                            }
-                        }
-                        if($class->getNumber()) {
-                            //title & department matching (they change the middle two number sometimes, seemingly for no good reason...
-                            if($class->getDepartment() == $class2->getDepartment() && $class->getTitle() == $class2->getTitle()) {
-                                substituteClass($user, $class->getID(), $class2->getID());
-                                $this->completeClass($class, $class2);
-                                break;
-                            }
-                        }
-                        if($class->getDepartment() == $class2->getDepartment() && $class->getHours() <= $class2->getHours()) {
-                            substituteClass($user, $class->getID(), $class2->getID());
-                            $this->completeClass($class, $class2);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
          * Getter for the class array.
          *
          * @return ARRAY List of classes.

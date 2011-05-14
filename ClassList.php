@@ -313,5 +313,9 @@
         public function valid() {
             return current($this->classes) !== false;
         }
+
+        public function __toString() {
+            return "ClassList(".$this->count().")";
+        }
     }
 ?>

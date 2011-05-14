@@ -92,23 +92,6 @@
         }
 
         /**
-         * Tries to automatically complete classes in this major given a list of classes taken.
-         *
-         * @param ClassList $classes List of classes that have been taken.
-         * @param INTEGER $user The ID of the user who has taken said classes.
-         * @return VOID
-         */
-		public function autocompleteClasses(ClassList $classes, $user) {
-			foreach($this->semesters as $semester) {
-				$semester->initEvalTaken($classes, $user);
-			}
-			foreach($this->semesters as $semester) {
-				$semester->initEvalTaken($classes, $user, $this->notes);
-                $this->completeHours += $semester->getCompletedHours();
-			}
-		}
-
-        /**
          * Returns an array mapping IDs from classes in a course sequence to classes that have been taken to complete them.
          *
          * @param INTEGER $user ID of the user who has taken classes.
@@ -143,19 +126,6 @@
         }
 
         /**
-         * Returns a list of classes that have not been completed yet.
-         *
-         * @return ClassList List of incomplete classes.
-         */
-        public function getIncompleteClasses() {
-            $ret = new ClassList();
-            foreach($this->semesters as $sem) {
-                $ret = ClassList::merge($ret, $sem->getIncompleteClasses());
-            }
-            return $ret;
-        }
-
-        /**
          * Getter for the acronym.
          *
          * @return STRING Acronym.
@@ -163,6 +133,16 @@
          */
         public function getAcronym() {
             return $this->acronym;
+        }
+
+        public function getClasses() {
+            $ret = new ClassList();
+            foreach($this->semesters as $sem) {
+                foreach($sem->getClasses() as $class) {
+                    $ret[$class->getID()] = $class;
+                }
+            }
+            return $ret;
         }
 
         /**
@@ -193,6 +173,19 @@
          */
         public function getID() {
             return $this->id;
+        }
+
+        /**
+         * Returns a list of classes that have not been completed yet.
+         *
+         * @return ClassList List of incomplete classes.
+         */
+        public function getIncompleteClasses() {
+            $ret = new ClassList();
+            foreach($this->semesters as $sem) {
+                $ret = ClassList::merge($ret, $sem->getIncompleteClasses());
+            }
+            return $ret;
         }
 
         /**

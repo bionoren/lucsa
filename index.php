@@ -34,6 +34,7 @@
     require_once($path."db/SQLiteManager.php");
     require_once($path."CourseSequence.php");
     require_once($path."ClassList.php");
+    require_once($path."Autocompleter.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -196,25 +197,34 @@
 
     $courseSequence;
     $substitute = new ClassList();
-//    $substituteCandidates = new ClassList();
     $user = $_SESSION["userID"];
+
     foreach($degrees as $deg) {
         $courses = clone $masterCourses;
         $courseSequence = CourseSequence::getFromID($deg);
-//        if(isset($_REQUEST["autosub"])) {
-//            $courseSequence->autocompleteClasses($courses, $user);
-//        }
         $courseSequence->applySubstitions($courses, $user);
         $courseSequences[] = $courseSequence;
 
         $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
-//        $substituteCandidates = ClassList::merge($substituteCandidates, $courseSequence->getIncompleteClasses());
         break;
     }
+    if(isset($_REQUEST["autocomplete"])) {
+        foreach($courseSequences as $cs) {
+            $autocompleter = new Autocompleter($substitute, $cs->getClasses(), $cs->getNotes());
+            $autocompleter->substitute($user);
+        }
+        foreach($courseSequences as $cs) {
+            $courses = clone $masterCourses;
+            $cs->applySubstitions($courses, $user);
+
+            $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
+            break;
+        }
+    }
+
     $courses[$transferClass->getID()]->isSubstitute = false;
     $substitute[$transferClass->getID()] = $transferClass;
     $substitute->sort();
-
 
     $smarty = new Smarty();
     $data = new Smarty_Data();

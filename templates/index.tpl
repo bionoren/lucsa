@@ -8,6 +8,12 @@
 {extends file="page.tpl"}
 {block name="body"}
 <div id="classSubs" style="float:left; width:250px; font-size:12px;">
+    <form method="post" action=".">
+        <input type="hidden" name="reset" value="1">
+        <input type="hidden" name="year" value="{$year}">
+        <input type="submit" name="autocomplete" value="Autocomplete"/>
+        <br/><br/>
+    </form>
     {$dept = null}
     {$lastTitle = ""}
     {foreach $subClasses as $class}
@@ -48,7 +54,7 @@
             </select>
             <br/>
 
-            <input type="submit" name="submit" value="submit"/>
+            <input type="submit" name="submit" value="Update"/>
         </div>
     </form>
 </div>
