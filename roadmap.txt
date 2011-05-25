@@ -1,37 +1,48 @@
-Alpha 1.0
+Alpha 1
 ✓Be able to view a summary of a single major
 ✓Show a list of courses taken
 ✓Be able to manually complete classes
 ✓Be able to manually uncomplete classes
 
-Alpha 2.0
+Alpha 2
 ✓more padding on the class cells (larger drop area)
-Ability to autosubstitute classes
+✓Ability to autosubstitute classes
 Be able to reset all class associations
 
-Alpha 3.0
-Ability to add arbitrary classes
+Alpha 3
 Add requirements list view
 Add detail view
 
-Beta 1.0
+Beta 1
 Add minors view
 From summary view, ability to move classes between semesters
 From summary view, ability to add and remove semesters
 Provide links where appropriate back to the course catalog
 
-Beta 2.0
+Beta 2
 Support for 0 to many majors and 0 to many minors
     Tabs for multiple majors, with one tab showing the combined course sequence
 
-Beta 3.0
-Integration with LUSA
-
 ---------------------FEATURE FREEZE----------------------
 RC1
+tested
 XHTML, CSS, Section 508 compliant
 
 RC2
 Security Audit
 
 Version 1.0
+=========================================================
+
+Version 2.0 Alpha 1
+Integration with LUSA
+
+Version 2.0 Beta 1
+Rank all majors by distance in hours
+suggest non-ID substitutions that others have used
+
+---------------------FEATURE FREEZE----------------------
+Version 2.0 RC1
+XHTML, CSS, Section 508 compliant
+
+Version 2.0
