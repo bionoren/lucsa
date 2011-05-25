@@ -17,16 +17,14 @@
     date_default_timezone_set("America/Chicago");
     $path = "./";
 //--DEBUG
-    if($_GET["reset"] == 1) {
+    if(isset($_POST["clearClasses"])) {
         require_once($path."db/SQLiteManager.php");
         require_once($path."functions.php");
         $db = SQLiteManager::getInstance();
         $id = getUserID($db);
         $db->query("DELETE FROM users WHERE ID='".$id."'");
         $db->query("DELETE FROM userClassMap WHERE userID='".$id."'");
-        session_destroy();
-        session_write_close();
-        die("reset");
+        $_SESSION = array();
     }
 //--END DEBUG
     require_once($path."smarty/Smarty.class.php");

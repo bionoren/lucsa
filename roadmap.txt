@@ -7,7 +7,7 @@ Alpha 1
 Alpha 2
 ✓more padding on the class cells (larger drop area)
 ✓Ability to autosubstitute classes
-Be able to reset all class associations
+✓Be able to reset all class associations
 
 Alpha 3
 Add requirements list view

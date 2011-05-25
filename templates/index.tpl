@@ -30,6 +30,9 @@
     {/foreach}
 </div>
 <div style="display:inline;">
+    <form method="post" action=".">
+        <input type="submit" name="clearClasses" value="Clear All Class Associations">
+    </form>
     {if $courseSequences}
         {$courseSequence = $courseSequences[0]}
         {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}
