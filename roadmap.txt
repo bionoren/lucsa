@@ -12,7 +12,6 @@ Alpha 2
 Alpha 3
 ✓Add requirements list view
 ✓Provide links where appropriate back to the course catalog
-Add minors view
 
 Beta 1
 From summary view, ability to move classes between semesters
@@ -21,6 +20,7 @@ From summary view, ability to add and remove semesters
 Beta 2
 Support for 0 to many majors and 0 to many minors
     Tabs for multiple majors, with one tab showing the combined course sequence
+Add ability to select minors
 
 ---------------------FEATURE FREEZE----------------------
 RC1
