@@ -189,6 +189,16 @@
         }
 
         /**
+         * Getter for the class link.
+         *
+         * @return STRING Catalog link.
+         * @see linkid
+         */
+        public function getLink() {
+            return $this->linkid;
+        }
+
+        /**
          * Getter for the name.
          *
          * @return STRING Name.

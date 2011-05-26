@@ -2,14 +2,13 @@
 {block name="classInfo"}
     {$allClasses = $cs->getClasses()}
     {$allClasses->sort()}
-    {$i = 0}
-    {$count = floor($allClasses->count()/2)}
+    {$count = floor(count($allClasses)/2)}
     <tr style="vertical-align:top;">
         <td>
             <table>
                 {foreach $allClasses as $class}
                     {include file="course.tpl" class=$class}
-                    {if $i++ == $count}
+                    {if $class@index == $count}
                         </table></td><td><table>
                     {/if}
                 {/foreach}

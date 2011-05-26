@@ -1,4 +1,5 @@
 {* @param Course $class *}
+{* @param INTEGER $year *}
 
 <span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}">
     <div id="{$class->getUID()}complete" class="overlay{if !{$class->isComplete()}} hidden{/if}">
@@ -10,14 +11,14 @@
         {/if}
     </div>
     <span class="classDepartment">
-        {$class->getDepartment()}
+        <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&school={$class->getDepartmentLink()}&cmd=courselist">{$class->getDepartment()}</a>
     </span>
     <span class="classNumber">
         | {$class->getNumber()}
     </span>
     <span class="classTitle">
         |
-        {$class->getTitle()}
+        <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&course={$class->getLink()}">{$class->getTitle()}</a>
         {if !$class->getNumber()}
             <span class="note">
                 ({$class->getHours()} hour{if $class->getHours() != 1}s{/if})

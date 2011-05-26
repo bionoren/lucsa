@@ -11,7 +11,7 @@ Alpha 2
 
 Alpha 3
 ✓Add requirements list view
-Provide links where appropriate back to the course catalog
+✓Provide links where appropriate back to the course catalog
 Add minors view
 
 Beta 1

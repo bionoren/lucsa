@@ -4,7 +4,7 @@
 <table id="{$cs->getID()}">
     <tr>
         <td colspan="2" class="majorTitle">
-            {$cs->getName()} ({$cs->getAcronym()})
+            <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&degree={$cs->getLink()}">{$cs->getName()} ({$cs->getAcronym()})</a>
             <br/>
             <span class="sequenceTitle">
                 Sequence Sheet for {$year}-{$year+1}

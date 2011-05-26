@@ -1,11 +1,12 @@
 {* @param Course $class *}
+{* @param INTEGER $year *}
 
 <span class="classDepartment">
-    {$class->getDepartment()}
+    <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&school={$class->getDepartmentLink()}&cmd=courselist">{$class->getDepartment()}</a>
 </span>
 <span class="classNumber">
     | {$class->getNumber()}
 </span>
 <span class="classTitle">
-    | {$class->getTitle()}
+    | <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&course={$class->getLink()}">{$class->getTitle()}</a>
 </span>
