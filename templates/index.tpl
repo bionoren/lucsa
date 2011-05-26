@@ -37,6 +37,8 @@
         {$courseSequence = $courseSequences[0]}
         {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}
             {include file="courseSequence_summary.tpl" cs=$courseSequence}
+        {elseif $smarty.get.disp == "list"}
+            {include file="courseSequence_list.tpl" cs=$courseSequence}
         {/if}
         <br/>
     {/if}

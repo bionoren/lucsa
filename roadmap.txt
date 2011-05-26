@@ -10,14 +10,13 @@ Alpha 2
 ✓Be able to reset all class associations
 
 Alpha 3
-Add requirements list view
-Add detail view
+✓Add requirements list view
+Provide links where appropriate back to the course catalog
+Add minors view
 
 Beta 1
-Add minors view
 From summary view, ability to move classes between semesters
 From summary view, ability to add and remove semesters
-Provide links where appropriate back to the course catalog
 
 Beta 2
 Support for 0 to many majors and 0 to many minors

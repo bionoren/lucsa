@@ -13,6 +13,10 @@
             <span class="sequenceLinks">
                 <a href="?disp=summary">Summary View</a>
             </span>
+            &nbsp;
+            <span class="sequenceLinks">
+                <a href="?disp=list">Requirements List View</a>
+            </span>
             <br style="vertical-align:top; line-height:28px;"/>
         </td>
     </tr>
