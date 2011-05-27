@@ -25,7 +25,7 @@ Add ability to select minors
 ---------------------FEATURE FREEZE----------------------
 RC1
 tested
-XHTML, CSS, Section 508 compliant
+HTML 5, CSS 3, Section 508 compliant
 
 RC2
 Security Audit

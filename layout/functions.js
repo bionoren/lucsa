@@ -33,7 +33,7 @@ lusa.init = function() {
         if(course.hasClassName("strike")) {
             return;
         }
-        lusa.makeClassDroppable(course);
+        lusa.makeClassCompletable(course);
     });
 
     //init the completed classes
@@ -60,7 +60,7 @@ lusa.makeClassesDraggable = function() {
  *
  * @return VOID
  */
-lusa.makeClassDroppable = function(course) {
+lusa.makeClassCompletable = function(course) {
     degreeID = course.up("table").id;
     Droppables.add(course.id, {
         accept: "incompleteClass",
@@ -75,13 +75,11 @@ lusa.makeClassDroppable = function(course) {
          * @return VOID
          */
         onDrop: function(drag, drop, event) {
-            dept = drag.down(".classDepartment").innerHTML.strip();
-            num = drag.down(".classNumber").innerHTML.strip().substring(2);
-            title = drag.down(".classTitle").innerHTML.strip().substring(2);
+            id = drag.down().getAttribute("data-id");
             new Ajax.Updater(drop.down(), "postback.php", {
                 method: "post",
                 insertion: Insertion.Bottom,
-                parameters: {mode: "completeClass", dept: dept, num: num, title: title, target: drop.id, degree: degreeID},
+                parameters: {mode: "completeClass", ID: id, target: drop.id, degree: degreeID},
                 /**
                  * Called when the request is known to be successful.
                  *

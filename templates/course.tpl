@@ -1,7 +1,7 @@
 {* @param Course $class *}
 {* @param INTEGER $year *}
 
-<span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}">
+<span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}">
     <div id="{$class->getUID()}complete" class="overlay{if !{$class->isComplete()}} hidden{/if}">
         Completed By:
         <br/>

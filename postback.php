@@ -30,9 +30,9 @@
     }
 
     if($mode == "completeClass") {
-        $course = Course::getFromDepartmentNumber($_REQUEST["dept"], $_REQUEST["num"], $_REQUEST["title"]);
+        $course = Course::getFromID($_REQUEST["ID"]);
         $target = explode("-", $_REQUEST["target"]);
-        substituteClass($_SESSION["userID"], $_REQUEST["degree"], $target[1], $course->getID());
+        substituteClass($_SESSION["userID"], $target[1], $_REQUEST["ID"]);
         $smarty = new Smarty();
         $smarty->assign("class", $course);
         $smarty->display("course_sub.tpl");

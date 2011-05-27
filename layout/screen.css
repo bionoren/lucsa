@@ -127,6 +127,7 @@ td.endNote {
 
 .classOverlay:hover {
     z-index:50;
+    cursor: move;
 }
 
 .classOverlay .overlay {
@@ -175,7 +176,7 @@ td.endNote {
     border:1px black solid;
     margin:2px;
     padding:1px;
-    cursor:move;
+    cursor: move;
 }
 
 .deptHeader {
