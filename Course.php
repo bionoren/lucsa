@@ -50,6 +50,8 @@
         protected $offered;
         /** STRING Course title. */
         protected $title;
+        /** INTEGER Psuedo-unique number assigned to this course instance. */
+        protected $uid;
         /**
          * INTEGER Status of years this course is offered.
          * @see dbinit.php
@@ -63,6 +65,7 @@
          * @see fetchSQL
          */
         protected function __construct(array $row) {
+            $this->uid = mt_rand();
             $this->ID = intval($row["ID"]);
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
@@ -232,7 +235,7 @@
         }
 
         public function getUID() {
-            return $this->getID()."_".mt_rand();
+            return $this->getID()."_".$this->uid;
         }
 
         /**
