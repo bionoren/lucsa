@@ -98,11 +98,7 @@ lusa.makeClassCompletable = function(course) {
                         Element.remove(drag);
                         Droppables.remove(drop);
                     }
-                    hours = drop.down(".classNumber").innerHTML.strip();
-                    hours = hours.substring(hours.length-1);
-                    if(hours == "|") {
-                        hours = num.substring(num.length-1);
-                    }
+                    hours = drop.getAttribute("data-hours");
                     lusa.addHours(drop.up("table").id, drop.previous(".semesterTitle"), -hours);
                 }
             });
