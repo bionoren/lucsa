@@ -16,20 +16,10 @@
     session_start();
     date_default_timezone_set("America/Chicago");
     $path = "./";
-//--DEBUG
-    if(isset($_POST["clearClasses"])) {
-        require_once($path."db/SQLiteManager.php");
-        require_once($path."functions.php");
-        $db = SQLiteManager::getInstance();
-        $id = getUserID($db);
-        $db->query("DELETE FROM users WHERE ID='".$id."'");
-        $db->query("DELETE FROM userClassMap WHERE userID='".$id."'");
-        $_SESSION = array();
-    }
-//--END DEBUG
-    require_once($path."smarty/Smarty.class.php");
-    require_once($path."functions.php");
+
     require_once($path."db/SQLiteManager.php");
+    require_once($path."functions.php");
+    require_once($path."smarty/Smarty.class.php");
     require_once($path."CourseSequence.php");
     require_once($path."ClassList.php");
     require_once($path."Autocompleter.php");
@@ -162,6 +152,10 @@
     //==========================================================================
     $db = SQLiteManager::getInstance();
     $userID = getUserID($db);
+
+    if(isset($_POST["clearClasses"])) {
+        $db->query("DELETE FROM userClassMap WHERE userID='".$userID."'");
+    }
 
     $years = getYears();
     if(!isset($_REQUEST["year"])) {
