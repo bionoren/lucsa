@@ -1,7 +1,7 @@
 {* @param Course $class *}
 {* @param INTEGER $year *}
 
-<div data-id="{$class->getID()}">
+<div class="courseSub" data-id="{$class->getID()}" data-dept="{$class->getDepartment()}" data-num="{$class->getNumber()}">
     <span class="classDepartment">
         <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&school={$class->getDepartmentLink()}&cmd=courselist">{$class->getDepartment()}</a>
     </span>

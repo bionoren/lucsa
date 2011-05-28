@@ -30,27 +30,24 @@
     }
 
     if($mode == "completeClass") {
-        $course = Course::getFromID($_REQUEST["ID"]);
-        $target = explode("-", $_REQUEST["target"]);
-        substituteClass($_SESSION["userID"], $target[1], $_REQUEST["ID"]);
+        $id = intval($_REQUEST["ID"]);
+        $course = Course::getFromID($id);
+        substituteClass($_SESSION["userID"], intval($_REQUEST["target"]), $id);
         $smarty = new Smarty();
         $smarty->assign("class", $course);
         $smarty->display("course_sub.tpl");
     }
 
     if($mode == "uncompleteClass") {
-        $target = explode("-", $_REQUEST["target"]);
-        substituteClass($_SESSION["userID"], $_REQUEST["degree"], $target[1]);
-    }
+        substituteClass($_SESSION["userID"], intval($_REQUEST["classID"]));
 
-    if($mode == "getClassFromDeptNum") {
-        $course = Course::getFromDepartmentNumber($_REQUEST["dept"], $_REQUEST["num"], $_REQUEST["title"]);
+        $takenCourse = Course::getFromID($_REQUEST["takenClassID"]);
         if($_REQUEST["needDept"] == "true") {
-            print '<div class="deptHeader">'.$_REQUEST["dept"].'</div>';
+            print '<div class="deptHeader">'.$takenCourse->getDepartment().'</div>';
         }
-        print '<div id="'.$course->getUID().'" class="incompleteClass">';
+        print '<div class="incompleteClass">';
             $smarty = new Smarty();
-            $smarty->assign("class", $course);
+            $smarty->assign("class", $takenCourse);
             $smarty->display("course_sub.tpl");
         print '</div>';
     }

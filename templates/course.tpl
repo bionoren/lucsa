@@ -1,12 +1,12 @@
 {* @param Course $class *}
 {* @param INTEGER $year *}
 
-<span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}">
-    <div id="{$class->getUID()}complete" class="overlay{if !{$class->isComplete()}} hidden{/if}">
+<span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}" data-hours="{$class->getHours()}">
+    <div class="overlay{if !{$class->isComplete()}} hidden{/if}">
         Completed By:
         <br/>
         <a href="javascript:void(0)" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-        {if {$class->getCompleteClass()}}
+        {if {$class->isComplete()}}
             {include file="course_sub.tpl" class=$class->getCompleteClass()}
         {/if}
     </div>

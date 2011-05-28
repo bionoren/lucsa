@@ -76,10 +76,11 @@ lusa.makeClassCompletable = function(course) {
          */
         onDrop: function(drag, drop, event) {
             id = drag.down().getAttribute("data-id");
+            target = drop.getAttribute("data-id");
             new Ajax.Updater(drop.down(), "postback.php", {
                 method: "post",
                 insertion: Insertion.Bottom,
-                parameters: {mode: "completeClass", ID: id, target: drop.id, degree: degreeID},
+                parameters: {mode: "completeClass", ID: id, target: target, degree: degreeID},
                 /**
                  * Called when the request is known to be successful.
                  *
@@ -117,57 +118,46 @@ lusa.makeClassCompletable = function(course) {
  */
 lusa.markUncompletableClass = function(course) {
     Event.observe(course, "click", function(event) {
-        id = this.up().id;
         degreeID = course.up("table").id;
-        new Ajax.Request("postback.php", {
-            method: "post",
-            parameters: {mode: "uncompleteClass", target: id, degree: degreeID},
-            /**
-             * Called when the request is known to be successful.
-             *
-             * @param OBJECT transport Response information from the server.
-             * @return VOID
-             */
-            onSuccess: function(transport) {
-                course = this.up(".classOverlay");
-                course.removeClassName("strike");
-                course.addClassName("nostrike");
-                course.down().addClassName("hidden");
-                dept = this.next(".classDepartment").innerHTML.strip();
-                number = this.next(".classNumber").innerHTML.strip().substring(2);
-                title = this.next(".classTitle").innerHTML.strip().substring(2);
-                lusa.insertIncompleteClass(dept, number, title);
 
-                hours = this.up().next(".classNumber").innerHTML.strip();
-                hours = hours.substring(hours.length-1);
-                if(hours == "|") {
-                    hours = this.next(".classNumber").innerHTML.strip();
-                    hours = hours.substring(hours.length-1);
-                }
-                lusa.addHours(this.up("table").id, this.up(".classOverlay").previous(".semesterTitle"), hours);
+        //uncomplete the original class
+        course = this.up(".classOverlay");
+        courseID = course.getAttribute("data-id");
+        course.removeClassName("strike");
+        course.addClassName("nostrike");
+        course.down().addClassName("hidden");
 
-                ele = this.next()
-                while(ele) {
-                    Element.remove(ele);
-                    ele = this.next()
-                }
-            }.bind(this),
-            onComplete: function(transport) {
-                lusa.makeClassDroppable(this.up(".classOverlay"));
-            }.bind(this)
-        });
+        completingClass = this.next(".courseSub");
+        completingClassID = completingClass.getAttribute("data-id");
+        dept = completingClass.getAttribute("data-dept");
+        number = completingClass.getAttribute("data-num");
+
+        hours = course.getAttribute("data-hours");
+        lusa.addHours(this.up("table").id, this.up(".classOverlay").previous(".semesterTitle"), hours);
+
+        //remove the completing class' info
+        ele = this.next()
+        while(ele) {
+            Element.remove(ele);
+            ele = this.next()
+        }
+
+        lusa.insertIncompleteClass(courseID, completingClassID, dept, number);
+        //make this class available to be completed again
+        lusa.makeClassDroppable(course);
     });
 }
 
 /**
  * Adds a class back into the list of incomplete classes.
  *
+ * @param INTEGER scheduledClassID ID of the class that was being completed
+ * @param INTEGER completingClassID ID of the class that has been taken
  * @param STRING targetDept The deparmtent of said class.
  * @param INTEGER targetNum The course number of said class.
- * @param STRING title The title of said class.
  * @return VOID
  */
-lusa.insertIncompleteClass = function(targetDept, targetNum, title) {
+lusa.insertIncompleteClass = function(scheduledClassID, completingClassID, targetDept, targetNum) {
     result = null;
     needDept = false;
     insertion = Insertion.Before;
@@ -203,7 +193,7 @@ lusa.insertIncompleteClass = function(targetDept, targetNum, title) {
     new Ajax.Updater(result, "postback.php", {
         method: "post",
         insertion: insertion,
-        parameters: {mode: "getClassFromDeptNum", dept: targetDept, num: targetNum, title: title, needDept: needDept},
+        parameters: {mode: "uncompleteClass", classID: scheduledClassID, takenClassID: completingClassID, needDept: needDept},
         /**
          * Called when the request has completely finished processing.
          *

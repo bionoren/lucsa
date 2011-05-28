@@ -25,9 +25,6 @@
                        FROM classes
                        LEFT OUTER JOIN departments ON classes.departmentID = departments.ID ";
 
-        /** INTEGER Psuedo-unique identifier for this class (psuedo because AJAX request can regenerate low numbered IDs. */
-        protected static $instanceID = 1;
-
         /** Course A Course object which was taken to complete this course. */
         protected $completeClass = null;
         /** STRING The 4 letter department code for this class. */
@@ -54,11 +51,6 @@
         /** STRING Course title. */
         protected $title;
         /**
-         * INTEGER The psuedo-unique id for this class.
-         * @see instanceID
-         */
-        protected $UID;
-        /**
          * INTEGER Status of years this course is offered.
          * @see dbinit.php
          */
@@ -71,7 +63,6 @@
          * @see fetchSQL
          */
         protected function __construct(array $row) {
-            $this->UID = Course::$instanceID++;
             $this->ID = intval($row["ID"]);
             $this->department = $row["department"];
             $this->departmentlinkid = $row["deptlinkid"];
@@ -240,14 +231,8 @@
             return $this->title;
         }
 
-        /**
-         * Return's this class' psuedo-UID
-         *
-         * @return STRING Psuedo-UID
-         * @see UID
-         */
         public function getUID() {
-            return "c-".$this->getID()."-".$this->UID;
+            return $this->getID()."_".mt_rand();
         }
 
         /**
