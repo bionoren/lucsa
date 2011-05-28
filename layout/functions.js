@@ -144,7 +144,7 @@ lusa.markUncompletableClass = function(course) {
 
         lusa.insertIncompleteClass(courseID, completingClassID, dept, number);
         //make this class available to be completed again
-        lusa.makeClassDroppable(course);
+        lusa.makeClassCompletable(course);
     });
 }
 
