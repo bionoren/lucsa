@@ -13,6 +13,11 @@
         <script src="layout/functions.js" type="text/javascript"></script>
     </head>
     <body lang="en" onload="lusa.init();">
+        <noscript>
+            <center style="color:red; font-weight:bold;">
+                Help, Help!!! I'm trapped in a box without Javascript!
+            </center>
+        </noscript>
         <div class="wrapper">
             {block name="body"}{/block}
         </div>
