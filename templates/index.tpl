@@ -51,11 +51,11 @@
             </select>
             <br/>
             Major: <select name="degree[]">
-                <optgroup label="-- Majors">
+<!--                <optgroup label="-- Majors">-->
                     {foreach $majors as $key=>$deg}
                         <option value="{$key}"{if is_array($degree) && in_array($key, $degree)} selected='selected'{/if}>{$deg.name} ({$key})</option>
                     {/foreach}
-                </optgroup>
+<!--                </optgroup>-->
             </select>
             <br/>
 

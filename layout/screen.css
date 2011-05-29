@@ -127,6 +127,13 @@ td.endNote {
 
 .classOverlay:hover {
     z-index:50;
+}
+
+.noMove .noMove:hover {
+    cursor: default;
+}
+
+.move {
     cursor: move;
 }
 

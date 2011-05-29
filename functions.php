@@ -197,7 +197,26 @@
             $fields["newClassID"] = $subID;
             SQLiteManager::getInstance()->insert("userClassMap", $fields);
         } else {
-            SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=".$userID." AND oldClassID=".$origID);
+            SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=$userID AND oldClassID=$origID");
         }
+    }
+
+    /**
+     * Moves a class from one semester to another.
+     *
+     * Note that if the class ID appears multiple times in the old semester, an arbitrary
+     * instance of the class will be moved.
+     *
+     * @param INTEGER $degree The primary key for the degree the class is in.
+     * @param INTEGER $oldSem The primary key for the semester the class is in.
+     * @param INTEGER $newSem The primary key for the semester the class should be in.
+     * @param INTEGER $class The primary key for the class to move.
+     * @return VOID
+     */
+    function moveClass($degree, $oldSem, $newSem, $class) {
+        $where = "degreeID=$degree AND semester=$oldSem AND courseID=$class";
+        $select = "SELECT ID FROM degreeCourseMap WHERE $where LIMIT 1";
+        $sql = "UPDATE degreeCourseMap SET semester=$newSem WHERE $where AND ID IN ($select)";
+        SQLiteManager::getInstance()->query($sql);
     }
 ?>

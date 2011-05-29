@@ -51,4 +51,8 @@
             $smarty->display("course_sub.tpl");
         print '</div>';
     }
+
+    if($mode == "moveClass") {
+        moveClass($_REQUEST["degree"], $_REQUEST["oldSemester"], $_REQUEST["semester"], $_REQUEST["course"]);
+    }
 ?>

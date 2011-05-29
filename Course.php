@@ -234,6 +234,12 @@
             return $this->title;
         }
 
+        /**
+         * Returns a unique ID for this class instance.
+         *
+         * @return STRING UID.
+         * @see uid
+         */
         public function getUID() {
             return $this->getID()."_".$this->uid;
         }

@@ -13,6 +13,24 @@
  */
 
 /**
+ * Returns the value for a given URL GET parameter.
+ *
+ * @param STRING name Key for the value to get.
+ * @return MIXED Value for the provided key, or null if they key was not found.
+ */
+function getURLParam(name) {
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.href);
+    if(results == null) {
+        return null;
+    } else {
+        return results[1];
+    }
+}
+
+/**
  * Handles client side interaction with the application as a whole.
  *
  * @author Bion Oren
@@ -30,11 +48,14 @@ lusa.init = function() {
 
     //init the course sequence classes
     $$(".classOverlay").each(function(course) {
+        lusa.makeClassMovable(course);
         if(course.hasClassName("strike")) {
             return;
         }
         lusa.makeClassCompletable(course);
     });
+    //WARNING: don't create semester droppables before this comment!
+    lusa.makeSemestersDroppable();
 
     //init the completed classes
     $$(".ximage").each(function(course) {
@@ -43,21 +64,90 @@ lusa.init = function() {
 };
 
 /**
+ * Evaluates if this is the summary view or not.
+ *
+ * @return BOOLEAN True if summary view.
+ */
+lusa.isSummaryView = function() {
+    mode = getURLParam("disp");
+    return mode == null || mode == "summary";
+}
+
+/**
+ * Makes the semesters droppable for rearranging classes between semesters.
+ *
+ * @return VOID
+ */
+lusa.makeSemestersDroppable = function() {
+    if(!lusa.isSummaryView()) {
+        return;
+    }
+
+    $$(".semesterClasses").each(function(semester) {
+        Droppables.add(semester.id, {
+            accept: "classOverlay",
+            overlap: "vertical",
+            onDrop: function(drag, drop, event) {
+                semesterID = drop.getAttribute("data-id");
+                oldSemesterID = drag.up().getAttribute("data-id");
+                if(semesterID == oldSemesterID) {
+                    return;
+                }
+                classID = drag.getAttribute("data-id");
+                degreeID = drop.up("table").id;
+
+                new Ajax.Request("postback.php", {
+                    method: "post",
+                    parameters: {mode: "moveClass", degree: degreeID, course: classID, semester: semesterID, oldSemester: oldSemesterID},
+                    onSuccess: function(transport) {
+                        //update the semester hours
+                        hours = parseInt(drag.getAttribute("data-hours"));
+                        newHours = parseInt(drop.getAttribute("data-hours"));
+                        oldHours = parseInt(drag.up().getAttribute("data-hours"));
+                        newHours += hours;
+                        oldHours -= hours;
+                        drop.down(".semesterHours").innerHTML = newHours+" hours";
+                        drag.up().down(".semesterHours").innerHTML = oldHours+" hours";
+                        //move the class
+                        drop.appendChild(drag);
+                    }
+                });
+            }
+        });
+    });
+}
+
+/**
+ * Makes a class movable within the semester list.
+ *
+ * @param OBJECT course The course that can be dragged between semesters.
+ * @return VOID
+ */
+lusa.makeClassMovable = function(course) {
+    if(!lusa.isSummaryView()) {
+        return;
+    }
+
+    options = {revert: true, scroll: window};
+    new Draggable(course.id, options);
+}
+
+/**
  * Marks all unused classes that have been taken as draggable.
  *
  * @return VOID
  */
 lusa.makeClassesDraggable = function() {
     $$(".incompleteClass").each(function(course) {
-        id = course.id;
         options = {revert: true, scroll: window};
-        new Draggable(id, options);
+        new Draggable(course.id, options);
     });
 }
 
 /**
  * Makes a class droppable and able to be completed.
  *
+ *  * @param OBJECT course The course that can be completed.
  * @return VOID
  */
 lusa.makeClassCompletable = function(course) {

@@ -14,7 +14,7 @@ Alpha 3
 ✓Provide links where appropriate back to the course catalog
 
 Beta 1
-From summary view, ability to move classes between semesters
+✓From summary view, ability to move classes between semesters
 From summary view, ability to add and remove semesters
 
 Beta 2

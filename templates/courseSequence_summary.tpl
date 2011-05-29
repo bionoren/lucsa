@@ -4,7 +4,7 @@
 {extends file="courseSequence.tpl"}
 {block name="classInfo"}
     {foreach $cs->getSemesters() as $semester}
-        <td valign="top">
+        <td valign="top" class="semesterClasses" id="{$semester->getUID()}" data-id="{$semester->getUID()}" data-hours="{$semester->getHours() - $semester->getCompletedHours()}">
             {include file="semester.tpl" semester=$semester}
         </td>
         {if $semester->getID() == Semester::$SEMESTERS[0]}

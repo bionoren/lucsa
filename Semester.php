@@ -184,6 +184,15 @@
         }
 
         /**
+         * Returns a unique ID for this semester instance.
+         *
+         * @return STRING UID.
+         */
+        public function getUID() {
+            return $this->order;
+        }
+
+        /**
          * Getter for the year for this semester
          *
          * @return INTEGER Semester year
