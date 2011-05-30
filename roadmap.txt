@@ -42,6 +42,6 @@ suggest non-ID substitutions that others have used
 
 ---------------------FEATURE FREEZE----------------------
 Version 2.0 RC1
-XHTML, CSS, Section 508 compliant
+HTML 5, CSS 3, Section 508 compliant
 
 Version 2.0
