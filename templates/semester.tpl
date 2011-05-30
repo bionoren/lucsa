@@ -1,7 +1,7 @@
 {* @param Semester $semester *}
 
 <span class="semesterTitle{if $semester->getCompletedHours() == $semester->getHours()} strike{/if}">
-    {Semester::$CARDINAL_STRINGS[$order-1]} Semester - {Semester::$SEMESTERS[$semester->getID()]} {$semester->getYear()}
+    {Semester::$CARDINAL_STRINGS[$semester->getOrder()-1]} Semester - {Semester::$SEMESTERS[$semester->getID()]} {$semester->getYear()}
 </span>
 <span class="semesterHours{if {$semester->getCompletedHours()} == {$semester->getHours()}} strike{/if}">
     {$semester->getHours() - $semester->getCompletedHours()} hours

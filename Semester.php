@@ -184,6 +184,15 @@
         }
 
         /**
+         * Returns this semester's order in the course sequence.
+         *
+         * @return INTEGER Semester order.
+         */
+        public function getOrder() {
+            return $this->order;
+        }
+
+        /**
          * Returns a unique ID for this semester instance.
          *
          * @return STRING UID.

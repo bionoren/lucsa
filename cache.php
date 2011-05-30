@@ -30,6 +30,7 @@
 //    $yearArray = $result->fetchArray(SQLITE3_ASSOC);
 //    $year = $yearArray["year"];
 //    $yearID = $yearArray["ID"];
+$debug = false;
 while($row = $result->fetchArray()) {
     $year = $row["year"];
     $yearID = $row["ID"];
@@ -81,7 +82,12 @@ while($row = $result->fetchArray()) {
         $i = 1;
         foreach($sems as $sem) {
             $classes = array();
-            preg_match_all("/\>(\w{4}|&nbsp;).*?\>(\d{4}|&nbsp;).*?\<a.*?href=(\"|').*?(\d+)\\3.*?\>\s*(.*?)\s*(?:\(\s*L\s*\)\s*)?\<.*?\<span.*?extra.*?\>\s*(.*?)\s*\<.*?(?:acronym.*?title=(\"|')(.*?)\\7.*?)?\<\/td\>\<\/tr\>\<\/tr\>/is", $sem, $classes, PREG_SET_ORDER);
+            preg_match_all("/\>(\w{4}|&nbsp;).*?\>(\d{4}|&nbsp;).*?\<a.*?href=(\"|').*?(\d+)\\3.*?\>\s*(.*?)\s*(?:\(\s*L\s*\)\s*)?\<.*?\<span.*?extra.*?\>\s*(.*?)\s*\<.*?(?:acronym.*?title=(\"|')(.*?)\\7.*?)?\<\/td\>\<\/tr\>/is", $sem, $classes, PREG_SET_ORDER);
+            if(!$debug || ($year == 2010 && !$classes)) {
+                $debug = true;
+                print "<span style='color:red;'>NO CLASSES</span><br>\n";
+                print "$sem\n\n<br><br>";
+            }
             foreach($classes as $class) {
                 if($class[5] == "Fulfill English Proficiency Requirement") {
                     continue;

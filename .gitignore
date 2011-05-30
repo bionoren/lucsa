@@ -6,3 +6,4 @@ cache*
 future*
 documentation/*
 templates_c
+sqliteTest.php
