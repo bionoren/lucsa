@@ -108,6 +108,8 @@ lusa.makeSemestersDroppable = function() {
                         oldHours -= hours;
                         drop.down(".semesterHours").innerHTML = newHours+" hours";
                         drag.up().down(".semesterHours").innerHTML = oldHours+" hours";
+                        drop.setAttribute("data-hours", newHours);
+                        drag.up().setAttribute("data-hours", oldHours);
                         //move the class
                         drop.appendChild(drag);
                     }
