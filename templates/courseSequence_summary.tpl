@@ -7,7 +7,7 @@
         <td valign="top" class="semesterClasses" id="{$semester->getUID()}" data-id="{$semester->getUID()}" data-hours="{$semester->getHours() - $semester->getCompletedHours()}">
             {include file="semester.tpl" semester=$semester}
         </td>
-        {if $semester->getID() == Semester::$SEMESTERS[0]}
+        {if $semester->getID() == 1}
             </tr><tr>
         {/if}
     {/foreach}

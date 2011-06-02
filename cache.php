@@ -30,7 +30,6 @@
 //    $yearArray = $result->fetchArray(SQLITE3_ASSOC);
 //    $year = $yearArray["year"];
 //    $yearID = $yearArray["ID"];
-$debug = false;
 while($row = $result->fetchArray()) {
     $year = $row["year"];
     $yearID = $row["ID"];
@@ -77,16 +76,24 @@ while($row = $result->fetchArray()) {
 
         $data = preg_replace("/^.*?\<\/td\>\<\/tr\>\<tr\>\<td\>.*?table.*?\>\<tr\>\<td.*?\>/is", "", $data);
         $data = preg_replace("/\<div.*?\>Total.*/is", "", $data);
-        $sems = preg_split("/\<\/table.*?\<table.*?\<table.*?\>\<\/table.*?\>/is", "</table<table".$data);
+        $sems = preg_split("/\<td [^\>]*?class=\"sem-title[^\"]*?\"\>/is", $data);
         array_shift($sems);
         $i = 1;
+        $lastSemesterWasSpring = false;
         foreach($sems as $sem) {
+            preg_match("/\s*(\w+)\s+\d{4}\</is", $sem, $semester);
+            if(!stristr($semester[1], "summer") && $lastSemesterWasSpring) {
+                $i++;
+                $lastSemesterWasSpring = false;
+            } elseif(stristr($semester[1], "spring")) {
+                $lastSemesterWasSpring = true;
+            } else {
+                $lastSemesterWasSpring = false;
+            }
             $classes = array();
-            preg_match_all("/\>(\w{4}|&nbsp;).*?\>(\d{4}|&nbsp;).*?\<a.*?href=(\"|').*?(\d+)\\3.*?\>\s*(.*?)\s*(?:\(\s*L\s*\)\s*)?\<.*?\<span.*?extra.*?\>\s*(.*?)\s*\<.*?(?:acronym.*?title=(\"|')(.*?)\\7.*?)?\<\/td\>\<\/tr\>/is", $sem, $classes, PREG_SET_ORDER);
-            if(!$debug || ($year == 2010 && !$classes)) {
-                $debug = true;
-                print "<span style='color:red;'>NO CLASSES</span><br>\n";
-                print "$sem\n\n<br><br>";
+            preg_match_all("/\>(\w{3,4}|&nbsp;).*?\>(\d{4}|&nbsp;).*?\<a.*?href=(\"|').*?(\d+)\\3.*?\>\s*(.*?)\s*(?:\(\s*L\s*\)\s*)?\<.*?\<span.*?extra.*?\>\s*(.*?)\s*\<.*?(?:acronym.*?title=(\"|')(.*?)\\7.*?)?\s*\<\/td\>\<\/tr\>/is", $sem, $classes, PREG_SET_ORDER);
+            if(!$classes) {
+                continue;
             }
             foreach($classes as $class) {
                 if($class[5] == "Fulfill English Proficiency Requirement") {

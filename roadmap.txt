@@ -16,6 +16,12 @@ Alpha 3
 Beta 1
 ✓From summary view, ability to move classes between semesters
 From summary view, ability to add and remove semesters
+    should always show summers
+    if a year is empty, collapse it to just the semester title bars
+    always display an extra collapsed year
+    if a class is added anywhere to the last blank year, add a new blank year.
+    there should only ever be 1 extra blank year
+    in the database, keep numbering semesters sequentially (1 for fall, 3 for summer, 4 for next fall, etc)
 
 Beta 2
 Support for 0 to many majors and 0 to many minors

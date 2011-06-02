@@ -50,7 +50,7 @@
          *
          * @param ARRAY $row Associative array of database info.
          */
-        public function __construct(array $row) {
+        protected function __construct(array $row) {
             $this->id = $row["ID"];
             $this->year = $row["year"];
             $this->linkid = $row["linkid"];
@@ -60,13 +60,10 @@
             $this->notes = new Notes();
             $year = $this->year;
             $semNum = Semester::FALL;
-            for($i = 1; $i <= $row["numSemesters"]; $i++) {
+            for($i = 1; $i <= $row["numSemesters"]+3; $i++) {
                 $tmp = Semester::getFromDegree($this->id, $i, $this->notes);
                 $tmp->setYear($year);
                 $tmp->setSemester($semNum++%count(Semester::$SEMESTERS));
-                if($semNum%count(Semester::$SEMESTERS) == Semester::SUMMER) {
-                    $semNum++;
-                }
                 if($semNum%count(Semester::$SEMESTERS) == Semester::SPRING) {
                     $year++;
                 }
