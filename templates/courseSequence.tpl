@@ -3,7 +3,7 @@
 
 <table id="{$cs->getID()}">
     <tr>
-        <td colspan="2" class="majorTitle">
+        <td colspan="3" class="majorTitle">
             <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&degree={$cs->getLink()}">{$cs->getName()} ({$cs->getAcronym()})</a>
             <br/>
             <span class="sequenceTitle">
@@ -22,7 +22,7 @@
     </tr>
     {block name=classInfo}{/block}
     <tr>
-        <td colspan="2" style="text-align:center;">
+        <td colspan="3" style="text-align:center;">
             Completed Hours: <span id="{$cs->getID()}-completedHours">{$cs->getCompletedHours()}</span>
             <br/>
             Remaining Hours: <span id="{$cs->getID()}-remainingHours">{$cs->getHours()-$cs->getCompletedHours()}</span>

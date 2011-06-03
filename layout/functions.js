@@ -104,6 +104,14 @@ lusa.makeSemestersDroppable = function() {
                         hours = parseInt(drag.getAttribute("data-hours"));
                         newHours = parseInt(drop.getAttribute("data-hours"));
                         oldHours = parseInt(drag.up().getAttribute("data-hours"));
+                        if(newHours == 0 && hours > 0) {
+                            drop.down(".semesterTitle").removeClassName("strike");
+                            drop.down(".semesterHours").removeClassName("strike");
+                        }
+                        if(hours > 0 && oldHours == hours) {
+                            drag.up().down(".semesterTitle").addClassName("strike");
+                            drag.up().down(".semesterHours").addClassName("strike");
+                        }
                         newHours += hours;
                         oldHours -= hours;
                         drop.down(".semesterHours").innerHTML = newHours+" hours";
