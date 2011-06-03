@@ -138,7 +138,7 @@ lusa.makeClassMovable = function(course) {
         return;
     }
 
-    options = {revert: true, scroll: window, handle:"classNumber"};
+    options = {revert: true, scroll: window};
     new Draggable(course.id, options);
 }
 

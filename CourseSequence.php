@@ -60,7 +60,8 @@
             $this->notes = new Notes();
             $year = $this->year;
             $semNum = Semester::FALL;
-            for($i = 1; $i <= $row["numSemesters"]+3; $i++) {
+            $extra = 5-($row["numSemesters"]%3);
+            for($i = 1; $i <= $row["numSemesters"]+$extra; $i++) {
                 $tmp = Semester::getFromDegree($this->id, $i, $this->notes);
                 $tmp->setYear($year);
                 $tmp->setSemester($semNum++%count(Semester::$SEMESTERS));

@@ -1,7 +1,7 @@
 {* @param Course $class *}
 {* @param INTEGER $year *}
 
-<span id="{$class->getUID()}" class="classOverlay {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}" data-hours="{$class->getHours()}">
+<span id="{$class->getUID()}" class="classOverlay {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}move{else}noMove{/if} {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}" data-hours="{$class->getHours()}">
     <div class="overlay{if !{$class->isComplete()}} hidden{/if}">
         Completed By:
         <br/>
@@ -13,7 +13,7 @@
     <span class="classDepartment">
         <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&school={$class->getDepartmentLink()}&cmd=courselist">{$class->getDepartment()}</a>
     </span>
-    <span class="classNumber {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}move{else}noMove{/if}">
+    <span class="classNumber">
         | {$class->getNumber()}
     </span>
     <span class="classTitle">
