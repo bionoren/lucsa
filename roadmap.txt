@@ -25,13 +25,13 @@ Beta 1
 
 Beta 2
 Support for 0 to many majors and 0 to many minors
-    Tabs for multiple majors, with one tab showing the combined course sequence
+    Tabs for multiple majors
 Add ability to select minors
 
 ---------------------FEATURE FREEZE----------------------
 RC1
 tested
-HTML 5, CSS 3, Section 508 compliant
+HTML 5, CSS 3 compliant
 
 RC2
 Security Audit
@@ -48,6 +48,6 @@ suggest non-ID substitutions that others have used
 
 ---------------------FEATURE FREEZE----------------------
 Version 2.0 RC1
-HTML 5, CSS 3, Section 508 compliant
+HTML 5, CSS 3 compliant
 
 Version 2.0

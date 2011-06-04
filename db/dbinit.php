@@ -88,18 +88,25 @@
     $field = new DBField("user", DBField::STRING); //hash of username
     $field->setUnique();
     $fields[] = $field;
-    $fields[] = new DBField("salt", DBField::STRING);
-    $fields[] = new DBField("majors", DBField::STRING);
-    $fields[] = new DBField("minors", DBField::STRING);
     $db->createTable("users", $fields);
 
     //course subsitutions for individual users
     $fields = array();
-    $fields[] = new DBField("userID", DBField::NUM, -1, "users");
+    $field = new DBField("userID", DBField::NUM, -1, "users");
+    $field->setIndexed();
+    $fields[] = $field;
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
-    $db->query("CREATE INDEX IF NOT EXISTS userID ON userClassMap (userID)");
+
+    //tabs
+    $fields = array();
+    $field = new DBField("userID", DBField::NUM, -1, "users");
+    $field->setIndexed();
+    $fields[] = $field;
+    $fields[] = new DBField("number", DBField::NUM);
+    $fields[] = new DBField("degreeList", DBField::STRING);
+    $db->createTable("userTabs", $fields);
 
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");

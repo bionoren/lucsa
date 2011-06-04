@@ -64,7 +64,8 @@
 	 * @return STRING File contents.
 	 */
     function getCache($file, $cache=true) {
-        $name = "cache/".md5($file).".tmp";
+        global $path;
+        $name = $path."cache/".md5($file).".tmp";
         if($cache && file_exists($name)) {
             return file_get_contents($name);
         } else {
@@ -133,7 +134,7 @@
                 if($row != false) {
                     $userID = $_SESSION["userID"] = $row["ID"];
                 } else {
-                    $db->insert("users", array("user"=>$name, "salt"=>$salt));
+                    $db->insert("users", array("user"=>$name));
                     $userID = $_SESSION["userID"] = $db->getLastInsertID();
                 }
                 unset($salt);
