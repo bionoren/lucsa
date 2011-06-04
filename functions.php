@@ -219,4 +219,22 @@
         $sql = "UPDATE degreeCourseMap SET semester=$newSem WHERE $where AND ID IN ($select)";
         SQLiteManager::getInstance()->query($sql);
     }
+
+    function updateDegreeSemesters($degree, $oldSem, $newSem) {
+        $db = SQLiteManager::getInstance();
+        $numSemesters = $db->select("degrees", array("numSemesters"), array("ID"=>$degree))->fetchArray(SQLITE3_NUM);
+        $numSemesters = $numSemesters[0];
+        //check to see if we need more semesters
+        if($newSem > $numSemesters) {
+            $db->update("degrees", array("numSemesters"=>$newSem), array("ID"=>$degree));
+        } elseif($oldSem == $numSemesters) {
+            //check to see if we need less semesters
+            $result = $db->select("degreeCourseMap", array("ID"), array("degreeID"=>$degree, "semester"=>$oldSem));
+            if(!$result->fetchArray(SQLITE3_NUM)) {
+                $lastSemesterSQL = "SELECT semester FROM degreeCourseMap WHERE degreeID=$degree ORDER BY semester DESC LIMIT 1";
+                $sql = "UPDATE degrees SET numSemesters = ($lastSemesterSQL) WHERE ID=$degree";
+                $db->query($sql);
+            }
+        }
+    }
 ?>

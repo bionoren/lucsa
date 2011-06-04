@@ -53,6 +53,10 @@
     }
 
     if($mode == "moveClass") {
-        moveClass($_REQUEST["degree"], $_REQUEST["oldSemester"], $_REQUEST["semester"], $_REQUEST["course"]);
+        $degree = $_REQUEST["degree"];
+        $oldSemester = $_REQUEST["oldSemester"];
+        $semester = $_REQUEST["semester"];
+        moveClass($degree, $oldSemester, $semester, $_REQUEST["course"]);
+        updateDegreeSemesters($degree, $oldSemester, $semester);
     }
 ?>
