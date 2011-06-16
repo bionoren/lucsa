@@ -12,6 +12,10 @@
  *	limitations under the License.
  */
 
+function clearClassConfirm(formName) {
+    return confirm('Are you sure you want to clear all class associations?');
+}
+
 /**
  * Returns the value for a given URL GET parameter.
  *
@@ -43,6 +47,8 @@ var lusa = {}
  * @return VOID
  */
 lusa.init = function() {
+    new Control.Tabs('tabbar');
+
     //init the substitutable classes
     lusa.makeClassesDraggable();
 

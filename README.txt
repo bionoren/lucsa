@@ -1,4 +1,5 @@
-requires PHP >= 5.3.1 for bundled sqlite >= 3.6.19 support, which includes foreign keys (or PHP >= 5.3 with SQLite >= 3.6.19 bindings)
+Requires PHP >= 5.2.x where I'm not sure what x is.
+Optionally uses PHP >= 5.3.1 for bundled sqlite >= 3.6.19 support, which includes foreign keys (or PHP >= 5.3 with SQLite >= 3.6.19 bindings)
 NOTE: PHP >= 5.3.3 is STRONGLY recommended because of stability concerns with 5.3.1 through 5.3.2
 requires Smarty >= 3.0
 requires Prototype >= 1.6

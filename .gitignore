@@ -7,3 +7,4 @@ future*
 documentation/*
 templates_c
 sqliteTest.php
+layout/libs/compiled.js

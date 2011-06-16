@@ -83,6 +83,7 @@
 		public function applySubstitions(ClassList $classesTaken, $user) {
 			$mapping = CourseSequence::getUserClassMap($user);
 			$mapping->sort();
+            $this->completeHours = 0;
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($classesTaken, $mapping);
                 $this->completeHours += $semester->getCompletedHours();

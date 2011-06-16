@@ -17,12 +17,10 @@
     date_default_timezone_set("America/Chicago");
     $path = "./";
 
+    require_once($path."smarty/Smarty.class.php");
     require_once($path."db/SQLiteManager.php");
     require_once($path."functions.php");
-    require_once($path."smarty/Smarty.class.php");
-    require_once($path."CourseSequence.php");
-    require_once($path."ClassList.php");
-    require_once($path."Autocompleter.php");
+    require_once($path."Tab.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -51,21 +49,19 @@
      * @return ARRAY array(CourseList courses, array degree).
      */
     function getUserInfoFromSession($sec) {
-        //don't ask. Just don't ask...
-        mdecrypt_generic($sec, base64_decode($_SESSION["rand"]));
-        $temp = explode("~", trim(mdecrypt_generic($sec, $_SESSION["degree"])));
+        $temp = explode("~", $_SESSION["degree"]);
         if(isset($_REQUEST["degree"])) {
             $degree = $_REQUEST["degree"];
         } else {
             $degree = $temp;
         }
-        $courses = unserialize(trim(mdecrypt_generic($sec, $_SESSION["courses"])));
+        $courses = unserialize($_SESSION["courses"]);
 
         return array($courses, $degree);
     }
 
     /**
-     * Retrieves the current user's information from their academic record, encrypts the data,
+     * Retrieves the current user's information from their academic record,
      * stores it in the session, and cleans up any unneeded information.
      *
      * @param RESOURCE $sec Encryption descriptor.
@@ -74,7 +70,8 @@
      */
     function storeUserInfo($sec, array $majors) {
         //SECURITY NOTE: Remove this in production!
-        $data = getCache("https://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
+        $data = getCache("saved_cache/stugrdsa.cgi.html", false);
+//        $data = getCache("https://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
         unset($_SERVER['PHP_AUTH_USER']);
         unset($_SERVER['PHP_AUTH_PW']);
         if(empty($data)) {
@@ -93,7 +90,7 @@
             }
         }
         $matches = array();
-        preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})\s*\<.*?\<.*?\>(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
+        preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})(?:\s*\<.*?\<.*?\>){2}(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
         unset($data);
         $courses = new ClassList();
         foreach($matches as $matchset) {
@@ -103,10 +100,8 @@
             }
         }
 
-        //the first block was getting corrupt for some reason, so I'm filling it with junk
-        $_SESSION["rand"] = base64_encode(mcrypt_generic($sec, getKeyStr()));
-        $_SESSION["degree"] = mcrypt_generic($sec, implode("~", $degree));
-        $_SESSION["courses"] = mcrypt_generic($sec, serialize($courses));
+        $_SESSION["degree"] = implode("~", $degree);
+        $_SESSION["courses"] = serialize($courses);
 
         return array($courses, $degree);
     }
@@ -118,18 +113,11 @@
      * @return ARRAY array(CourseList courses, array degree)
      */
     function getUserInfo(array $majors) {
-        //Advanced Encryption Standard (AES) 256 with Cipher Block Chaining (CBC)
-        $sec = mcrypt_module_open("rijndael-256", "", "cbc", "");
-        $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($sec), MCRYPT_DEV_RANDOM);
-        $key = substr(md5(getKeyStr()), 0, mcrypt_enc_get_key_size($sec));
-        mcrypt_generic_init($sec, $key, $iv);
         if(isset($_SESSION["degree"])) {
             $ret = getUserInfoFromSession($sec);
         } else {
             $ret = storeUserInfo($sec, $majors);
         }
-        mcrypt_generic_deinit($sec);
-        mcrypt_module_close($sec);
 
         return $ret;
     }
@@ -169,7 +157,6 @@
     $majors = getMajors($yearKey);
 
     //get the list of classes the user is already enrolled in and their currently declared degree(s)
-
     if(isset($_SERVER['HTTP_AUTHORIZATION']) && empty($_SERVER['PHP_AUTH_USER'])) {
         list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
     }
@@ -178,45 +165,19 @@
     } else {
         list($masterCourses, $degree) = getUserInfo($majors);
     }
-    $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-    $masterCourses[$transferClass->getID()] = $transferClass;
 
-    $degOptions = $majors;
-    $degrees = array();
-    foreach($degree as $deg) {
-        $degrees[] = $degOptions[$deg]["ID"];
-    }
-
-    $courseSequence;
-    $substitute = new ClassList();
-    $user = $_SESSION["userID"];
-
-    foreach($degrees as $deg) {
-        $courses = clone $masterCourses;
-        $courseSequence = CourseSequence::getFromID($deg);
-        $courseSequence->applySubstitions($courses, $user);
-        $courseSequences[] = $courseSequence;
-
-        $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
-        break;
-    }
-    if(isset($_REQUEST["autocomplete"])) {
-        foreach($courseSequences as $cs) {
-            $autocompleter = new Autocompleter($substitute, $cs->getClasses(), $cs->getNotes());
-            $autocompleter->substitute($user);
+    $tabs = Tab::getFromDB($userID);
+    if(empty($tabs)) {
+        $tab = Tab::getFromID();
+        foreach($degree as $deg) {
+            $tab->addDegree($majors[$deg]["ID"]);
         }
-        foreach($courseSequences as $cs) {
-            $courses = clone $masterCourses;
-            $cs->applySubstitions($courses, $user);
-
-            $substitute = ClassList::merge($substitute, $courses->filter(function(Course $class) { return !$class->isSubstitute; }));
-            break;
-        }
+        $tabs[] = $tab;
     }
-
-    $courses[$transferClass->getID()]->isSubstitute = false;
-    $substitute[$transferClass->getID()] = $transferClass;
-    $substitute->sort();
+    foreach($tabs as $tab) {
+        $tab->setClassesTaken($masterCourses);
+        $tab->finalize(isset($_REQUEST["autocomplete"]));
+    }
 
     $smarty = new Smarty();
     $data = new Smarty_Data();
@@ -224,8 +185,7 @@
     $data->assign("years", $years);
     $data->assign("degree", $degree);
     $data->assign("majors", $majors);
-    $data->assign("subClasses", $substitute);
-    $data->assign("courseSequences", $courseSequences);
+    $data->assign("tabs", $tabs);
 
     $smarty->display("index.tpl", $data);
 ?>

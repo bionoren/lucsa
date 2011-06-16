@@ -45,7 +45,12 @@
             }
             $this->query("PRAGMA synchronous = ".$this->sync);
             $this->query("PRAGMA journal_mode = ".$this->journal);
-            $this->query("PRAGMA foreign_keys = ON");
+            $version = explode(".", phpversion());
+            if($version[0] < 5) {
+                die("Your current PHP version is: ".phpversion()." - GO UPGRADE PHP RIGHT NOW!!!");
+            } elseif($version[1] >= 3 && $version[2] >= 1) {
+                $this->query("PRAGMA foreign_keys = ON");
+            }
         }
 
         /**
@@ -258,7 +263,7 @@
          * @param ARRAY $whereFields Associative array mapping field names to their values for building the where clause.
          * @return BOOLEAN True if the update succeeded.
          */
-        public function update($table, array $fields, array $whereFields=null) {
+        public function update($table, array $fields, array $whereFields=array()) {
             if(empty($table) || empty($fields)) {
                 return;
             }

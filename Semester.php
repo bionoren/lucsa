@@ -92,7 +92,7 @@
          */
         public function evalTaken(ClassList $classes, ClassList $mapping) {
             foreach($this->classes as $old=>$class) {
-                if(isset($mapping[$old])) {
+                if(!$class->isComplete() && isset($mapping[$old])) {
                     $new = $mapping[$old];
                     $this->completeClass($class, $classes[$new]);
                     unset($mapping[$old]);

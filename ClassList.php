@@ -71,21 +71,17 @@
          * @return ClassList $list1 xor $list2.
          */
         protected function diffHelper(ClassList $list1, ClassList $list2) {
-            $this->classes = $list1->classes;
-            $this->count = $list1->count();
-            foreach($this->classes as $id=>$arr) {
+            foreach($list1->classes as $id=>$arr) {
                 foreach($arr as $class) {
-                    if(isset($list2->classes[$id]) && in_array($class, $list2->classes[$id], true)) {
-                        foreach($list2->classes[$id] as $class2) {
-                            if($class->equals($class2)) {
-                                unset($this->classes[$key][$key]);
-                                $this->count--;
-                                break;
-                            }
-                        }
-                    } else {
-                        $this->classes[$id][] = $class;
-                        $this->count++;
+                    if(!isset($list2->classes[$id]) || !in_array($class, $list2->classes[$id], true)) {
+                        $this[$id] = $class;
+                    }
+                }
+            }
+            foreach($list2->classes as $id=>$arr) {
+                foreach($arr as $class) {
+                    if(!isset($list1->classes[$id]) || !in_array($class, $list1->classes[$id], true)) {
+                        $this[$id] = $class;
                     }
                 }
             }

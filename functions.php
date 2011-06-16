@@ -76,15 +76,6 @@
     }
 
 	/**
-	 * Returns a private key for use in encryption.
-	 *
-	 * @return STRING Private key.
-	 */
-    function getKeyStr() {
-        return "Curse:DuckInADungeon. You should know better than to pick up a duck in a dungeon.";
-    }
-
-	/**
 	 * Gets a list of all the majors we have data for.
 	 *
 	 * @param INTEGER $year The year to fetch data for.

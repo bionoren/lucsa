@@ -40,11 +40,14 @@ Version 1.0
 =========================================================
 
 Version 2.0 Alpha 1
-Integration with LUSA
+Ability to compare tabs (intersect and diff)
 
 Version 2.0 Beta 1
 Rank all majors by distance in hours
 suggest non-ID substitutions that others have used
+
+Version 2.0 Beta 2
+Integration with LUSA
 
 ---------------------FEATURE FREEZE----------------------
 Version 2.0 RC1
