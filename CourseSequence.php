@@ -44,6 +44,7 @@
         protected $type;
         /** INTEGER The year this course sequence is supposed to start. */
         protected $year;
+        protected $classesTaken = null;
 
         /**
          * Conctructs a new course sequence from database information.
@@ -73,19 +74,39 @@
             }
         }
 
+        public static function merge(CourseSequence $cs1, CourseSequence $cs2) {
+            $ret = new CourseSequence();
+            $classList1 = clone $cs1->getClasses();
+            $classList2 = clone $cs2->getClasses();
+            foreach($classList1 as $class1) {
+                if($classList2[$class1->getID()]) {
+                }
+            }
+            return $ret;
+        }
+
+        public static function diff(CourseSequence $cs1, CourseSequence $cs2) {
+            $ret = new CourseSequence();
+            return $ret;
+        }
+
+        public static function intersect(CourseSequence $cs1, CourseSequence $cs2) {
+            $ret = new CourseSequence();
+            return $ret;
+        }
+
         /**
          * Applies course substitutions in this major for a given user.
          *
-         * @param ClassList $classesTaken List of classes that have been taken.
          * @param INTEGER $user The ID of user who has taken said classes.
          * @return VOID
          */
-		public function applySubstitions(ClassList $classesTaken, $user) {
+		public function applySubstitions($user) {
 			$mapping = CourseSequence::getUserClassMap($user);
 			$mapping->sort();
             $this->completeHours = 0;
             foreach($this->semesters as $semester) {
-                $semester->evalTaken($classesTaken, $mapping);
+                $semester->evalTaken($this->classesTaken, $mapping);
                 $this->completeHours += $semester->getCompletedHours();
             }
         }
@@ -235,6 +256,10 @@
          */
         protected function getYear() {
             return $this->year;
+        }
+
+        public function setClassesTaken(ClassList $classesTaken) {
+            $this->classesTaken = clone $classesTaken;
         }
 
         /**

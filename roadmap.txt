@@ -26,6 +26,15 @@ Beta 1
 Beta 2
 Support for 0 to many majors and 0 to many minors
     Tabs for multiple majors
+Have a popover window similar to calendar interface for class completion and links back to catalog
+    remove main interface catalog links
+    make drag and drop class completion on to the popover window space only
+
+Beta 3
+Allow users to use LUCSA without logging in
+    Show the transfer credit class in the substitutable class area with the login form
+
+Beta 4
 Add ability to select minors
 
 ---------------------FEATURE FREEZE----------------------

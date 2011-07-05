@@ -87,21 +87,21 @@
                 $autocompleter->substitute($this::$userID);
             }
             foreach($this->sequences as $cs) {
-                $cs->applySubstitions($this->substitute, $this::$userID);
+                $cs->applySubstitions($this::$userID);
             }
-            $this->substitute = $this->classesTaken->filter(function(Course $class) { return !$class->isSubstitute; });
+            $this->substitute = $this->substitute->filter(function(Course $class) { return !$class->isSubstitute; });
         }
 
         public function addDegree($degree) {
-            $courses = clone $this->classesTaken;
             $courseSequence = CourseSequence::getFromID($degree);
+            $courseSequence->setClassesTaken($this->classesTaken);
             $this->sequences[$courseSequence->getID()] = $courseSequence;
             $this->modified = true;
         }
 
         public function finalize($autocomplete=false) {
             foreach($this->sequences as $sequence) {
-                $sequence->applySubstitions($this->classesTaken, $this::$userID);
+                $sequence->applySubstitions($this::$userID);
             }
             $this->substitute = $this->classesTaken->filter(function(Course $class) { return !$class->isSubstitute; });
 
@@ -124,6 +124,9 @@
 
         public function setClassesTaken(ClassList $classesTaken) {
             $this->classesTaken = clone $classesTaken;
+            foreach($this->sequences as $cs) {
+                $cs->setClassesTaken($this->classesTaken);
+            }
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
             if(empty($this->classesTaken[$transferClass->getID()])) {
                 $this->classesTaken[$transferClass->getID()] = $transferClass;

@@ -257,7 +257,7 @@
          * Adds a value to the list.
          *
          * @param STRING $index Key to insert with.
-         * @param Course $value Item to insert at $index.
+         * @param MIXED $value Item to insert at $index.
          * @return VOID
          */
         public function offsetSet($index, $value) {
@@ -308,6 +308,18 @@
          */
         public function valid() {
             return current($this->classes) !== false;
+        }
+
+        public function __clone() {
+            $temp = $this->classes;
+            $this->classes = array();
+            $this->count = 0;
+            $this->innerCount = 0;
+            foreach($temp as $key=>$arr) {
+                foreach($arr as $class) {
+                    $this[$key] = clone $class;
+                }
+            }
         }
 
         public function __toString() {

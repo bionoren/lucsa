@@ -23,9 +23,8 @@
 
     //catalogs
     $fields = array();
-    $field = new DBField("year", DBField::NUM);
+    $fields[] = $field = new DBField("year", DBField::NUM);
     $field->setUnique();
-    $fields[] = $field;
     $fields[] = new DBField("updated", DBField::NUM, 0); //nothing, deep, majors, both
     $db->createTable("years", $fields);
 
@@ -42,9 +41,8 @@
 
     //departments
     $fields = array();
-    $field = new DBField("department", DBField::STRING);
+    $fields[] = $field = new DBField("department", DBField::STRING);
     $field->setUnique();
-    $fields[] = $field;
     $fields[] = new DBField("title", DBField::STRING);
     $fields[] = new DBField("linkid", DBField::NUM);
     $db->createTable("departments", $fields);
@@ -85,25 +83,31 @@
 
     //users
     $fields = array();
-    $field = new DBField("user", DBField::STRING); //hash of username
+    $fields[] = $field = new DBField("user", DBField::STRING); //hash of username
     $field->setUnique();
-    $fields[] = $field;
     $db->createTable("users", $fields);
 
     //course subsitutions for individual users
     $fields = array();
-    $field = new DBField("userID", DBField::NUM, -1, "users");
+    $fields[] = $field = new DBField("userID", DBField::NUM, -1, "users");
     $field->setIndexed();
-    $fields[] = $field;
     $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
     $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
     $db->createTable("userClassMap", $fields);
 
+    $fields = array();
+    $fields[] = $field = new DBField("userID", DBField::NUM, -1, "users");
+    $field->setIndexed();
+    $fields[] = new DBField("oldDegreeID", DBField::NUM, -1, "degrees");
+    $fields[] = new DBField("newDegreeID", DBField::NUM, -1, "degrees");
+    $fields[] = new DBField("oldClassID", DBField::NUM, -1, "classes");
+    $fields[] = new DBField("newClassID", DBField::NUM, -1, "classes");
+    $db->createTable("userDegreeClassMap", $fields);
+
     //tabs
     $fields = array();
-    $field = new DBField("userID", DBField::NUM, -1, "users");
+    $fields[] = $field = new DBField("userID", DBField::NUM, -1, "users");
     $field->setIndexed();
-    $fields[] = $field;
     $fields[] = new DBField("number", DBField::NUM);
     $fields[] = new DBField("degreeList", DBField::STRING);
     $db->createTable("userTabs", $fields);

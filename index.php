@@ -174,6 +174,11 @@
         }
         $tabs[] = $tab;
     }
+    if(isset($_REQUEST["degree"])) {
+        foreach($_REQUEST["degree"] as $degree) {
+            $tabs[0]->addDegree($majors[$degree]["ID"]);
+        }
+    }
     foreach($tabs as $tab) {
         $tab->setClassesTaken($masterCourses);
         $tab->finalize(isset($_REQUEST["autocomplete"]));
@@ -183,7 +188,6 @@
     $data = new Smarty_Data();
     $data->assign("year", $year);
     $data->assign("years", $years);
-    $data->assign("degree", $degree);
     $data->assign("majors", $majors);
     $data->assign("tabs", $tabs);
 
