@@ -14,8 +14,8 @@
     <li class="tab"><a href="#newTab">+</a></li>
 </ul>
 {foreach $tabs as $tab}
-    <div id="tab{$tab@index}">
-        <div id="classSubs{$tab@index}" style="float:left; width:250px; font-size:12px;">
+    <div id="tab{$tab@iteration}">
+        <div id="classSubs{$tab@iteration}" style="float:left; width:250px; font-size:12px;">
             <form method="post" action=".">
                 <input type="hidden" name="reset" value="1">
                 <input type="hidden" name="year" value="{$year}">
