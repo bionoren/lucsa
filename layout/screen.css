@@ -78,7 +78,8 @@ td {
 }
 
 .footnote, span.endNote {
-    color:#990000;
+    color:rgb(180, 0, 0);
+    vertical-align:super;
 }
 
 td.endNote {
@@ -91,7 +92,7 @@ td.endNote {
 }
 
 .strike {
-    color:rgb(200, 200, 200);
+    color:rgb(100, 100, 100);
     background-color:rgb(240, 239, 245);
 }
 
@@ -125,10 +126,6 @@ td.endNote {
     padding:2px;
 }
 
-.classOverlay:hover {
-    z-index:50;
-}
-
 .noMove .noMove:hover {
     cursor: default;
 }
@@ -137,22 +134,14 @@ td.endNote {
     cursor: move;
 }
 
-.classOverlay .overlay {
+.classOverlay .hovercard {
     position:absolute;
     visibility:hidden;
-    background-color:magenta;
     padding:5px;
     color:black;
-    left:80px;
+    left:43px;
     width:100%;
-}
-
-.overlay .classDepartment, .overlay .classNumber, .overlay .classTitle {
-    float:none;
-}
-
-.classOverlay:hover .overlay {
-    visibility:visible;
+    z-index:50;
 }
 
 .ximage {
@@ -223,4 +212,61 @@ ul.subsection_tabs li.tab a:hover {
 
 ul.subsection_tabs li.tab a.active {
     background-color:#ddd;
+}
+
+/* Subsection Class Overlays
+------------------------------*/
+.bubble-content {
+    position: absolute;
+    margin: 10px 0 11px 0;
+    border: 4px solid #ddd;
+    border-width: 5px 4px 4px 4px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background: white;
+    overflow: hidden;
+    -moz-box-shadow: #aaa 0 1px 0;
+    -webkit-box-shadow: #aaa 0 1px 0;
+}
+
+.bubble-divot {
+    left: 16px;
+    width: 27px;
+    height: 15px;
+    background-repeat: no-repeat;
+}
+
+.bubble-divot-bottom {
+    position: absolute;
+    bottom: 0px;
+    background-image: url(../images/divvy.png);
+}
+
+.ie .bubble-divot-bottom,
+.ff3 .bubble-divot-bottom,
+.opera .bubble-divot-bottom {
+    background-image: url(../images/divvy.gif);
+}
+
+.bubble-divot-top {
+    position: absolute;
+    top: 0px;
+    background-image: url(../images/divvy-up.gif);
+}
+
+.hovercard {
+    position:relative;
+    margin: 0;
+    padding: 0;
+}
+
+.hovercard-inner .bd {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.hovercard-inner .hovercard-inner-footer {
+    background: rgb(235, 235, 235);
+    height: 39px;
 }

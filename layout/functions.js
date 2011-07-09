@@ -67,6 +67,40 @@ lusa.init = function() {
     $$(".ximage").each(function(course) {
         lusa.markUncompletableClass(course);
     });
+
+    //init the class overlays
+    $$(".hovercard").each(function(overlay) {
+        lusa.activateOverlay(overlay);
+    });
+    Event.observe(document.body, "click", function(event) {
+        lusa.globalClassPopover.setStyle({
+            visibility: "hidden"
+        });
+    });
+};
+
+lusa.globalClassPopover = null;
+
+lusa.activateOverlay = function(overlay) {
+    Event.observe(overlay.next(".summary"), "click", function(event) {
+        if(lusa.globalClassPopover) {
+            lusa.globalClassPopover.setStyle({
+                visibility: "hidden"
+            });
+        }
+        lusa.globalClassPopover = overlay;
+        overlay.setStyle({
+            visibility: "visible"
+        });
+        event.stop();
+    });
+    Event.observe(overlay, "click", function(event) {
+        lusa.globalClassPopover.setStyle({
+            visibility: "hidden"
+        });
+        lusa.globalClassPopover = null;
+        event.stop();
+    });
 };
 
 /**
@@ -77,7 +111,7 @@ lusa.init = function() {
 lusa.isSummaryView = function() {
     mode = getURLParam("disp");
     return mode == null || mode == "summary";
-}
+};
 
 /**
  * Makes the semesters droppable for rearranging classes between semesters.
