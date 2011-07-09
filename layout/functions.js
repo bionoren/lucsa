@@ -12,7 +12,12 @@
  *	limitations under the License.
  */
 
-function clearClassConfirm(formName) {
+/**
+ * Confirms if the user wants to clear all class associations
+ *
+ * @return BOOLEAN True if all class associations should be cleared.
+ */
+function clearClassConfirm() {
     return confirm('Are you sure you want to clear all class associations?');
 }
 
@@ -79,8 +84,15 @@ lusa.init = function() {
     });
 };
 
+/** @var Element Reference to the currently visible class popover. */
 lusa.globalClassPopover = null;
 
+/**
+ * Sets up event handlers to show and hide a class popover.
+ *
+ * @param Element overlay Container for the popover content.
+ * @return VOID
+ */
 lusa.activateOverlay = function(overlay) {
     Event.observe(overlay.next(".summary"), "click", function(event) {
         if(lusa.globalClassPopover) {
@@ -98,7 +110,6 @@ lusa.activateOverlay = function(overlay) {
         lusa.globalClassPopover.setStyle({
             visibility: "hidden"
         });
-        lusa.globalClassPopover = null;
         event.stop();
     });
 };

@@ -7,3 +7,20 @@ requires Scriptaculous >= 1.5
 
 requires Doxygen >= 1.7.2 to generate documentation
 requires the DOT tool (part of graphviz) to generate graphs in documentation
+
+
+CODE ORGANIZATION:
+
+Code in classes is structured in the following way:
+
+dependencies (require statements)
+class {
+    constants (alphabetized)
+    static variables (alphabetized)
+    instance variables (alphabetized)
+    constructor
+    class and instance methods (alphabetized)
+    magic methods (except __toString and __destruct)
+    __toString
+    __destruct
+}

@@ -74,27 +74,6 @@
             }
         }
 
-        public static function merge(CourseSequence $cs1, CourseSequence $cs2) {
-            $ret = new CourseSequence();
-            $classList1 = clone $cs1->getClasses();
-            $classList2 = clone $cs2->getClasses();
-            foreach($classList1 as $class1) {
-                if($classList2[$class1->getID()]) {
-                }
-            }
-            return $ret;
-        }
-
-        public static function diff(CourseSequence $cs1, CourseSequence $cs2) {
-            $ret = new CourseSequence();
-            return $ret;
-        }
-
-        public static function intersect(CourseSequence $cs1, CourseSequence $cs2) {
-            $ret = new CourseSequence();
-            return $ret;
-        }
-
         /**
          * Applies course substitutions in this major for a given user.
          *
@@ -155,6 +134,11 @@
             return $this->acronym;
         }
 
+        /**
+         * Getter for all the classes in this course sequence.
+         *
+         * @return ClassList List of classes.
+         */
         public function getClasses() {
             $ret = new ClassList();
             foreach($this->semesters as $sem) {

@@ -8,16 +8,14 @@
 {extends file="page.tpl"}
 {block name="body"}
 <ul id="tabbar" class="subsection_tabs">
-    {$i = 1}
     {foreach $tabs as $tab}
-        <li class="tab"><a href="#tab{$i}">Tab {$i++}</a></li>
+        <li class="tab"><a href="#tab{$tab@iteration}">Tab {$tab@iteration}</a></li>
     {/foreach}
     <li class="tab"><a href="#newTab">+</a></li>
 </ul>
-{$i = 1}
 {foreach $tabs as $tab}
-    <div id="tab{$i}">
-        <div id="classSubs{$i}" style="float:left; width:250px; font-size:12px;">
+    <div id="tab{$tab@index}">
+        <div id="classSubs{$tab@index}" style="float:left; width:250px; font-size:12px;">
             <form method="post" action=".">
                 <input type="hidden" name="reset" value="1">
                 <input type="hidden" name="year" value="{$year}">
@@ -39,7 +37,7 @@
                 {/if}
             {/foreach}
             <br/>
-            <form method="post" action="." id="clearClassesForm{$i++}">
+            <form method="post" action="." id="clearClassesForm{}">
                 <input type="submit" name="clearClasses" value="Clear All Class Associations" onclick="return clearClassConfirm('clearClassesForm')">
             </form>
         </div>
