@@ -2,8 +2,8 @@
 {* @param INTEGER $year *}
 
 <div class="hovercard">
-    <div class="bubble-content hovercard-inner" style="width: 300px;">
-        <div class="bd">
+    <div id="{$class->getUID()}-overlay" class="bubble-content hovercard-inner" style="width: 300px;">
+        <div id="{$class->getUID()}-overlay-header" class="bd">
             <span class="classDepartment">
                 <a href="http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year={$year}&school={$class->getDepartmentLink()}&cmd=courselist">{$class->getDepartment()}</a>
             </span>
@@ -44,6 +44,7 @@
                 {/if}
             </span>
         </div>
+        <div class="completingCourse">
         {if $class->isComplete()}
             Completed By:
             <br/>
@@ -52,6 +53,7 @@
                 {include file="course_sub.tpl" class=$class->getCompleteClass()}
             {/if}
         {/if}
+        </div>
         <div class="hovercard-inner-footer">
             Prerequesites:
             <br/>

@@ -78,9 +78,11 @@ lusa.init = function() {
         lusa.activateOverlay(overlay);
     });
     Event.observe(document.body, "click", function(event) {
-        lusa.globalClassPopover.setStyle({
-            visibility: "hidden"
-        });
+        if(lusa.globalClassPopover) {
+            lusa.globalClassPopover.setStyle({
+                visibility: "hidden"
+            });
+        }
     });
 };
 
@@ -94,7 +96,7 @@ lusa.globalClassPopover = null;
  * @return VOID
  */
 lusa.activateOverlay = function(overlay) {
-    Event.observe(overlay.next(".summary"), "click", function(event) {
+    Event.observe(overlay.next(".classSummary"), "click", function(event) {
         if(lusa.globalClassPopover) {
             lusa.globalClassPopover.setStyle({
                 visibility: "hidden"
@@ -208,12 +210,12 @@ lusa.makeClassesDraggable = function() {
 /**
  * Makes a class droppable and able to be completed.
  *
- *  * @param OBJECT course The course that can be completed.
+ * @param OBJECT course The course that can be completed.
  * @return VOID
  */
 lusa.makeClassCompletable = function(course) {
     degreeID = course.up("table").id;
-    Droppables.add(course.id, {
+    Droppables.add(course.down(".bd").id, {
         accept: "incompleteClass",
         hoverclass: "classSubHover",
         overlap: "vertical",
@@ -227,8 +229,9 @@ lusa.makeClassCompletable = function(course) {
          */
         onDrop: function(drag, drop, event) {
             id = drag.down().getAttribute("data-id");
-            target = drop.getAttribute("data-id");
-            new Ajax.Updater(drop.down(), "postback.php", {
+            course = drop.up(".classOverlay");
+            target = course.getAttribute("data-id");
+            new Ajax.Updater(drop.next(".completingCourse"), "postback.php", {
                 method: "post",
                 insertion: Insertion.Bottom,
                 parameters: {mode: "completeClass", ID: id, target: target, degree: degreeID},
@@ -239,9 +242,9 @@ lusa.makeClassCompletable = function(course) {
                  * @return VOID
                  */
                 onSuccess: function(transport) {
-                    drop.removeClassName("nostrike");
-                    drop.addClassName("strike");
-                    drop.down().removeClassName("hidden");
+                    course.removeClassName("nostrike");
+                    course.addClassName("strike");
+                    course.down().removeClassName("hidden");
                     if(!lusa.isTransferCourse(drag)) {
                         if(drag.previous().hasClassName("deptHeader") && drag.next().hasClassName("deptHeader")) {
                             Element.remove(drag.previous());
@@ -249,8 +252,8 @@ lusa.makeClassCompletable = function(course) {
                         Element.remove(drag);
                         Droppables.remove(drop);
                     }
-                    hours = drop.getAttribute("data-hours");
-                    lusa.addHours(drop.up("table").id, drop.previous(".semesterTitle"), -hours);
+                    hours = course.getAttribute("data-hours");
+                    lusa.addHours(course.up("table").id, course.previous(".semesterTitle"), -hours);
                 }
             });
         }
@@ -272,9 +275,9 @@ lusa.markUncompletableClass = function(course) {
         courseID = course.getAttribute("data-id");
         course.removeClassName("strike");
         course.addClassName("nostrike");
-        course.down().addClassName("hidden");
+        course.down(".completingCourse").addClassName("hidden");
 
-        completingClass = this.next(".courseSub");
+        completingClass = course.down(".courseSub");
         completingClassID = completingClass.getAttribute("data-id");
         dept = completingClass.getAttribute("data-dept");
         number = completingClass.getAttribute("data-num");

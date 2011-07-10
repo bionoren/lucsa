@@ -3,7 +3,7 @@
 
 <div id="{$class->getUID()}" class="classOverlay {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}move{else}noMove{/if} {if $class->isComplete()}strike{else}nostrike{/if}" data-id="{$class->getID()}" data-hours="{$class->getHours()}">
     {include file="course_overlay.tpl" class=$class year=$year}
-    <div class="summary">
+    <div class="classSummary">
         <span class="classDepartment">
             {$class->getDepartment()}
         </span>

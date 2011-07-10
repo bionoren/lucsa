@@ -156,10 +156,6 @@ td.endNote {
     background-image:url("../images/x_clicked.gif");
 }
 
-.classSubHover {
-    background-color:yellow;
-}
-
 .hidden {
     display:none;
 }
@@ -269,4 +265,8 @@ ul.subsection_tabs li.tab a.active {
 .hovercard-inner .hovercard-inner-footer {
     background: rgb(235, 235, 235);
     height: 39px;
+}
+
+.classSubHover {
+    background-color:yellow;
 }
