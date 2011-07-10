@@ -44,15 +44,13 @@
                 {/if}
             </span>
         </div>
-        <div class="completingCourse">
-        {if $class->isComplete()}
+        <div class="completingCourseContainer hidden">
             Completed By:
             <br/>
             <a href="javascript:void(0)" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-            {if {$class->isComplete()}}
+            {if $class->isComplete()}
                 {include file="course_sub.tpl" class=$class->getCompleteClass()}
             {/if}
-        {/if}
         </div>
         <div class="hovercard-inner-footer">
             Prerequesites:

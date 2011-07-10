@@ -231,7 +231,7 @@ lusa.makeClassCompletable = function(course) {
             id = drag.down().getAttribute("data-id");
             course = drop.up(".classOverlay");
             target = course.getAttribute("data-id");
-            new Ajax.Updater(drop.next(".completingCourse"), "postback.php", {
+            new Ajax.Updater(drop.up().down(".completingCourseContainer"), "postback.php", {
                 method: "post",
                 insertion: Insertion.Bottom,
                 parameters: {mode: "completeClass", ID: id, target: target, degree: degreeID},
@@ -244,7 +244,7 @@ lusa.makeClassCompletable = function(course) {
                 onSuccess: function(transport) {
                     course.removeClassName("nostrike");
                     course.addClassName("strike");
-                    course.down().removeClassName("hidden");
+                    drop.next(".completingCourseContainer").removeClassName("hidden");
                     if(!lusa.isTransferCourse(drag)) {
                         if(drag.previous().hasClassName("deptHeader") && drag.next().hasClassName("deptHeader")) {
                             Element.remove(drag.previous());
@@ -266,16 +266,17 @@ lusa.makeClassCompletable = function(course) {
  * @param OBJECT course The course that is complete that can now be uncompleted.
  * @return VOID
  */
-lusa.markUncompletableClass = function(course) {
-    Event.observe(course, "click", function(event) {
-        degreeID = course.up("table").id;
+lusa.markUncompletableClass = function(closeButton) {
+    Event.observe(closeButton, "click", function(event) {
+        degreeID = closeButton.up("table").id;
 
         //uncomplete the original class
-        course = this.up(".classOverlay");
+        course = closeButton.up(".classOverlay");
+        console.log(course);
         courseID = course.getAttribute("data-id");
         course.removeClassName("strike");
         course.addClassName("nostrike");
-        course.down(".completingCourse").addClassName("hidden");
+        course.down(".completingCourseContainer").addClassName("hidden");
 
         completingClass = course.down(".courseSub");
         completingClassID = completingClass.getAttribute("data-id");
@@ -286,7 +287,7 @@ lusa.markUncompletableClass = function(course) {
         lusa.addHours(this.up("table").id, this.up(".classOverlay").previous(".semesterTitle"), hours);
 
         //remove the completing class' info
-        ele = this.next()
+        ele = course.down(".courseSub");
         while(ele) {
             Element.remove(ele);
             ele = this.next()
