@@ -78,16 +78,24 @@ lusa.init = function() {
         lusa.activateOverlay(overlay);
     });
     Event.observe(document.body, "click", function(event) {
-        if(lusa.globalClassPopover) {
+        if(lusa.globalClassPopover && !lusa.disableNextClassPopoverClose) {
             lusa.globalClassPopover.setStyle({
                 visibility: "hidden"
             });
+        } else {
+            lusa.disableNextClassPopoverClose = false;
         }
     });
 };
 
 /** @var Element Reference to the currently visible class popover. */
 lusa.globalClassPopover = null;
+
+/**
+ * @var Disables the document.body class overlay close handler once.
+ * Used to prevent the overlay from closing due to other events.
+ */
+lusa.disableNextClassPopoverClose = false;
 
 /**
  * Sets up event handlers to show and hide a class popover.
@@ -256,6 +264,7 @@ lusa.makeClassCompletable = function(course) {
                     lusa.addHours(course.up("table").id, course.previous(".semesterTitle"), -hours);
                 }
             });
+            lusa.disableNextClassPopoverClose = true;
         }
     });
 }
@@ -272,7 +281,6 @@ lusa.markUncompletableClass = function(closeButton) {
 
         //uncomplete the original class
         course = closeButton.up(".classOverlay");
-        console.log(course);
         courseID = course.getAttribute("data-id");
         course.removeClassName("strike");
         course.addClassName("nostrike");
@@ -296,6 +304,7 @@ lusa.markUncompletableClass = function(closeButton) {
         lusa.insertIncompleteClass(courseID, completingClassID, dept, number);
         //make this class available to be completed again
         lusa.makeClassCompletable(course);
+        event.stop();
     });
 }
 
