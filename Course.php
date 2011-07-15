@@ -24,6 +24,12 @@
                        departments.department, departments.linkid AS deptlinkid
                        FROM classes
                        LEFT OUTER JOIN departments ON classes.departmentID = departments.ID ";
+        /** INTEGER Indicates a prerequisite dependency. */
+        const PREREQ = 1;
+        /** INTEGER Indicates a corequisite dependency. */
+        const COREQ = 2;
+        /** INTEGER Indicates a either a prerequisite or a corequisite dependency. */
+        const EITHER = 3;
 
         /** Course A Course object which was taken to complete this course. */
         protected $completeClass = null;
@@ -31,6 +37,8 @@
         protected $department;
         /** STRING The magic code used to link back to this department in the LETU catalog. */
         protected $departmentlinkid;
+        /** ARRAY List of course dependencies, keyed by the dependency constants in this class. */
+        protected $dependencies;
         /** INTEGER The number of credit hours this course is worth*/
         protected $hours;
         /** INTEGER The primary key for this class in the database. */
@@ -75,6 +83,7 @@
             $this->hours = $row["hours"];
             $this->offered = $row["offered"];
             $this->years = $row["years"];
+            $this->setupDependencies();
         }
 
         /**
@@ -94,6 +103,16 @@
          */
         public function getCompleteClass() {
             return $this->completeClass;
+        }
+
+        /**
+         * Returns a list of this class' corequisites.
+         *
+         * @return MIXED Dependency string or something falsy if their are no corequisites.
+         * @warning The return value in the no coreq case is only guaranteed to evaluate to false, not to be some particular false value.
+         */
+        public function getCorequisites() {
+            return $this->dependencies[Course::COREQ];
         }
 
         /**
@@ -225,6 +244,26 @@
         }
 
         /**
+         * Returns a list of this class' dependencies that can be either prerequisites or corequisites.
+         *
+         * @return MIXED Dependency string or something falsy if their are no applicable dependencies.
+         * @warning The return value in the no dependencies case is only guaranteed to evaluate to false, not to be some particular false value.
+         */
+        public function getPreOrCorequisites() {
+            return $this->dependencies[Course::EITHER];
+        }
+
+        /**
+         * Returns a list of this class' prerequisites.
+         *
+         * @return MIXED Dependency string or something falsy if their are no prerequisites.
+         * @warning The return value in the no prereq case is only guaranteed to evaluate to false, not to be some particular false value.
+         */
+        public function getPrerequisites() {
+            return $this->dependencies[Course::PREREQ];
+        }
+
+        /**
          * Getter for the class title.
          *
          * @return STRING Class title.
@@ -283,6 +322,19 @@
          */
         public function setNoteID($id) {
             $this->noteID = $id;
+        }
+
+        /**
+         * Sets up course dependencies for this class.
+         *
+         * @return VOID
+         */
+        protected function setupDependencies() {
+            $this->dependencies = array();
+            $result = SQLiteManager::getInstance()->query("SELECT type, data FROM classDependencyMap WHERE classID = '".$this->getID()."'");
+            while($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $this->dependencies[$row["type"]] = $row["data"];
+            }
         }
 
         /**

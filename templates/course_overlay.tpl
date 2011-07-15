@@ -53,9 +53,17 @@
             {/if}
         </div>
         <div class="hovercard-inner-footer">
-            Prerequesites:
-            <br/>
-            Corequisites:
+            {if $class->getPrerequisites()}
+                {$class->getPrerequisites()}
+            {/if}
+            <br>
+            {if $class->getCorequisites()}
+                {$class->getCorequisites()}
+            {/if}
+            <br>
+            {if $class->getPreOrCorequisites()}
+                {$class->getPreOrCorequisites()}
+            {/if}
         </div>
     </div>
     <div class="bubble-divot bubble-divot-top"></div>

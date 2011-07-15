@@ -65,12 +65,11 @@
     //class prerequisites and corequisites
     $fields = array();
     $fields[] = new DBField("classID", DBField::NUM, "-1", "classes");
-    $fields[] = new DBField("requiresClassID", DBField::NUM, null, "classes");
     $fields[] = new DBField("type", DBField::NUM, 0); //none, prereq, coreq, either
     //we might not have added this class yet, so these will have to be evaluated to a requiresClassID in a future pass
-    $fields[] = new DBField("department", DBField::STRING);
-    $fields[] = new DBField("courseNumber", DBField::NUM);
+    $fields[] = new DBField("data", DBField::STRING);
     $db->createTable("classDependencyMap", $fields);
+    $db->createUniqueConstraint("classDependencyMap", array_slice($fields, 0, 2));
 
     //mapping classes to degrees
     $fields = array();

@@ -41,6 +41,7 @@
             try {
                 $this->db = new SQLite3($db, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
             } catch(Exception $e) {
+                print "FATAL ERROR opening $db - is it writable? (or if it doesn't exist, is the directory writable?)<br>";
                 die($e);
             }
             $this->query("PRAGMA synchronous = ".$this->sync);

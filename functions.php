@@ -215,7 +215,7 @@
     /**
      * Called when moving a class between semesters to see if we need to add more semesters or if we have too many extra semesters.
      *
-     * @param INTEGER $degreee ID of the degree we're moving between.
+     * @param INTEGER $degree ID of the degree we're moving between.
      * @param INTEGER $oldSem Semester number for the semester this class came from.
      * @param INTEGER $newSem Semester number for the semester this class is moving to.
      * @return VOID

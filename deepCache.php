@@ -30,13 +30,15 @@
 
     $classSplitPattern = "/\<\/div\>.*?\<div.*?\>/is";
 
-    $classParsePattern = "/.*?\>\s*(?P<dept>\w{4})\s*(?P<num>\d{4}(-\d{4})?).*?\<a[^\>]*?course=(?P<linkid>\d+)[^\>]*\>\s*(?P<title>[^\<]*?)\s*\<";
-    //try for prereq/coreq information. We'll have to split this out in another pass...
-    $classParsePattern .= "(?:[^\>]+\>\s*(?!Prereq|Coreq))+(?P<extra>[^\(]*(?P<time>\(\s*[^\)]*\s*\))?)?";
+    $classParsePattern = "/\>\s*(?P<dept>[A-Z]{3,4})\s*(?P<num>\d{3,4}(-\d{3,4})?).*?\<a[^\>]*?course=(?P<linkid>\d+)[^\>]*\>\s*(?P<title>[^\<]+?)\s*\<";
+    //try for prereq/coreq information...
+    $classParsePattern .= ".*?\>\s*(?P<prereq>Prereq[^:C]+:\s*.+?)?(?P<coreq>Coreq[^:]+:\s*.+?)?(?P<either>Prereq[^:]+:\s*.+?)?";
+    //...and times offered.
+    $classParsePattern .= "(?:class=\"[^\"]*available[^\"]*\"[^\>]*\>\s*\(\s*(?P<time>[^\)]+)\s*\).*?)?$";
     //grap semester/year offering info if it exists
     $classParsePattern .= "/isS";
 
-    $classExtraPattern = "/\>\s*(\w{4})\s*(\d{4})\s*\</is";
+    $notAnchorTag = "/\<\/?[^a\/][^\>]*(\>|$)/is";
 
     $db = SQLiteManager::getInstance();
     $yearresult = $db->query("SELECT * FROM years");// WHERE updated&1=0");
@@ -44,155 +46,121 @@
 //    $year = $yearArray["year"];
 //    $yearID = $yearArray["ID"];
     $departmentLookup = array();
-while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
-    $year = $row["year"];
-    $yearID = $row["ID"];
+    while($row = $yearresult->fetchArray(SQLITE3_ASSOC)) {
+        $year = $row["year"];
+        $yearID = $row["ID"];
 
-    $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year);
-    $matches1 = array();
-    preg_match_all($findSchoolsPattern, $data, $matches1, PREG_SET_ORDER);
-//    dump("matches1", $matches1); die();
-    foreach($matches1 as $match) {
-//        print "url = http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."<br>";
-        $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]);
-        $matchesdepnum = array();
-        preg_match_all($fetchSchoolsPattern, $data, $matchesdepnum, PREG_SET_ORDER);
-//        dump("matches", $matchesdepnum); continue;
-        foreach($matchesdepnum as $match) {
-            $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."&cmd=courselist");
-            $matches = array();
-            preg_match($departmentPattern, $data, $matches);
-//            die($data);
-//            print "adding department ".$matches[2]." - ".$match[1]."<br>"; continue;
-            if(!isset($departmentLookup[$matches[2]])) {
-                $fields = array();
-                $fields["department"] = $matches[2];
-                $fields["title"] = $matches[1];
-                $fields["linkid"] = $match[1];
-                $db->insert("departments", $fields);
-                $deptID = $db->getLastInsertID();
-                $departmentLookup[$fields["department"]] = $deptID;
-            } else {
-                $deptID = $departmentLookup[$matches[2]];
-            }
-
-            $matchGroups = preg_split($classSplitPattern, $data);
-            $matches = array();
-            foreach($matchGroups as $match) {
-                $tmp = array();
-                if(preg_match($classParsePattern, $match, $tmp) != 0) {
-//                    print $match."<br>\n";
-                    $matches[] = $tmp;
-                }
-            }
-
-//            dump("matches", $matches); continue;
-            foreach($matches as $match) {
-                $fields = array();
-                $fields["departmentID"] = $deptID;
-                $number = $match["num"];
-                $number = explode("-", $number);
-                $fields["number"] = $number[0];
-                if(count($number) > 1) {
-                    $fields["endNumber"] = $number[1];
+        $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year);
+        $matches1 = array();
+        preg_match_all($findSchoolsPattern, $data, $matches1, PREG_SET_ORDER);
+    //    dump("matches1", $matches1); die();
+        foreach($matches1 as $match) {
+    //        print "url = http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."<br>";
+            $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]);
+            $matchesdepnum = array();
+            preg_match_all($fetchSchoolsPattern, $data, $matchesdepnum, PREG_SET_ORDER);
+    //        dump("matches", $matchesdepnum); continue;
+            foreach($matchesdepnum as $match) {
+                $data = getCache("http://www.letu.edu/academics/catalog/index.htm?cat_type=tu&cat_year=".$year."&school=".$match[1]."&cmd=courselist");
+                $matches = array();
+                preg_match($departmentPattern, $data, $matches);
+    //            die($data);
+    //            print "adding department ".$matches[2]." - ".$match[1]."<br>"; continue;
+                if(!isset($departmentLookup[$matches[2]])) {
+                    $fields = array();
+                    $fields["department"] = $matches[2];
+                    $fields["title"] = $matches[1];
+                    $fields["linkid"] = $match[1];
+                    $db->insert("departments", $fields);
+                    $deptID = $db->getLastInsertID();
+                    $departmentLookup[$fields["department"]] = $deptID;
                 } else {
-                    $fields["endNumber"] = $fields["number"];
+                    $deptID = $departmentLookup[$matches[2]];
                 }
-                $fields["title"] = $match["title"];
-                $fields["linkid"] = $match["linkid"];
-                $fields["hours"] = substr($fields["number"], -1);
-                if(!empty($match["time"])) {
-//                    print "time<br>";
-                    $search = stristr($match["time"], "even");
-                    if($search !== false) {
-                        $fields["years"] = ($search == false)?1:2;
-                    }
-                    $search = stristr($match["time"], "fall");
-                    if($search !== false) {
-                        $fields["offered"] = ($search == false)?1:2;
+
+                $matchGroups = preg_split($classSplitPattern, $data);
+                $matches = array();
+                foreach($matchGroups as $match) {
+                    $tmp = array();
+                    if(preg_match($classParsePattern, $match, $tmp) != 0) {
+    //                    print $match."<br>\n";
+                        $matches[] = $tmp;
                     }
                 }
-                $db->insert("classes", $fields, true);
-                if($db->changed()) {
-                    $classID = $db->getLastInsertID();
-//                    print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
-                } else {
-                    $tmp = $db->select("classes", array("ID"), array_slice($fields, 0, 3, true))->fetchArray(SQLITE3_ASSOC);
-                    $classID = $tmp["ID"];
-					if(empty($classID)) {
-						dump("fields", array_slice($fields, 0, 3, true));
-						dump("tmp", $tmp);
-						dump("number", $number);
-						print "year = $year<br>";
-					}
-                }
 
-                if(!empty($match["extra"])) {
-//                    print "extra<br>";
-                    //that whole regex is COMPLICATED, so we have to patch it up here.
-                    $matches2 = explode(". ", $match["extra"]);
-                    $preco = 0;
-                    foreach($matches2 as $match2) {
-                        if(empty($match2)) continue;
-                        $matches3 = array();
-                        if(stristr($match2, "prereq") !== false) {
-                            if(stristr($match2, "coreq") !== false) {
-                                $preco = 3;
-                            } else {
-                                $preco = 1;
-                            }
-                        } elseif(stristr($match2, "coreq") !== false) {
-                            $preco = 2;
+    //            dump("matches", $matches); continue;
+                foreach($matches as $match) {
+                    $fields = array();
+                    $fields["departmentID"] = $deptID;
+                    $number = $match["num"];
+                    $number = explode("-", $number);
+                    $fields["number"] = $number[0];
+                    if(count($number) > 1) {
+                        $fields["endNumber"] = $number[1];
+                    } else {
+                        $fields["endNumber"] = $fields["number"];
+                    }
+                    $fields["title"] = $match["title"];
+                    $fields["linkid"] = $match["linkid"];
+                    $fields["hours"] = substr($fields["number"], -1);
+                    if(!empty($match["time"])) {
+    //                    print "time<br>";
+                        $search = stristr($match["time"], "even");
+                        if($search !== false) {
+                            $fields["years"] = ($search == false)?1:2;
                         }
-                        preg_match_all($classExtraPattern, $match2, $matches3, PREG_SET_ORDER);
-                        $fields = array();
-                        $fields["classID"] = $classID;
-                        $fields["type"] = $preco;
-                        foreach($matches3 as $match3) {
-                            $fields["department"] = strtoupper($match3[1]);
-                            $fields["courseNumber"] = $match3[2];
-//                            dump("fields", $fields);
-                            $db->insert("classDependencyMap", $fields);
+                        $search = stristr($match["time"], "fall");
+                        if($search !== false) {
+                            $fields["offered"] = ($search == false)?1:2;
                         }
+                    }
+                    $db->insert("classes", $fields, true);
+                    if($db->changed()) {
+                        $classID = $db->getLastInsertID();
+    //                    print "Added class ".$fields["title"]." - ".$fields["number"]."<br>";
+                    } else {
+                        $tmp = $db->select("classes", array("ID"), array_slice($fields, 0, 3, true))->fetchArray(SQLITE3_ASSOC);
+                        $classID = $tmp["ID"];
+                        if(empty($classID)) {
+                            dump("fields", array_slice($fields, 0, 3, true));
+                            dump("tmp", $tmp);
+                            dump("number", $number);
+                            print "year = $year<br>";
+                        }
+                    }
+
+                    if(!empty($match["prereq"])) {
+                        $data = SQLite3::escapeString(preg_replace($notAnchorTag, "", $match["prereq"]));
+                        $db->query("INSERT OR REPLACE INTO classDependencyMap (classID, type, data) VALUES ($classID, 1, '$data')");
+                    }
+                    if(!empty($match["coreq"])) {
+                        $data = SQLite3::escapeString(preg_replace($notAnchorTag, "", $match["coreq"]));
+                        $db->query("INSERT OR REPLACE INTO classDependencyMap (classID, type, data) VALUES ($classID, 2, '$data')");
+                    }
+                    if(!empty($match["either"])) {
+                        $data = SQLite3::escapeString(preg_replace($notAnchorTag, "", $match["either"]));
+                        $db->query("INSERT OR REPLACE INTO classDependencyMap (classID, type, data) VALUES ($classID, 3, '$data')");
                     }
                 }
             }
         }
+
+        $sql = "SELECT ID FROM departments WHERE department='LETU'";
+        $result = $db->query($sql);
+        $result = $result->fetchArray(SQLITE3_ASSOC);
+
+        //add transfer credit class
+        $fields = array();
+        $fields["departmentID"] = $result["ID"];
+        $fields["number"] = "4991";
+        $fields["endNumber"] = "4999";
+        $fields["title"] = "Transfer Credit";
+        $fields["linkid"] = "";
+        $fields["offered"] = 3;
+        $fields["years"] = 3;
+        $fields["hours"] = -1;
+        $db->insert("classes", $fields, true);
     }
-
-    $sql = "SELECT ID FROM departments WHERE department='LETU'";
-    $result = $db->query($sql);
-    $result = $result->fetchArray(SQLITE3_ASSOC);
-
-    //add transfer credit class
-    $fields = array();
-    $fields["departmentID"] = $result["ID"];
-    $fields["number"] = "4991";
-    $fields["endNumber"] = "4999";
-    $fields["title"] = "Transfer Credit";
-    $fields["linkid"] = "";
-    $fields["offered"] = 3;
-    $fields["years"] = 3;
-    $fields["hours"] = -1;
-    $db->insert("classes", $fields, true);
-}
-//die();
-
-    //create proper class ids for class dependencies
-    $result = $db->query("SELECT * FROM classDependencyMap");
-    $fields = array();
-    $whereFields = array();
-//    dump("departments", $departmentLookup);
-    while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-//        dump("row", $row);
-        $result2 = $db->query("SELECT ID FROM classes WHERE departmentID=".$departmentLookup[$row["department"]]." AND number=".$row["courseNumber"]);
-        $row2 = $result2->fetchArray(SQLITE3_ASSOC);
-        $fields["requiresClassID"] = $row2["ID"];
-        $whereFields["id"] = $row["id"];
-        $db->update("classDependencyMap", $fields, $whereFields);
-    }
-//    $yearArray["updated"] += 1;
-//    $db->update("years", $yearArray, array("ID"=>$yearID));
 ?>
 
 <?php
