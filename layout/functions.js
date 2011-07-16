@@ -199,8 +199,17 @@ lusa.makeClassMovable = function(course) {
         return;
     }
 
-    options = {revert: true, scroll: window};
-    new Draggable(course.id, options);
+    new Draggable(course.id, {
+        revert: true,
+        scroll: window,
+        handle: "classSummary",
+        onEnd: function(draggable, event) {
+            //apparently onEnd isn't actually the end...
+            setTimeout(function() {
+                course.style.zIndex = 50
+            }, 100);
+        }
+    });
 }
 
 /**
@@ -210,8 +219,10 @@ lusa.makeClassMovable = function(course) {
  */
 lusa.makeClassesDraggable = function() {
     $$(".incompleteClass").each(function(course) {
-        options = {revert: true, scroll: window};
-        new Draggable(course.id, options);
+        new Draggable(course.id, {
+            revert: true,
+            scroll: window
+        });
     });
 }
 
