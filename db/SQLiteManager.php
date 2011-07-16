@@ -224,6 +224,10 @@
 
             $ret = $this->db->query($sql);
             if($ret === false) {
+                $fields["query"] = $sql;
+                $fields["error"] = $this->db->lastErrorMsg();
+                $fields["date"] = date("c");
+                $this->insert("errorLog", $fields);
                 $msg = "sql = $sql<br><span style='color:red'>".$this->db->lastErrorMsg()."</span><br>";
                 throw new InvalidArgumentException($msg);
             }

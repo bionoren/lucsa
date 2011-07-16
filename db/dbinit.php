@@ -111,6 +111,13 @@
     $fields[] = new DBField("degreeList", DBField::STRING);
     $db->createTable("userTabs", $fields);
 
+    //errorLog
+    $fields = array();
+    $fields[] = new DBField("query", DBField::STRING);
+    $fields[] = new DBField("error", DBField::STRING);
+    $fields[] = new DBField("date", DBField::STRING);
+    $db->createTable("errorLog", $fields);
+
     //initialize the years
     $data = getCache("http://www.letu.edu/academics/catalog/");
     $matches = array();

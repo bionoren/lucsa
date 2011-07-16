@@ -44,7 +44,7 @@
                 {/if}
             </span>
         </div>
-        <div class="completingCourseContainer hidden">
+        <div class="completingCourseContainer{if !$class->isComplete()} hidden{/if}">
             Completed By:
             <br/>
             <a href="javascript:void(0)" class="ximage">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>

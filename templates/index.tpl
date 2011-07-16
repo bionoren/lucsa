@@ -59,7 +59,7 @@
                     </select>
                     <br/>
                     {$degrees = $tab->getDegrees()}
-                    Major: <select name="degree[]" multiple="multiple">
+                    Major: <select name="degree[]">
                         {foreach $majors as $key=>$deg}
                             <option value="{$key}"{if array_key_exists($deg.ID, $degrees)} selected='selected'{/if}>{$deg.name} ({$key})</option>
                         {/foreach}

@@ -30,14 +30,14 @@
         /** INTEGER ID of the current user. */
         protected static $userID;
 
-        /** ClassList List of classes that have been taken by the user. */
-        protected $classesTaken;
         /** INTEGER Primary key of this tab in the database.*/
         protected $id;
         /** BOOLEAN True if the database needs to be updated for this tab. */
         protected $modified = false;
         /** INTEGER This tab's order in the tab bar. */
         protected $number;
+        /** CourseSequence The master course sequence (aggregates $sequences). */
+        protected $cs;
         /** ARRAY List of CourseSequence objects aggregated in this tab. */
         protected $sequences = array();
         /** ClassList List of classes that are available to substitute for a class. */
@@ -57,7 +57,6 @@
             $this->id = $id;
             $this->number = $number;
             $this->substitute = new ClassList();
-            $this->classesTaken = new ClassList();
             foreach($degrees as $degree) {
                 $this->addDegree($degree);
             }
@@ -72,9 +71,10 @@
          */
         public function addDegree($degree) {
             $courseSequence = CourseSequence::getFromID($degree);
-            $courseSequence->setClassesTaken($this->classesTaken);
+            $courseSequence->setClassesTaken($this->substitute);
             $this->sequences[$courseSequence->getID()] = $courseSequence;
             $this->modified = true;
+            $this->cs = $courseSequence;
         }
 
         /**
@@ -100,17 +100,22 @@
          * @return VOID
          */
         public function finalize($autocomplete=false) {
-            foreach($this->sequences as $sequence) {
-                $sequence->applySubstitions($this::$userID);
-            }
-            $this->substitute = $this->classesTaken->filter(function(Course $class) { return !$class->isSubstitute; });
-
             if($autocomplete) {
                 $this->autocomplete();
             }
+            $this->cs->applySubstitions($this::$userID);
+
+            $temp = $this->cs->getClasses()->filter(function(Course $class) { return $class->isComplete(); });
+            $substitutes = new ClassList();
+            foreach($temp as $class) {
+                $substitutes[$class->getCompleteClass()->getID()] = $class->getCompleteClass();
+            }
+            $this->substitute = $this->substitute->filter(function($class) use ($substitutes) {
+                return !isset($substitutes[$class->getID()]);
+            });
             $this->substitute->sort();
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-            $this->classesTaken[$transferClass->getID()]->isSubstitute = false;
+            $this->substitute[$transferClass->getID()]->isSubstitute = false;
 
             if($this->modified) {
                 $db = SQLiteManager::getInstance();
@@ -184,14 +189,12 @@
          * @return VOID
          */
         public function setClassesTaken(ClassList $classesTaken) {
-            $this->classesTaken = clone $classesTaken;
-            foreach($this->sequences as $cs) {
-                $cs->setClassesTaken($this->classesTaken);
-            }
+            $this->substitute = $classesTaken;
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
             if(empty($this->classesTaken[$transferClass->getID()])) {
                 $this->classesTaken[$transferClass->getID()] = $transferClass;
             }
+            $this->cs->setClassesTaken($classesTaken);
         }
     }
 ?>
