@@ -1,9 +1,23 @@
 <?php
     /*
+	 *	Copyright 2010 Bion Oren
+	 *
+	 *	Licensed under the Apache License, Version 2.0 (the "License");
+	 *	you may not use this file except in compliance with the License.
+	 *	You may obtain a copy of the License at
+	 *		http://www.apache.org/licenses/LICENSE-2.0
+	 *	Unless required by applicable law or agreed to in writing, software
+	 *	distributed under the License is distributed on an "AS IS" BASIS,
+	 *	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 *	See the License for the specific language governing permissions and
+	 *	limitations under the License.
+	 */
+
+    /*
      * You know, the whole reason this class exists is because there are classes that, from
      * the API's perspective, are the same. But, from the user's perspective, they're
      * completely different. You might be able to encapsulate the differences in arrays
-     * inside the classes themseles (kind of like reference counters). If this becomes a
+     * inside the classes themselves (kind of like reference counters). If this becomes a
      * performance bottleneck...
      */
 

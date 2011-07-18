@@ -4,6 +4,7 @@
 {* @param ARRAY $majors List of majors that are offered for $year *}
 {* @param ARRAY $degree List of degrees the user is currently enrolled in *}
 {* @param ARRAY $courseSequences List of course sequences for $year *}
+{* @param BOOLEAN $activated True if the user has logged in. *}
 
 {extends file="page.tpl"}
 {block name="body"}
@@ -16,12 +17,31 @@
 {foreach $tabs as $tab}
     <div id="tab{$tab@iteration}">
         <div id="classSubs{$tab@iteration}" style="float:left; width:250px; font-size:12px;">
-            <form method="post" action=".">
-                <input type="hidden" name="reset" value="1">
-                <input type="hidden" name="year" value="{$year}">
-                <input type="submit" name="autocomplete" value="Autocomplete"/>
+            {if count($tab->getSubstitutes()) > 1}
+                <form method="post" action=".">
+                    <input type="hidden" name="reset" value="1"/>
+                    <input type="hidden" name="year" value="{$year}"/>
+                    <input type="submit" name="autocomplete" value="Autocomplete"/>
+                </form>
+            {/if}
+            <h3>Classes Taken:</h3>
+
+            {if !$activated}
+                Login with your LETU username and password to access all of your classes!
+                {if $smarty.request.login}
+                    <br/>
+                    <span class="error">Invalid username/password</span>
+                {/if}
+                <form method="post" action=".">
+                    Username: <input type="text" name="username"/>
+                    <br/>
+                    Password: <input type="password" name="password"/>
+                    <br/>
+                    <input type="submit" name="login" value="Get My Classes"/>
+                </form>
                 <br/><br/>
-            </form>
+            {/if}
+
             {$dept = null}
             {$lastTitle = ""}
             {foreach $tab->getSubstitutes() as $class}
@@ -38,7 +58,7 @@
             {/foreach}
             <br/>
             <form method="post" action="." id="clearClassesForm{}">
-                <input type="submit" name="clearClasses" value="Clear All Class Associations" onclick="return clearClassConfirm('clearClassesForm')">
+                <input type="submit" name="clearClasses" value="Clear All Class Associations" onclick="return clearClassConfirm('clearClassesForm')"/>
             </form>
         </div>
         <div style="display:inline;">

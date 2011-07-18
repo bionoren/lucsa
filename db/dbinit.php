@@ -84,6 +84,7 @@
     $fields = array();
     $fields[] = $field = new DBField("user", DBField::STRING); //hash of username
     $field->setUnique();
+    $fields[] = new DBField("activated", DBField::NUM, 0);
     $db->createTable("users", $fields);
 
     //course subsitutions for individual users

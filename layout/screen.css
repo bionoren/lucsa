@@ -175,6 +175,10 @@ td.endNote {
     font-weight: bold;
 }
 
+.error {
+    color:red;
+}
+
 /* Subsection Tabs
 --------------------*/
 ul.subsection_tabs {

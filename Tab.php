@@ -27,8 +27,6 @@
 
         /** INTEGER The number of the last tab. */
         protected static $lastTab = -1;
-        /** INTEGER ID of the current user. */
-        protected static $userID;
 
         /** INTEGER Primary key of this tab in the database.*/
         protected $id;
@@ -83,14 +81,20 @@
          * @see Autocompleter
          */
         protected function autocomplete() {
-            foreach($this->sequences as $cs) {
-                $autocompleter = new Autocompleter($this->substitute, $cs->getClasses(), $cs->getNotes());
-                $autocompleter->substitute($this::$userID);
-            }
-            foreach($this->sequences as $cs) {
-                $cs->applySubstitions($this::$userID);
-            }
-            $this->substitute = $this->substitute->filter(function(Course $class) { return !$class->isSubstitute; });
+            $this->cs->applySubstitions();
+            $autocompleter = new Autocompleter($this->substitute, $this->cs->getClasses(), $this->cs->getNotes());
+            $autocompleter->substitute();
+        }
+
+        /**
+         * Clears out all the degrees in this tab.
+         *
+         * @return VOID
+         */
+        public function clearDegrees() {
+            $this->sequences = array();
+            $this->modified = true;
+            $this->cs = null;
         }
 
         /**
@@ -100,26 +104,27 @@
          * @return VOID
          */
         public function finalize($autocomplete=false) {
-            if($autocomplete) {
-                $this->autocomplete();
-            }
-            $this->cs->applySubstitions($this::$userID);
+            if($this->cs) {
+                if($autocomplete) {
+                    $this->autocomplete();
+                }
+                $this->cs->applySubstitions();
 
-            $temp = $this->cs->getClasses()->filter(function(Course $class) { return $class->isComplete(); });
-            $substitutes = new ClassList();
-            foreach($temp as $class) {
-                $substitutes[$class->getCompleteClass()->getID()] = $class->getCompleteClass();
+                $temp = $this->cs->getClasses()->filter(function(Course $class) { return $class->isComplete(); });
+                $substitutes = new ClassList();
+                foreach($temp as $class) {
+                    $substitutes[$class->getCompleteClass()->getID()] = $class->getCompleteClass();
+                }
+                $this->substitute = $this->substitute->filter(function($class) use ($substitutes) {
+                    return !isset($substitutes[$class->getID()]);
+                });
+                $this->substitute->sort();
             }
-            $this->substitute = $this->substitute->filter(function($class) use ($substitutes) {
-                return !isset($substitutes[$class->getID()]);
-            });
-            $this->substitute->sort();
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
             $this->substitute[$transferClass->getID()]->isSubstitute = false;
 
             if($this->modified) {
-                $db = SQLiteManager::getInstance();
-                $db->update("userTabs", array("degreeList"=>implode(DEGREE_SEPERATOR, array_keys($this->sequences))), array("ID"=>$this->id));
+                SQLiteManager::getInstance()->update("userTabs", array("degreeList"=>implode(Tab::DEGREE_SEPERATOR, array_keys($this->sequences))), array("ID"=>$this->id));
             }
         }
 
@@ -135,17 +140,18 @@
         /**
          * Gets all tabs for user.
          *
-         * @param INTEGER $userID User ID.
          * @return ARRAY List of tabs for the user.
          */
-        public static function getFromDB($userID) {
-            Tab::$userID = $userID;
-
-            $db = SQLiteManager::getInstance();
-            $result = $db->query("SELECT ID, number, degreeList FROM userTabs WHERE userID=$userID ORDER BY number");
+        public static function getFromDB() {
+            $result = SQLiteManager::getInstance()->query("SELECT ID, number, degreeList FROM userTabs WHERE userID=".Main::getInstance()->userID." ORDER BY number");
             $ret = array();
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $ret[] = new Tab($row["ID"], $row["number"], explode(DEGREE_SEPERATOR, $row["degreeList"]));
+                if($row["degreeList"]) {
+                    $degrees = explode(Tab::DEGREE_SEPERATOR, $row["degreeList"]);
+                } else {
+                    $degrees = array();
+                }
+                $ret[] = new Tab($row["ID"], $row["number"], $degrees);
             }
             return $ret;
         }
@@ -161,14 +167,13 @@
                 $number = ++Tab::$lastTab;
                 $degrees = array();
                 //create tab in database
-                $db = SQLiteManager::getInstance();
-                $db->insert("userTabs", array("userID"=>Tab::$userID, "number"=>$number));
-                $id = $db->getLastInsertID();
+                SQLiteManager::getInstance()->insert("userTabs", array("userID"=>Main::getInstance()->userID, "number"=>$number));
+                $id = SQLiteManager::getInstance()->getLastInsertID();
             } else {
-                $result = $db->select("userTabs", array("number", "degreeList"), array("ID"=>$id));
+                $result = SQLiteManager::getInstance()->select("userTabs", array("number", "degreeList"), array("ID"=>$id));
                 $row = $result->fetchArray(SQLITE3_ASSOC);
                 $number = $row["number"];
-                $degrees = explode(DEGREE_SEPERATOR, $row["degreeList"]);
+                $degrees = explode(Tab::DEGREE_SEPERATOR, $row["degreeList"]);
             }
             return new Tab($id, $number, $degrees);
         }
@@ -192,9 +197,11 @@
             $this->substitute = $classesTaken;
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
             if(empty($this->classesTaken[$transferClass->getID()])) {
-                $this->classesTaken[$transferClass->getID()] = $transferClass;
+                $this->substitute[$transferClass->getID()] = $transferClass;
             }
-            $this->cs->setClassesTaken($classesTaken);
+            if($this->cs) {
+                $this->cs->setClassesTaken($classesTaken);
+            }
         }
     }
 ?>

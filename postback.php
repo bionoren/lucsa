@@ -20,6 +20,7 @@
     require_once($path."smarty/Smarty.class.php");
     require_once($path."functions.php");
     require_once($path."Course.php");
+    require_once($path."Main.php");
 
     $mode = $_REQUEST["mode"];
     if(isset($_REQUEST["data"])) {
@@ -32,14 +33,14 @@
     if($mode == "completeClass") {
         $id = intval($_REQUEST["ID"]);
         $course = Course::getFromID($id);
-        substituteClass($_SESSION["userID"], intval($_REQUEST["target"]), $id);
+        substituteClass(intval($_REQUEST["target"]), $id);
         $smarty = new Smarty();
         $smarty->assign("class", $course);
         $smarty->display("course_sub.tpl");
     }
 
     if($mode == "uncompleteClass") {
-        substituteClass($_SESSION["userID"], intval($_REQUEST["classID"]));
+        substituteClass(intval($_REQUEST["classID"]));
 
         $takenCourse = Course::getFromID($_REQUEST["takenClassID"]);
         if($_REQUEST["needDept"] == "true") {

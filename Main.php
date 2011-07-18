@@ -21,10 +21,11 @@
         protected $years;
         protected $yearID;
         protected $userID;
+        protected $activated = false;
         protected static $singleton = null;
 
         protected function __construct() {
-            $this->userID = $this->getUserID();
+            $this->initUserID();
 
             $this->years = $this->getYears();
             if(!isset($_REQUEST["year"])) {
@@ -61,35 +62,41 @@
          *
          * @return INTEGER The user's ID.
          */
-        protected function getUserID() {
+        protected function initUserID() {
             if(!empty($_SESSION["userID"])) {
-                $userID = $_SESSION["userID"];
-            } elseif(isset($_SERVER['PHP_AUTH_USER'])) {
+                $this->userID = $_SESSION["userID"];
+                $this->activated = (bool)$_SESSION["activated"];
+            } elseif(isset($_REQUEST["username"])) {
                 //we need the name to be consistent
-                $name = encrypt($_SERVER["PHP_AUTH_USER"], md5($_SERVER["PHP_AUTH_USER"]));
-                $result = SQLiteManager::getInstance()->select("users", array("ID"), array("user"=>$name));
+                $name = encrypt($_REQUEST["username"], md5($_REQUEST["password"]));
+                $result = SQLiteManager::getInstance()->select("users", array("ID", "activated"), array("user"=>$name));
                 $row = $result->fetchArray(SQLITE3_ASSOC);
                 if($row != false) {
-                    $userID = $_SESSION["userID"] = $row["ID"];
+                    $this->userID = $_SESSION["userID"] = $row["ID"];
+                    $this->activated = $_SESSION["activated"] = (bool)$row["activated"];
                 } else {
                     SQLiteManager::getInstance()->insert("users", array("user"=>$name));
-                    $userID = $_SESSION["userID"] = SQLiteManager::getInstance()->getLastInsertID();
+                    $this->userID = $_SESSION["userID"] = SQLiteManager::getInstance()->getLastInsertID();
                 }
                 unset($salt);
                 unset($name);
             } elseif(isset($_COOKIE["userID"])) {
-                SQLiteManager::getInstance()->select("users", array("ID"), array("ID"=>$_COOKIE["userID"]));
+                $result = SQLiteManager::getInstance()->select("users", array("ID", "activated"), array("ID"=>$_COOKIE["userID"]));
                 $row = $result->fetchArray(SQLITE3_ASSOC);
-                $userID = $_SESSION["userID"] = $row["ID"];
+                $this->userID = $_SESSION["userID"] = $row["ID"];
+                $this->activated = $_SESSION["activated"] = (bool)$row["activated"];
             } else {
                 //create a new bogus user for them
-                SQLiteManager::getInstance()->insert("users", array("user"=>md5(time())));
-                $userID = $_SESSION["userID"] = SQLiteManager::getInstance()->getLastInsertID();
+                $result = SQLiteManager::getInstance()->insert("users", array("user"=>md5(time())));
+                $this->userID = $_SESSION["userID"] = SQLiteManager::getInstance()->getLastInsertID();
                 //set a cookie for a year
-                setcookie("userID", $userID, time()+60*60*24*7*56);
+                setcookie("userID", $this->userID, time()+60*60*24*7*56);
             }
+        }
 
-            return $userID;
+        public function activateUser() {
+            SQLiteManager::getInstance()->update("users", array("activated"=>true), array("ID"=>$this->userID));
+            $this->activated = $_SESSION["activated"] = true;
         }
 
         /**

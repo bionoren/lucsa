@@ -18,9 +18,9 @@
     $path = "./";
 
     require_once($path."smarty/Smarty.class.php");
-    require_once($path."db/SQLiteManager.php");
     require_once($path."functions.php");
     require_once($path."Tab.php");
+    require_once($path."Main.php");
 
     /**
      * Encrypts the given string using the specified hashing algorithm.
@@ -45,10 +45,9 @@
     /**
      * Retrieves the current user's information from the session.
      *
-     * @param RESOURCE $sec Encryption descriptor.
      * @return ARRAY array(CourseList courses, array degree).
      */
-    function getUserInfoFromSession($sec) {
+    function getUserInfoFromSession() {
         $temp = explode("~", $_SESSION["degree"]);
         if(isset($_REQUEST["degree"])) {
             $degree = $_REQUEST["degree"];
@@ -64,18 +63,16 @@
      * Retrieves the current user's information from their academic record,
      * stores it in the session, and cleans up any unneeded information.
      *
-     * @param RESOURCE $sec Encryption descriptor.
-     * @param ARRAY $majors List of possible majors.
+     * @param STRING $username LETU username.
+     * @param STRING $password LETU password.
      * @return ARRAY array(CourseList courses, array degree)
      */
-    function storeUserInfo($sec, array $majors) {
+    function storeUserInfo($username, $password) {
         //SECURITY NOTE: Remove this in production!
-        $data = getCache("saved_cache/stugrdsa.cgi.html", false);
-//        $data = getCache("https://".$_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW']."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
-        unset($_SERVER['PHP_AUTH_USER']);
-        unset($_SERVER['PHP_AUTH_PW']);
+//        $data = getCache("saved_cache/stugrdsa.cgi.html", false);
+        $data = getCache("https://".$username.":".$password."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
         if(empty($data)) {
-            requestLogin();
+            return false;
         }
         $data = preg_replace("/^.*?Undergraduate Program/is", "", $data);
         $matches = array();
@@ -85,7 +82,7 @@
         foreach($matches as $match) {
             $match = trim($match);
             if(!empty($match)) {
-                $tmp = guessMajor($majors, $match);
+                $tmp = guessMajor($match);
                 $degree[] = $tmp;
             }
         }
@@ -109,74 +106,49 @@
     /**
      * Retrieves the current user's information.
      *
-     * @param ARRAY $majors List of possible majors.
      * @return ARRAY array(CourseList courses, array degree)
      */
-    function getUserInfo(array $majors) {
+    function getUserInfo() {
         if(isset($_SESSION["degree"])) {
-            $ret = getUserInfoFromSession($sec);
+            $ret = getUserInfoFromSession();
+        } elseif(isset($_REQUEST["login"])) {
+            $ret = storeUserInfo($_REQUEST["username"], $_REQUEST["password"]);
+            if(!$ret) {
+                $ret = array(new ClassList(), array());
+            } else {
+                Main::getInstance()->activateUser();
+            }
         } else {
-            $ret = storeUserInfo($sec, $majors);
+            $ret = array(new ClassList(), array());
         }
 
         return $ret;
     }
 
-    /**
-     * Ask the user to logon.
-     *
-     * @return VOID
-     */
-    function requestLogin() {
-        global $path;
-        header('WWW-Authenticate: Basic realm="LETU Login"');
-        header('HTTP/1.0 401 Unauthorized');
-        require($path."privacy.php");
-        die();
-    }
-
     //==========================================================================
     //                      END FUNCTION DEFINITIONS
     //==========================================================================
-    $db = SQLiteManager::getInstance();
-    $userID = getUserID($db);
+    $main = Main::getInstance();
 
     if(isset($_POST["clearClasses"])) {
-        $db->query("DELETE FROM userClassMap WHERE userID='".$userID."'");
+        Main::db()->query("DELETE FROM userClassMap WHERE userID='".$main->userID."'");
     }
-
-    $years = getYears();
-    if(!isset($_REQUEST["year"])) {
-        $yearKey = current(array_keys($years));
-        $year = $years[$yearKey];
-    } else {
-        $year = intval($_REQUEST["year"]);
-        $yearKey = array_search($year, $years);
-    }
-    //get all the degree options
-    $majors = getMajors($yearKey);
 
     //get the list of classes the user is already enrolled in and their currently declared degree(s)
-    if(isset($_SERVER['HTTP_AUTHORIZATION']) && empty($_SERVER['PHP_AUTH_USER'])) {
-        list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
-    }
-    if(empty($_SERVER['PHP_AUTH_USER'])) {
-        requestLogin();
-    } else {
-        list($masterCourses, $degree) = getUserInfo($majors);
-    }
+    list($masterCourses, $degree) = getUserInfo();
 
-    $tabs = Tab::getFromDB($userID);
+    $tabs = Tab::getFromDB();
     if(empty($tabs)) {
         $tab = Tab::getFromID();
         foreach($degree as $deg) {
-            $tab->addDegree($majors[$deg]["ID"]);
+            $tab->addDegree($main->majors[$deg]["ID"]);
         }
         $tabs[] = $tab;
     }
     if(isset($_REQUEST["degree"])) {
+        $tabs[0]->clearDegrees();
         foreach($_REQUEST["degree"] as $degree) {
-            $tabs[0]->addDegree($majors[$degree]["ID"]);
+            $tabs[0]->addDegree($main->majors[$degree]["ID"]);
         }
     }
     foreach($tabs as $tab) {
@@ -186,10 +158,11 @@
 
     $smarty = new Smarty();
     $data = new Smarty_Data();
-    $data->assign("year", $year);
-    $data->assign("years", $years);
-    $data->assign("majors", $majors);
+    $data->assign("year", $main->year);
+    $data->assign("years", $main->years);
+    $data->assign("majors", $main->majors);
     $data->assign("tabs", $tabs);
+    $data->assign("activated", Main::getInstance()->activated);
 
     $smarty->display("index.tpl", $data);
 ?>

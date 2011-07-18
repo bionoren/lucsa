@@ -30,8 +30,8 @@ Beta 2
     ✓The problem is with dependency information - it's wrong for some classes, and we can't create a dependency graph in the first place
         (as useful as that would be). So, I need to fix the regex so it's capturing the actual raw dependency strings, store those in the database,
         and then replace course department/number with title in a second pass.
-Allow users to use LUCSA without logging in
-    Show the transfer credit class in the substitutable class area with the login form
+✓Allow users to use LUCSA without logging in
+    ✓Show the transfer credit class in the substitutable class area with the login form
 
 Beta 3
 Support for 0 to many majors

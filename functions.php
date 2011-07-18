@@ -13,8 +13,6 @@
 	 *	limitations under the License.
 	 */
 
-    require_once($path."db/SQLiteManager.php");
-
 	//-----------------------------
 	//	   DEBUGGING FUNCTIONS
 	//-----------------------------
@@ -69,99 +67,23 @@
         if($cache && file_exists($name)) {
             return file_get_contents($name);
         } else {
-            $ret = file_get_contents($file);
+            //suppress any warnings
+            $ret = @file_get_contents($file);
             file_put_contents($name, $ret);
             return $ret;
         }
     }
 
 	/**
-	 * Gets a list of all the majors we have data for.
-	 *
-	 * @param INTEGER $year The year to fetch data for.
-	 * @return ARRAY List of valid majors.
-	 */
-    function getMajors($year) {
-        $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='1' ORDER BY name");
-        $majors = array();
-        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $majors[$row["acronym"]] = $row;
-        }
-        return $majors;
-    }
-
-	/**
-	 * Gets a list of all the minors we have data for.
-	 *
-	 * @param INTEGER $year The year to fetch data for.
-	 * @return ARRAY List of valid minors.
-	 */
-    function getMinors($year) {
-        $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID, name, acronym FROM degrees WHERE yearID='".$year."' AND type='2' ORDER BY name");
-        $minors = array();
-        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $minors[$row["acronym"]] = $row;
-        }
-        return $minors;
-    }
-
-    /**
-     * Gets the user's ID either from the session or from database.
-     *
-     * @param SQLiteManager $db Database connection object.
-     * @return INTEGER The user's ID.
-     */
-    function getUserID(SQLiteManager $db) {
-        if(!empty($_SESSION["userID"])) {
-            $userID = $_SESSION["userID"];
-        } else {
-            if(isset($_SERVER['PHP_AUTH_USER'])) {
-                //we need the name to be consistent
-                $name = encrypt($_SERVER["PHP_AUTH_USER"], md5($_SERVER["PHP_AUTH_USER"]));
-                $result = $db->query("SELECT ID FROM users WHERE user='".$name."'");
-                $row = $result->fetchArray(SQLITE3_ASSOC);
-                if($row != false) {
-                    $userID = $_SESSION["userID"] = $row["ID"];
-                } else {
-                    $db->insert("users", array("user"=>$name));
-                    $userID = $_SESSION["userID"] = $db->getLastInsertID();
-                }
-                unset($salt);
-                unset($name);
-            }
-        }
-
-        return $userID;
-    }
-
-	/**
-	 * Gets a list of all the years we have data for.
-	 *
-	 * @return ARRAY List of valid years.
-	 */
-    function getYears() {
-        $db = SQLiteManager::getInstance();
-        $result = $db->query("SELECT ID,year FROM years ORDER BY year DESC");
-        $years = array();
-        while($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $years[$row["ID"]] = $row["year"];
-        }
-        return $years;
-    }
-
-	/**
 	 * Translates between the CXWeb version of your major's title and the course catalog's version.
 	 *
-	 * @param ARRAY $majors List of majors in the catalog.
 	 * @param STRING $major What CXWeb thinks your major is.
 	 * @return STRING $major The key for your major, but from the catalog.
 	 */
-    function guessMajor(array $majors, $major) {
+    function guessMajor($major) {
         $min = 1000;
         $ret = "";
-        foreach($majors as $key=>$mjr) {
+        foreach(Main::getInstance()->majors as $key=>$mjr) {
             $try = levenshtein($major, $mjr["name"], 1, 6, 6);
             if($try < $min) {
                 $min = $try;
@@ -177,19 +99,18 @@
      * Deletes any previous substitutions on this class. If $subID is null, simply removes
      * any existing substitutions on the old class.
      *
-     * @param INTEGER $userID The ID of the user.
      * @param INTEGER $origID The ID of the original class.
      * @param INTEGER $subID The ID of the class to substitute (if any).
      * @return VOID
      */
-    function substituteClass($userID, $origID, $subID=null) {
+    function substituteClass($origID, $subID=null) {
         if(!empty($subID)) {
-            $fields["userID"] = $userID;
+            $fields["userID"] = Main::getInstance()->userID;
             $fields["oldClassID"] = $origID;
             $fields["newClassID"] = $subID;
             SQLiteManager::getInstance()->insert("userClassMap", $fields);
         } else {
-            SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=$userID AND oldClassID=$origID");
+            SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID=".Main::getInstance()->userID." AND oldClassID=$origID");
         }
     }
 
@@ -221,19 +142,18 @@
      * @return VOID
      */
     function updateDegreeSemesters($degree, $oldSem, $newSem) {
-        $db = SQLiteManager::getInstance();
-        $numSemesters = $db->select("degrees", array("numSemesters"), array("ID"=>$degree))->fetchArray(SQLITE3_NUM);
+        $numSemesters = SQLiteManager::getInstance()->select("degrees", array("numSemesters"), array("ID"=>$degree))->fetchArray(SQLITE3_NUM);
         $numSemesters = $numSemesters[0];
         //check to see if we need more semesters
         if($newSem > $numSemesters) {
-            $db->update("degrees", array("numSemesters"=>$newSem), array("ID"=>$degree));
+            SQLiteManager::getInstance()->update("degrees", array("numSemesters"=>$newSem), array("ID"=>$degree));
         } elseif($oldSem == $numSemesters) {
             //check to see if we need less semesters
-            $result = $db->select("degreeCourseMap", array("ID"), array("degreeID"=>$degree, "semester"=>$oldSem));
+            $result = SQLiteManager::getInstance()->select("degreeCourseMap", array("ID"), array("degreeID"=>$degree, "semester"=>$oldSem));
             if(!$result->fetchArray(SQLITE3_NUM)) {
                 $lastSemesterSQL = "SELECT semester FROM degreeCourseMap WHERE degreeID=$degree ORDER BY semester DESC LIMIT 1";
                 $sql = "UPDATE degrees SET numSemesters = ($lastSemesterSQL) WHERE ID=$degree";
-                $db->query($sql);
+                SQLiteManager::getInstance()->query($sql);
             }
         }
     }

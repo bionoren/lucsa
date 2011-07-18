@@ -80,8 +80,8 @@
          * @param INTEGER $user The ID of user who has taken said classes.
          * @return VOID
          */
-		public function applySubstitions($user) {
-			$mapping = CourseSequence::getUserClassMap($user);
+		public function applySubstitions() {
+			$mapping = CourseSequence::getUserClassMap();
 			$mapping->sort();
             $this->completeHours = 0;
             foreach($this->semesters as $semester) {
@@ -93,15 +93,13 @@
         /**
          * Returns an array mapping IDs from classes in a course sequence to classes that have been taken to complete them.
          *
-         * @param INTEGER $user ID of the user who has taken classes.
          * @return ClassList Mapping of IDs from classes that should be taken to classes that have been taken.
          */
-		protected static function getUserClassMap($user) {
-			$db = SQLiteManager::getInstance();
+		protected static function getUserClassMap() {
             //evaluate user-defined substitutions and substitutions from notes
             //need to translate classTaken department and number keys into a DB class key
             $ret = new ClassList();
-            $result = $db->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".$user);
+            $result = SQLiteManager::getInstance()->query("SELECT oldClassID, newClassID FROM userClassMap WHERE userID=".Main::getInstance()->userID);
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $ret[$row["oldClassID"]] = $row["newClassID"];
             }
@@ -115,12 +113,11 @@
          * @return CourseSequence New course sequence from the db row.
          */
         public static function getFromID($id) {
-            $db = SQLiteManager::getInstance();
             $sql = "SELECT degrees.*, years.year
                     FROM degrees
                     JOIN years ON degrees.yearID=years.ID
                     WHERE degrees.ID=".$id;
-            $result = $db->query($sql);
+            $result = SQLiteManager::getInstance()->query($sql);
             return new CourseSequence($result->fetchArray(SQLITE3_ASSOC));
         }
 
