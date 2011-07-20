@@ -71,6 +71,8 @@
         //SECURITY NOTE: Remove this in production!
 //        $data = getCache("saved_cache/stugrdsa.cgi.html", false);
         $data = getCache("https://".$username.":".$password."@cxweb.letu.edu/cgi-bin/student/stugrdsa.cgi", false);
+        unset($_REQUEST["username"]);
+        unset($_REQUEST["password"]);
         if(empty($data)) {
             return false;
         }
@@ -87,7 +89,7 @@
             }
         }
         $matches = array();
-        preg_match_all("/\<td.*?\>(?P<dept>\w{4})(?P<course>\d{4})(?:\s*\<.*?\<.*?\>){2}(?P<title>.*?)\s*\</is", $data, $matches, PREG_SET_ORDER);
+        preg_match_all("/\<td[^\>]*\>(?P<dept>\w{3,4})(?P<course>\d{3,4})(?:[^\<]*\<td[^\>]*\>){2}(?P<title>[^\<]*?)\s*\<td/is", $data, $matches, PREG_SET_ORDER);
         unset($data);
         $courses = new ClassList();
         foreach($matches as $matchset) {
@@ -131,7 +133,7 @@
     $main = Main::getInstance();
 
     if(isset($_POST["clearClasses"])) {
-        Main::db()->query("DELETE FROM userClassMap WHERE userID='".$main->userID."'");
+        SQLiteManager::getInstance()->query("DELETE FROM userClassMap WHERE userID='".$main->userID."'");
     }
 
     //get the list of classes the user is already enrolled in and their currently declared degree(s)

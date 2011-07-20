@@ -118,10 +118,10 @@
                 $this->substitute = $this->substitute->filter(function($class) use ($substitutes) {
                     return !isset($substitutes[$class->getID()]);
                 });
-                $this->substitute->sort();
             }
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
             $this->substitute[$transferClass->getID()]->isSubstitute = false;
+            $this->substitute->sort();
 
             if($this->modified) {
                 SQLiteManager::getInstance()->update("userTabs", array("degreeList"=>implode(Tab::DEGREE_SEPERATOR, array_keys($this->sequences))), array("ID"=>$this->id));

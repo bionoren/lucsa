@@ -13,10 +13,10 @@
 	 *	limitations under the License.
 	 */
 
-    unset($_SERVER['PHP_AUTH_USER']);
+    setcookie("userID", $_COOKIE["userID"], time()-60);
     session_start();
     $path = "./";
-    unset($_SESSION["userID"]);
+    session_destroy();
     session_write_close();
     require_once($path."functions.php");
     require_once($path."db/SQLiteManager.php");
