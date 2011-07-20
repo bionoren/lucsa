@@ -141,11 +141,13 @@
 
     $tabs = Tab::getFromDB();
     if(empty($tabs)) {
-        $tab = Tab::getFromID();
+        $tabs[] = Tab::getFromID();
+    }
+    $tabDegrees = $tabs[0]->getDegrees();
+    if(empty($tabDegrees)) {
         foreach($degree as $deg) {
-            $tab->addDegree($main->majors[$deg]["ID"]);
+            $tabs[0]->addDegree($main->majors[$deg]["ID"]);
         }
-        $tabs[] = $tab;
     }
     if(isset($_REQUEST["degree"])) {
         $tabs[0]->clearDegrees();
