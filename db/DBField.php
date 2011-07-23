@@ -13,12 +13,18 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
+
     /**
      * Manages creating and modifying a SQLite table field.
      *
      * @author Bion Oren
+     *
+     * @property-read STRING $name The name of this field.
+     * @property-read BOOLEAN $indexed True if this field should be indexed.
+     * @property-read BOOLEAN $unique True if this field is unique.
      */
-    class DBField {
+    class DBField extends Object {
         /** STRING Constant for a text data type. */
         const STRING = "TEXT";
         /** STRING Constant for an integer data type. */
@@ -39,7 +45,7 @@
         /** BOOLEAN True if this field should be indexed. */
         protected $indexed;
         /** BOOLEAN True if this is the primary key. */
-        protected $primary;
+        public $primary;
 
         /**
          * Creates a new field manager.
@@ -80,49 +86,10 @@
                 }
                 $ret .= " ON UPDATE CASCADE ON DELETE CASCADE";
             }
-            if($this->isPrimary()) {
+            if($this->primary) {
                 $ret .= " PRIMARY KEY";
             }
             return $ret;
-        }
-
-        /**
-         * Returns the name of this field.
-         *
-         * @return STRING field name.
-         */
-        public function getName() {
-            return $this->name;
-        }
-
-        /**
-         * Getter for indexed
-         *
-         * @return BOOLEAN
-         * @see indexed
-         */
-        public function isIndexed() {
-            return $this->indexed;
-        }
-
-        /**
-         * Getter for primary
-         *
-         * @return BOOLEAN
-         * @see primary
-         */
-        public function isPrimary() {
-            return $this->primary;
-        }
-
-        /**
-         * Getter for unique
-         *
-         * @return BOOLEAN
-         * @see unique
-         */
-        public function isUnique() {
-            return $this->unique;
         }
 
         /**
@@ -135,16 +102,6 @@
             if(!$this->unique) {
                 $this->indexed = true;
             }
-        }
-
-        /**
-         * Makes this field primary
-         *
-         * @return VOID
-         * @see primary
-         */
-        public function setPrimary() {
-            $this->primary = true;
         }
 
         /**

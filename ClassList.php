@@ -21,12 +21,14 @@
      * performance bottleneck...
      */
 
+    require_once($path."Object.php");
+
     /**
      * Defines an associative array of classes that may contain duplicates.
      *
      * @author Bion Oren
      */
-    class ClassList implements ArrayAccess, Countable, Iterator {
+    class ClassList extends Object implements ArrayAccess, Countable, Iterator {
         /** ARRAY Internal class structure of the form $classes[KEY] = array(item, item, ...). */
         protected $classes = array();
         /** INTEGER Number of elements in the array. */
@@ -41,7 +43,7 @@
          */
         public function __construct(array $vals=array()) {
             foreach($vals as $val) {
-                $this[$val->getID()] = $val;
+                $this[$val->ID] = $val;
             }
         }
 
@@ -134,7 +136,7 @@
         protected function filterHelper(ClassList $classes, $function) {
             foreach($classes as $class) {
                 if($function($class)) {
-                    $this[$class->getID()] = $class;
+                    $this[$class->ID] = $class;
                 }
             }
             return $this;
@@ -187,7 +189,7 @@
          * @return STRING Item key.
          */
         public function key() {
-            return $this->current()->getID();
+            return $this->current()->ID;
         }
 
         /**

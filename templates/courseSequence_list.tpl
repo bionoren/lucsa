@@ -1,6 +1,6 @@
 {extends file="courseSequence.tpl"}
 {block name="classInfo"}
-    {$allClasses = $cs->getClasses()}
+    {$allClasses = $cs->classes}
     {$allClasses->sort()}
     {$count = floor(count($allClasses)/2)}
     <tr style="vertical-align:top;">

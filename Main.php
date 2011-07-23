@@ -13,9 +13,18 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
     require_once($path."db/SQLiteManager.php");
 
-    class Main {
+    /**
+     * @property-read ARRAY $majors
+     * @property-read INTEGER $year
+     * @property-read ARRAY $years
+     * @property-read INTEGER $yearID
+     * @property-read INTEGER $userID
+     * @property-read BOOLEAN $activated
+     */
+    class Main extends Object {
         protected $majors;
         protected $year;
         protected $years;
@@ -44,17 +53,6 @@
                 Main::$singleton = new Main();
             }
             return Main::$singleton;
-        }
-
-        public function __get($name) {
-            if(property_exists($this, $name)) {
-                return $this->$name;
-            }
-
-            $trace = debug_backtrace();
-            trigger_error('Undefined property via __get(): '.$name.' in '.$trace[0]['file'].' on line '.$trace[0]['line'], E_USER_NOTICE);
-            debug_print_backtrace();
-            return null;
         }
 
         /**

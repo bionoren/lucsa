@@ -13,10 +13,20 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
     require_once($path."ClassList.php");
     require_once($path."Course.php");
 
-    class Semester {
+    /**
+     * Manages interactions with a semester.
+     *
+     * @author Bion Oren
+     * @property-read ClassList $classes List of classes in this semester.
+     * @property-read INTEGER $completedHours Number of completed hours.
+     * @property-read INTEGER $hours Total number of hours.
+     * @property-read INTEGER $order The numerical order of this semester in a course sequence.
+     */
+    class Semester extends Object {
         /** ARRAY 12 numerical strings to identify semesters. */
         public static $CARDINAL_STRINGS = array("First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh", "Twelth");
 
@@ -29,7 +39,7 @@
         /** INTEGER Index into $SEMESTERS for fall. */
         const FALL = 2;
 
-        /** ARRAY List of classes in this semester. */
+        /** ClassList List of classes in this semester. */
         protected $classes;
         /** INTEGER Number of completed hours. */
         protected $completedHours = 0;
@@ -41,9 +51,9 @@
          * INTEGER The type of semester this is.
          * @see $SEMESTERS
          */
-        protected $semesterID;
+        public $semesterID;
         /** INTEGER The year this semester is supposed to occur in. */
-        protected $year;
+        public $year;
 
         /**
          * Constructs a new semester from a list of classes.
@@ -64,10 +74,10 @@
          * @return VOID
          */
         public function addClass(Course $class) {
-            $this->classes[$class->getID()] = $class;
-            $this->hours += $class->getHours();
+            $this->classes[$class->ID] = $class;
+            $this->hours += $class->hours;
             if($class->isComplete()) {
-                $this->completedHours += $class->getHours();
+                $this->completedHours += $class->hours;
             }
         }
 
@@ -80,7 +90,7 @@
          */
         public function completeClass(Course $class, Course $completingClass) {
             $class->setComplete($completingClass);
-            $this->completedHours += $class->getHours();
+            $this->completedHours += $class->hours;
         }
 
         /**
@@ -96,31 +106,11 @@
                     $new = $mapping[$old];
                     $this->completeClass($class, $classes[$new]);
                     unset($mapping[$old]);
-                    if(!($classes[$new]->getDepartment() == "LETU" && $classes[$new]->getNumber() == "4999")) {
+                    if(!($classes[$new]->department == "LETU" && $classes[$new]->number == "4999")) {
                         unset($classes[$new]);
                     }
                 }
             }
-        }
-
-        /**
-         * Getter for the class array.
-         *
-         * @return ARRAY List of classes.
-         * @see classes
-         */
-        public function getClasses() {
-            return $this->classes;
-        }
-
-        /**
-         * Getter for the number of completed hours.
-         *
-         * @return INTEGER Number of completed hours.
-         * @see completedHours
-         */
-        public function getCompletedHours() {
-            return $this->completedHours;
         }
 
         /**
@@ -141,31 +131,11 @@
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $class = Course::getFromID($row["courseID"]);
                 if(!empty($row["notes"])) {
-                    $class->setNoteID($notes->add($row["notes"]));
+                    $class->noteID = $notes->add($row["notes"]);
                 }
                 $classes[] = $class;
             }
             return new Semester($classes, $semester);
-        }
-
-        /**
-         * Getter for the number of hours.
-         *
-         * @return INTEGER Number of hours.
-         * @see hours
-         */
-        public function getHours() {
-            return $this->hours;
-        }
-
-        /**
-         * Getter for the type of this semester
-         *
-         * @return INTEGER Semester type
-         * @see semesterID
-         */
-        public function getID() {
-            return $this->semesterID;
         }
 
         /**
@@ -177,19 +147,10 @@
             $ret = new ClassList();
             foreach($this->classes as $class) {
                 if(!$class->isComplete()) {
-                    $ret[$class->getID()] = $class;
+                    $ret[$class->ID] = $class;
                 }
             }
             return $ret;
-        }
-
-        /**
-         * Returns this semester's order in the course sequence.
-         *
-         * @return INTEGER Semester order.
-         */
-        public function getOrder() {
-            return $this->order;
         }
 
         /**
@@ -202,23 +163,13 @@
         }
 
         /**
-         * Getter for the year for this semester
-         *
-         * @return INTEGER Semester year
-         * @see year
-         */
-        public function getYear() {
-            return $this->year;
-        }
-
-        /**
          * Checks to see if a class is in this semester.
          *
          * @param Course $class Class to search for.
          * @return BOOLEAN True if the class is in this semester.
          */
         public function hasClass(Course $class) {
-            return isset($this->classes[$class->getID()]);
+            return isset($this->classes[$class->ID]);
         }
 
         /**
@@ -229,33 +180,11 @@
          */
         public function removeClass($id) {
             $class = $this->classes[$id];
-            $this->hours -= $class->getHours();
+            $this->hours -= $class->hours;
             if($class->isComplete()) {
-                $this->completedHours -= $class->getHours();
+                $this->completedHours -= $class->hours;
             }
             unset($this->classes[$id]);
-        }
-
-        /**
-         * Setter for the semester type.
-         *
-         * @param INTEGER $semesterID Semester type.
-         * @return VOID
-         * @see semesterID
-         */
-        public function setSemester($semesterID) {
-            $this->semesterID = $semesterID;
-        }
-
-        /**
-         * Setter for the year.
-         *
-         * @param INTEGER $year Year.
-         * @return VOID
-         * @see year
-         */
-        public function setYear($year) {
-            $this->year = $year;
         }
     }
 ?>

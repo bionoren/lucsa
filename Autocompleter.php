@@ -1,5 +1,7 @@
 <?php
-    class Autocompleter {
+    require_once($path."Object.php");
+
+    class Autocompleter extends Object {
         protected $classesTaken;
         protected $requirements;
         protected $notes;
@@ -19,15 +21,13 @@
         /**
          * Applies direct substitutions (course numbers or titles equivalent)
          *
-         * THIS IS NOT TESTED!
-         *
          * @return VOID
          */
         protected function subFromID() {
             //Identical classes must be valid substitutes. Seeing as they're identical...
             foreach($this->requirements as $key=>$class) {
                 if(isset($this->classesTaken[$key])) {
-                    substituteClass($class->getID(), $this->classesTaken[$key]->getID());
+                    substituteClass($class->ID, $this->classesTaken[$key]->ID);
                 }
             }
         }
@@ -41,11 +41,11 @@
                     if($class2->isSubstitute) {
                         continue;
                     }
-                    $note = $this->notes->getNote($class->getNoteID());
+                    $note = $this->notes->getNote($class->noteID);
                     if(!empty($note) && preg_match("/(\w{4})\s*(\d{4}).*(\w{4})\s*(\d{4})/isS", $note, $matches)) {
                         //explicit course substitution
-                        if($class2->getDepartment() == $matches[1] && $class2->getNumber() == $matches[2]) {
-                            substituteClass($class->getID(), $class2->getID());
+                        if($class2->department == $matches[1] && $class2->number == $matches[2]) {
+                            substituteClass($class->ID, $class2->ID);
                             break;
                         }
                     }
@@ -62,10 +62,10 @@
                     if($class2->isSubstitute) {
                         continue;
                     }
-                    if($class->getNumber()) {
+                    if($class->number) {
                         //title & department matching (they change the middle two number sometimes, seemingly for no good reason...
-                        if($class->getDepartment() == $class2->getDepartment() && $class->getTitle() == $class2->getTitle()) {
-                            substituteClass($class->getID(), $class2->getID());
+                        if($class->department == $class2->department && $class->title == $class2->title) {
+                            substituteClass($class->ID, $class2->ID);
                             break;
                         }
                     }
@@ -74,8 +74,8 @@
         }
 
         /*
-        if($class->getDepartment() == $class2->getDepartment() && $class->getHours() <= $class2->getHours()) {
-            substituteClass($user, $class->getID(), $class2->getID());
+        if($class->department == $class2->department && $class->hours <= $class2->hours) {
+            substituteClass($user, $class->ID, $class2->ID);
             $this->completeClass($class, $class2);
             break;
         }*/

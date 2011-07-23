@@ -1,14 +1,14 @@
 {* @param Course $class *}
 {* @param INTEGER $year *}
 
-<div class="courseSub" data-id="{$class->getID()}" data-dept="{$class->getDepartment()}" data-num="{$class->getNumber()}">
+<div class="courseSub" data-id="{$class->ID}" data-dept="{$class->department}" data-num="{$class->number}">
     <span class="classDepartment">
-        {$class->getDepartment()}
+        {$class->department}
     </span>
     <span class="classNumber">
-        | {$class->getNumber()}
+        | {$class->number}
     </span>
     <span class="classTitle">
-        | {$class->getTitle()}
+        | {$class->title}
     </span>
 </div>

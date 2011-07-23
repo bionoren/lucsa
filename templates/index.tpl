@@ -17,7 +17,7 @@
 {foreach $tabs as $tab}
     <div id="tab{$tab@iteration}">
         <div id="classSubs{$tab@iteration}" style="float:left; width:250px; font-size:12px;">
-            {if count($tab->getSubstitutes()) > 1}
+            {if count($tab->substitutes) > 1}
                 <form method="post" action=".">
                     <input type="hidden" name="reset" value="1"/>
                     <input type="hidden" name="year" value="{$year}"/>
@@ -44,13 +44,13 @@
 
             {$dept = null}
             {$lastTitle = ""}
-            {foreach $tab->getSubstitutes() as $class}
-                {if $class->getDepartment() != $dept}
-                    {$dept = $class->getDepartment()}
+            {foreach $tab->substitutes as $class}
+                {if $class->department != $dept}
+                    {$dept = $class->department}
                     <div class="deptHeader">{$dept}</div>
                 {/if}
-                {if $lastTitle != $class->getTitle()}
-                    {$lastTitle = $class->getTitle()}
+                {if $lastTitle != $class->title}
+                    {$lastTitle = $class->title}
                     <div id="{$class->getUID()}" class="incompleteClass">
                         {include file="course_sub.tpl"}
                     </div>
@@ -62,7 +62,7 @@
             </form>
         </div>
         <div style="display:inline;">
-            {foreach $tab->getDegrees() as $courseSequence}
+            {foreach $tab->degrees as $courseSequence}
                 {if empty($smarty.get.disp) || $smarty.get.disp == "summary"}
                     {include file="courseSequence_summary.tpl" cs=$courseSequence}
                 {elseif $smarty.get.disp == "list"}
@@ -78,7 +78,7 @@
                         {/foreach}
                     </select>
                     <br/>
-                    {$degrees = $tab->getDegrees()}
+                    {$degrees = $tab->degrees}
                     Major: <select name="degree[]">
                         {foreach $majors as $key=>$deg}
                             <option value="{$key}"{if array_key_exists($deg.ID, $degrees)} selected='selected'{/if}>{$deg.name} ({$key})</option>

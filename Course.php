@@ -13,12 +13,24 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
+
     /**
      * Manages interactions with an individual class.
      *
      * @author Bion Oren
+     * @property-read Course $completeClass A Course object which was taken to complete this course.
+     * @property-read STRING $department The 4 letter department code for this class.
+     * @property-read STRING $departmentlinkid The magic code used to link back to this department in the LETU catalog.
+     * @property-read INTEGER $hours The number of credit hours this course is worth.
+     * @property-read INTEGER $ID The primary key for this class in the database.
+     * @property-read STRING $linkid The magic code linking this course back to the LETU catalog.
+     * @property-read INTEGER $number The number for this course.
+     * @property-read INTEGER $offered Status of semesters this course is offered.
+     * @property-read STRING $title Course title.
+     * @property-read INTEGER $years Status of years this course is offered.
      */
-    class Course {
+    class Course extends Object {
         /** STRING Cached query used to fetch class information from the database. */
         const fetchSQL = "SELECT classes.*,
                        departments.department, departments.linkid AS deptlinkid
@@ -39,7 +51,7 @@
         protected $departmentlinkid;
         /** ARRAY List of course dependencies, keyed by the dependency constants in this class. */
         protected $dependencies;
-        /** INTEGER The number of credit hours this course is worth*/
+        /** INTEGER The number of credit hours this course is worth. */
         protected $hours;
         /** INTEGER The primary key for this class in the database. */
         protected $ID;
@@ -48,7 +60,7 @@
         /** STRING The magic code linking this course back to the LETU catalog. */
         protected $linkid;
         /** INTEGER The ID of a note associated with this class. */
-        protected $noteID = null;
+        public $noteID = null;
         /** INTEGER The number for this course. */
         protected $number;
         /**
@@ -93,16 +105,7 @@
          * @return BOOLEAN True if they are essentially equal.
          */
         public function equals(Course $class) {
-            return $class->getID() == $this->getID() && $class->getTitle() == $this->getTitle();
-        }
-
-        /**
-         * Returns the class completing this one.
-         *
-         * @return Course Completing class (if any).
-         */
-        public function getCompleteClass() {
-            return $this->completeClass;
+            return $class->ID == $this->ID && $class->title == $this->title;
         }
 
         /**
@@ -113,26 +116,6 @@
          */
         public function getCorequisites() {
             return $this->dependencies[Course::COREQ];
-        }
-
-        /**
-         * Getter for the department.
-         *
-         * @return STRING Department code.
-         * @see department
-         */
-        public function getDepartment() {
-            return $this->department;
-        }
-
-        /**
-         * Getter for the department linkID.
-         *
-         * @return STRING Link ID.
-         * @see departmentLinkID
-         */
-        public function getDepartmentLink() {
-            return $this->departmentlinkid;
         }
 
         /**
@@ -173,26 +156,6 @@
         }
 
         /**
-         * Getter for the class hours.
-         *
-         * @return INTEGER Credit hours.
-         * @see hours
-         */
-        public function getHours() {
-            return $this->hours;
-        }
-
-        /**
-         * Getter for the class ID.
-         *
-         * @return INTEGER ID.
-         * @see ID
-         */
-        public function getID() {
-            return $this->ID;
-        }
-
-        /**
          * Returns this classes' department and number together.
          *
          * @return STRING DepartmentNumber course identifier.
@@ -200,48 +163,8 @@
          * @see getNumber()
          */
         public function getLabel() {
-			return $this->getDepartment().$this->getNumber();
+			return $this->department.$this->number;
 		}
-
-        /**
-         * Getter for the class link.
-         *
-         * @return STRING Catalog link.
-         * @see linkid
-         */
-        public function getLink() {
-            return $this->linkid;
-        }
-
-        /**
-         * Getter for the note ID
-         *
-         * @return INTEGER Note ID.
-         * @see noteID
-         */
-        public function getNoteID() {
-            return $this->noteID;
-        }
-
-        /**
-         * Getter for the class number.
-         *
-         * @return INTEGER Class number.
-         * @see number
-         */
-        public function getNumber() {
-            return $this->number;
-        }
-
-        /**
-         * Getter for the class' semester offered status.
-         *
-         * @return INTEGER Semester offered status.
-         * @see offered
-         */
-        public function getOffered() {
-            return $this->offered;
-        }
 
         /**
          * Returns a list of this class' dependencies that can be either prerequisites or corequisites.
@@ -264,33 +187,13 @@
         }
 
         /**
-         * Getter for the class title.
-         *
-         * @return STRING Class title.
-         * @see title
-         */
-        public function getTitle() {
-            return $this->title;
-        }
-
-        /**
          * Returns a unique ID for this class instance.
          *
          * @return STRING UID.
          * @see uid
          */
         public function getUID() {
-            return $this->getID()."_".$this->uid;
-        }
-
-        /**
-         * Getter for the class' yearly offered status.
-         *
-         * @return INTEGER Yearly offered status.
-         * @see years
-         */
-        public function getYears() {
-            return $this->years;
+            return $this->ID."_".$this->uid;
         }
 
         /**
@@ -314,24 +217,13 @@
         }
 
         /**
-         * Associates this class with a note.
-         *
-         * @param INTEGER $id Note ID.
-         * @return VOID
-         * @see noteID
-         */
-        public function setNoteID($id) {
-            $this->noteID = $id;
-        }
-
-        /**
          * Sets up course dependencies for this class.
          *
          * @return VOID
          */
         protected function setupDependencies() {
             $this->dependencies = array();
-            $result = SQLiteManager::getInstance()->query("SELECT type, data FROM classDependencyMap WHERE classID = '".$this->getID()."'");
+            $result = SQLiteManager::getInstance()->query("SELECT type, data FROM classDependencyMap WHERE classID = '".$this->ID."'");
             while($row = $result->fetchArray(SQLITE3_ASSOC)) {
                 $this->dependencies[$row["type"]] = $row["data"];
             }
@@ -343,7 +235,7 @@
          * @return STRING Debug string.
          */
         public function __toString() {
-            return $this->getDepartment().$this->getNumber()." - ".$this->getTitle();
+            return $this->department.$this->number." - ".$this->title;
         }
     }
 ?>

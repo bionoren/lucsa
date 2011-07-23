@@ -44,7 +44,7 @@
 
         $takenCourse = Course::getFromID($_REQUEST["takenClassID"]);
         if($_REQUEST["needDept"] == "true") {
-            print '<div class="deptHeader">'.$takenCourse->getDepartment().'</div>';
+            print '<div class="deptHeader">'.$takenCourse->department.'</div>';
         }
         print '<div id="'.$takenCourse->getUID().'" class="incompleteClass">';
             $smarty = new Smarty();

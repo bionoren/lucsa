@@ -8,3 +8,4 @@ documentation/*
 templates_c
 sqliteTest.php
 layout/libs/compiled.js
+deploy.sh

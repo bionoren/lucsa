@@ -13,6 +13,7 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
     require_once($path."CourseSequence.php");
     require_once($path."db/SQLiteManager.php");
     require_once($path."Autocompleter.php");
@@ -21,8 +22,10 @@
      * Associates majors and minors in a single tab.
      *
      * @author Bion Oren
+     * @property Array $degrees List of CourseSequence objects aggregated in this tab.
+     * @property ClassList $substitutes List of classes that are available to substitute for a class.
      */
-    class Tab {
+    class Tab extends Object {
         const DEGREE_SEPERATOR = ",";
 
         /** INTEGER The number of the last tab. */
@@ -34,12 +37,12 @@
         protected $modified = false;
         /** INTEGER This tab's order in the tab bar. */
         protected $number;
-        /** CourseSequence The master course sequence (aggregates $sequences). */
+        /** CourseSequence The master course sequence (aggregates $degrees). */
         protected $cs;
         /** ARRAY List of CourseSequence objects aggregated in this tab. */
-        protected $sequences = array();
+        protected $degrees = array();
         /** ClassList List of classes that are available to substitute for a class. */
-        protected $substitute;
+        protected $substitutes;
 
         /**
          * Constructs a new tab.
@@ -54,7 +57,7 @@
             }
             $this->id = $id;
             $this->number = $number;
-            $this->substitute = new ClassList();
+            $this->substitutes = new ClassList();
             foreach($degrees as $degree) {
                 $this->addDegree($degree);
             }
@@ -69,8 +72,8 @@
          */
         public function addDegree($degree) {
             $courseSequence = CourseSequence::getFromID($degree);
-            $courseSequence->setClassesTaken($this->substitute);
-            $this->sequences[$courseSequence->getID()] = $courseSequence;
+            $courseSequence->setClassesTaken($this->substitutes);
+            $this->degrees[$courseSequence->ID] = $courseSequence;
             $this->modified = true;
             $this->cs = $courseSequence;
         }
@@ -82,7 +85,7 @@
          */
         protected function autocomplete() {
             $this->cs->applySubstitions();
-            $autocompleter = new Autocompleter($this->substitute, $this->cs->getClasses(), $this->cs->getNotes());
+            $autocompleter = new Autocompleter($this->substitutes, $this->cs->getClasses(), $this->cs->notes);
             $autocompleter->substitute();
         }
 
@@ -92,7 +95,7 @@
          * @return VOID
          */
         public function clearDegrees() {
-            $this->sequences = array();
+            $this->degrees = array();
             $this->modified = true;
             $this->cs = null;
         }
@@ -113,28 +116,19 @@
                 $temp = $this->cs->getClasses()->filter(function(Course $class) { return $class->isComplete(); });
                 $substitutes = new ClassList();
                 foreach($temp as $class) {
-                    $substitutes[$class->getCompleteClass()->getID()] = $class->getCompleteClass();
+                    $substitutes[$class->completeClass->ID] = $class->completeClass;
                 }
-                $this->substitute = $this->substitute->filter(function($class) use ($substitutes) {
-                    return !isset($substitutes[$class->getID()]);
+                $this->substitutes = $this->substitutes->filter(function($class) use ($substitutes) {
+                    return !isset($substitutes[$class->ID]);
                 });
             }
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-            $this->substitute[$transferClass->getID()]->isSubstitute = false;
-            $this->substitute->sort();
+            $this->substitutes[$transferClass->ID]->isSubstitute = false;
+            $this->substitutes->sort();
 
             if($this->modified) {
-                SQLiteManager::getInstance()->update("userTabs", array("degreeList"=>implode(Tab::DEGREE_SEPERATOR, array_keys($this->sequences))), array("ID"=>$this->id));
+                SQLiteManager::getInstance()->update("userTabs", array("degreeList"=>implode(Tab::DEGREE_SEPERATOR, array_keys($this->degrees))), array("ID"=>$this->id));
             }
-        }
-
-        /**
-         * Returns the list of CourseSequences in this tab.
-         *
-         * @return Array List of CourseSequence objects.
-         */
-        public function getDegrees() {
-            return $this->sequences;
         }
 
         /**
@@ -179,25 +173,15 @@
         }
 
         /**
-         * Returns the list of classes available as substitutes.
-         *
-         * @return ClassList List of substitutable classes.
-         * @see substitute
-         */
-        public function getSubstitutes() {
-            return $this->substitute;
-        }
-
-        /**
          * Sets the list of classes the user has taken.
          * @param ClassList $classesTaken Classes taken.
          * @return VOID
          */
         public function setClassesTaken(ClassList $classesTaken) {
-            $this->substitute = $classesTaken;
+            $this->substitutes = $classesTaken;
             $transferClass = Course::getFromDepartmentNumber("LETU", "4999", "Transfer Credit");
-            if(empty($this->classesTaken[$transferClass->getID()])) {
-                $this->substitute[$transferClass->getID()] = $transferClass;
+            if(empty($this->substitutes[$transferClass->ID])) {
+                $this->substitutes[$transferClass->ID] = $transferClass;
             }
             if($this->cs) {
                 $this->cs->setClassesTaken($classesTaken);

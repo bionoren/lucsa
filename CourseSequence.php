@@ -13,24 +13,33 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
     require_once($path."Semester.php");
 
     /**
      * Manages interaction with a major or minor's course sequence.
      *
      * @author Bion Oren
+     * @property-read STRING $acronym The short acronym associated with this sequence.
+     * @property-read INTEGER $completedHours Number of hours completed in this sequence.
+     * @property-read INTEGER $hours Number of hours in this sequence.
+     * @property-read INTEGER $ID The primary key for this sequence in the database.
+     * @property-read STRING $linkID The magic link ID for this sequence back to the LETU catalog.
+     * @property-read STRING $name The full name for this sequence.
+     * @property-read Notes $notes Container for the notes associated with classes in this sequence.
+     * @property-read ARRAY $semesters List of semesters in this course sequence.
      */
-    class CourseSequence {
+    class CourseSequence extends Object {
         /** STRING The short acronym associated with this sequence. */
         protected $acronym;
         /** INTEGER Number of hours completed in this sequence. */
-        protected $completeHours;
+        protected $completedHours;
         /** INTEGER Number of hours in this sequence. */
         protected $hours;
         /** INTEGER The primary key for this sequence in the database. */
-        protected $id;
+        protected $ID;
         /** STRING The magic link ID for this sequence back to the LETU catalog. */
-        protected $linkid;
+        protected $linkID;
         /** STRING The full name for this sequence. */
         protected $name;
         /** Notes Container for the notes associated with classes in this sequence. */
@@ -44,6 +53,7 @@
         protected $type;
         /** INTEGER The year this course sequence is supposed to start. */
         protected $year;
+        /** ClassList List of classes that have been taken by the user. */
         protected $classesTaken = null;
 
         /**
@@ -52,9 +62,9 @@
          * @param ARRAY $row Associative array of database info.
          */
         protected function __construct(array $row) {
-            $this->id = $row["ID"];
+            $this->ID = $row["ID"];
             $this->year = $row["year"];
-            $this->linkid = $row["linkid"];
+            $this->linkID = $row["linkid"];
             $this->name = $row["name"];
             $this->acronym = $row["acronym"];
             $this->type = $row["type"]; //none, major, minor
@@ -63,13 +73,13 @@
             $semNum = Semester::FALL;
             $extra = 5-($row["numSemesters"]%3);
             for($i = 1; $i <= $row["numSemesters"]+$extra; $i++) {
-                $tmp = Semester::getFromDegree($this->id, $i, $this->notes);
-                $tmp->setYear($year);
-                $tmp->setSemester($semNum++%count(Semester::$SEMESTERS));
+                $tmp = Semester::getFromDegree($this->ID, $i, $this->notes);
+                $tmp->year = $year;
+                $tmp->semesterID = $semNum++%count(Semester::$SEMESTERS);
                 if($semNum%count(Semester::$SEMESTERS) == Semester::SPRING) {
                     $year++;
                 }
-                $this->hours += $tmp->getHours();
+                $this->hours += $tmp->hours;
                 $this->semesters[] = $tmp;
             }
         }
@@ -83,10 +93,10 @@
 		public function applySubstitions() {
 			$mapping = CourseSequence::getUserClassMap();
 			$mapping->sort();
-            $this->completeHours = 0;
+            $this->completedHours = 0;
             foreach($this->semesters as $semester) {
                 $semester->evalTaken($this->classesTaken, $mapping);
-                $this->completeHours += $semester->getCompletedHours();
+                $this->completedHours += $semester->completedHours;
             }
         }
 
@@ -122,16 +132,6 @@
         }
 
         /**
-         * Getter for the acronym.
-         *
-         * @return STRING Acronym.
-         * @see acronym
-         */
-        public function getAcronym() {
-            return $this->acronym;
-        }
-
-        /**
          * Getter for all the classes in this course sequence.
          *
          * @return ClassList List of classes.
@@ -139,41 +139,11 @@
         public function getClasses() {
             $ret = new ClassList();
             foreach($this->semesters as $sem) {
-                foreach($sem->getClasses() as $class) {
-                    $ret[$class->getID()] = $class;
+                foreach($sem->classes as $class) {
+                    $ret[$class->ID] = $class;
                 }
             }
             return $ret;
-        }
-
-        /**
-         * Getter for the completed hours.
-         *
-         * @return INTEGER Completed hours.
-         * @see completeHours
-         */
-        public function getCompletedHours() {
-            return $this->completeHours;
-        }
-
-        /**
-         * Getter for the number of hours.
-         *
-         * @return INTEGER Credit hours.
-         * @see hours
-         */
-        public function getHours() {
-            return $this->hours;
-        }
-
-        /**
-         * Getter for the primary key.
-         *
-         * @return INTEGER Primary key.
-         * @see id
-         */
-        public function getID() {
-            return $this->id;
         }
 
         /**
@@ -187,56 +157,6 @@
                 $ret = ClassList::merge($ret, $sem->getIncompleteClasses());
             }
             return $ret;
-        }
-
-        /**
-         * Getter for the class link.
-         *
-         * @return STRING Catalog link.
-         * @see linkid
-         */
-        public function getLink() {
-            return $this->linkid;
-        }
-
-        /**
-         * Getter for the name.
-         *
-         * @return STRING Name.
-         * @see name
-         */
-        public function getName() {
-            return $this->name;
-        }
-
-        /**
-         * Getter for the notes.
-         *
-         * @return Notes Note structure.
-         * @see Notes
-         */
-        public function getNotes() {
-            return $this->notes;
-        }
-
-        /**
-         * Getter for the semesters.
-         *
-         * @return ARRAY Semesters.
-         * @see semesters
-         */
-        public function getSemesters() {
-            return $this->semesters;
-        }
-
-        /**
-         * Getter for the year.
-         *
-         * @return INTEGER Year.
-         * @see year
-         */
-        protected function getYear() {
-            return $this->year;
         }
 
         public function setClassesTaken(ClassList $classesTaken) {
@@ -257,8 +177,9 @@
      * Stores a list of unique notes.
      *
      * @author Bion Oren
+     * @property-read ARRAY $notes List of note strings.
      */
-    class Notes implements Countable {
+    class Notes extends Object implements Countable {
         /** ARRAY List of note strings. */
         protected $notes = array();
 
@@ -294,15 +215,6 @@
          */
         function getNote($id) {
             return $this->notes[$id];
-        }
-
-        /**
-         * Returns a list of all the notes.
-         *
-         * @return ARRAY List of notes.
-         */
-        function getNotes() {
-            return $this->notes;
         }
 
         /**

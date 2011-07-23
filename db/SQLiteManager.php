@@ -13,6 +13,7 @@
 	 *	limitations under the License.
 	 */
 
+    require_once($path."Object.php");
     require_once($path."db/DBField.php");
 
     /**
@@ -20,7 +21,7 @@
      *
      * @author Bion Oren
      */
-    class SQLiteManager {
+    class SQLiteManager extends Object {
         /** SQLiteManager Conntainer for the singleton instance. */
         protected static $instance = null;
 
@@ -91,7 +92,7 @@
             }
             //every table gets a primary key alias to keep foreign key constraints happy
             $keyField = new DBField("ID", DBField::NUM);
-            $keyField->setPrimary();
+            $keyField->primary = true;
             array_unshift($fields, $keyField);
             //we're smacking all the tables, so force them to go away
             $this->query("PRAGMA foreign_keys = OFF");
@@ -104,12 +105,12 @@
             $sql = substr($sql, 0, -1).")";
             $this->query($sql);
             foreach($fields as $field) {
-                if($field->isUnique()) {
-                    $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                if($field->unique) {
+                    $sql = "CREATE UNIQUE INDEX IF NOT EXISTS ".$field->name." ON ".$name." (".$field->name.");";
                     $this->query($sql);
                 }
-                if($field->isIndexed()) {
-                    $sql = "CREATE INDEX IF NOT EXISTS ".$field->getName()." ON ".$name." (".$field->getName().");";
+                if($field->indexed) {
+                    $sql = "CREATE INDEX IF NOT EXISTS ".$field->name." ON ".$name." (".$field->name.");";
                     $this->query($sql);
                 }
             }
@@ -128,10 +129,10 @@
                 return;
             }
 
-            $sql = "CREATE UNIQUE INDEX ".current($fields)->getName().rand(1, 100)." ON ".$name." (";
+            $sql = "CREATE UNIQUE INDEX ".current($fields)->name.rand(1, 100)." ON ".$name." (";
             $tmp = "";
             foreach($fields as $field) {
-                $tmp .= $field->getName().",";
+                $tmp .= $field->name.",";
             }
             $sql .= substr($tmp, 0, -1).")";
             return $this->query($sql);

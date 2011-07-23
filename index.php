@@ -95,7 +95,7 @@
         foreach($matches as $matchset) {
             $class = Course::getFromDepartmentNumber($matchset["dept"], $matchset["course"], $matchset["title"]);
             if($class != null) {
-                $courses[$class->getID()] = $class;
+                $courses[$class->ID] = $class;
             }
         }
 
@@ -143,7 +143,7 @@
     if(empty($tabs)) {
         $tabs[] = Tab::getFromID();
     }
-    $tabDegrees = $tabs[0]->getDegrees();
+    $tabDegrees = $tabs[0]->degrees;
     if(empty($tabDegrees)) {
         foreach($degree as $deg) {
             $tabs[0]->addDegree($main->majors[$deg]["ID"]);
